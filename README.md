@@ -1,6 +1,3 @@
-Big Fat Nidalee Forum Releases
-============
-
 
 Big Fat Janna's Assistant
 ============
