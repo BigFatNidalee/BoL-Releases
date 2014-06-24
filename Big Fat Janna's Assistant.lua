@@ -80,7 +80,6 @@ local	SpellsDBInterrupt_Anticaplose =
 	{charName = "Quinn",  spellName = "QuinnE", endposcast = false, useult = "no", cap = 1, spellSlot = "E"},
 	{charName = "Renekton",  spellName = "RenektonSliceAndDice", endposcast = true, useult = "no", cap = 1, spellSlot = "E"},
 	{charName = "Sejuani",  spellName = "SejuaniArcticAssault", endposcast = false, useult = "no", cap = 1, spellSlot = "Q"},
-	{charName = "Shaco",  spellName = "Deceive", endposcast = true, useult = "no", cap = 1, spellSlot = "Q"},
 	{charName = "Shyvana",  spellName = "ShyvanaTransformCast", endposcast = false, useult = "no", cap = 1, spellSlot = "R"},
 	{charName = "Tryndamere",  spellName = "slashCast", endposcast = true, useult = "no", cap = 1, spellSlot = "E"},
 	{charName = "Vi",  spellName = "ViQ", endposcast = false, useult = "no", cap = 1, spellSlot = "Q"},
@@ -174,7 +173,7 @@ function OnLoad()
 	Prod = ProdictManager.GetInstance()
 	ProdQmin = Prod:AddProdictionObject(_Q, QRangeMin, QSpeed, QDelay, QWidth) 
 
-	JannaMenu = scriptConfig("Big Fat Janna", "Big Fat Janna")
+	JannaMenu = scriptConfig("Big Fat Janna's Assistant", "Big Fat Janna's Assistant")
 
 	JannaMenu:addSubMenu("[Prodiction Settings]", "ProdictionSettings")
 	JannaMenu.ProdictionSettings:addParam("UsePacketsCast","Use Packets Cast", SCRIPT_PARAM_ONOFF, true)
@@ -218,8 +217,8 @@ function OnLoad()
 	JannaMenu:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 	JannaMenu:addParam("evadee","Evadee Intergration", SCRIPT_PARAM_ONOFF, true)
 	JannaMenu:addParam("combo","Combo Key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
-	JannaMenu:addParam("harassw","Harass W", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
-	JannaMenu:addParam("castq","Spam Q Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("A"))
+	JannaMenu:addParam("harassw","Harass W", SCRIPT_PARAM_ONKEYDOWN, false, 88)
+	JannaMenu:addParam("castq","Spam Q Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, 65)
 
 
 	-- interrupter + anticap
