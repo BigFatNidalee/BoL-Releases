@@ -1,6 +1,6 @@
 if myHero.charName ~= "Janna" then return end
 
-local version = "0.02"
+local version = "0.01"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Janna's Assistant.lua".."?rand="..math.random(1,10000)
