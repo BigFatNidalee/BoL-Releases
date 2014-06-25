@@ -1,6 +1,6 @@
 if myHero.charName ~= "Janna" then return end
 	
-local version = "0.02"
+local version = "0.03"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Janna's Assistant.lua".."?rand="..math.random(1,10000)
@@ -86,7 +86,7 @@ local	SpellsDBInterrupt_Anticaplose =
 	{charName = "Thresh", spellName = "threshqleap", endposcast = false, useult = "no", cap = 1, spellSlot = "Q 2"},
     {charName = "Ahri", spellName = "AhriTumble", endposcast = true, useult = "no", cap = 1, spellSlot = "R"},
     {charName = "Kassadin", spellName = "RiftWalk", endposcast = true, useult = "no", cap = 1, spellSlot = "R"},
-    {charName = "Tristana", spellName = "RocketJump", endposcast = true, useult = "no", cap = 1, spellSlot = "W"},
+    {charName = "Tristana", spellName = "RocketJump", endposcast = false, useult = "no", cap = 1, spellSlot = "W"},
 	{charName = "Akali", spellName = "AkaliShadowDance", endposcast = true, useult = "no", cap = 1, spellSlot = "R"},
 	{charName = "Caitlyn", spellName = "CaitlynEntrapment", endposcast = false, useult = "no", cap = 1, spellSlot = "E"},
 	{charName = "Pantheon",  spellName = "PantheonW", endposcast = true, useult = "no", cap = 1, spellSlot = "W"},
@@ -519,11 +519,23 @@ function OnProcessSpell(unit, spell)
 				if spell.name == Boost.spellName and not myHero.dead and unit.team == myHero.team then
 					if JannaMenu.BoostAlliesDmgOutput[Boost.spellName] and EReady and myHero.mana >= ManaCost(E) and (GetDistance(unit) < ERange) then
 						if JannaMenu.BoostAlliesDmgOutput[Boost.spellName..0] == 1 and not mymanaislowerthen(JannaMenu.ManaSettings.Prioritylvl1) then 
-						CastE_unit()
+							if JannaMenu.ProdictionSettings.UsePacketsCast then
+							Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
+							else
+							CastSpell(_E, unit)
+							end
 						elseif JannaMenu.BoostAlliesDmgOutput[Boost.spellName..0] == 2 and not mymanaislowerthen(JannaMenu.ManaSettings.Prioritylvl2) then 
-						CastE_unit()
+							if JannaMenu.ProdictionSettings.UsePacketsCast then
+							Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
+							else
+							CastSpell(_E, unit)
+							end
 						elseif JannaMenu.BoostAlliesDmgOutput[Boost.spellName..0] == 3 and not mymanaislowerthen(JannaMenu.ManaSettings.Prioritylvl3) then 
-						CastE_unit()
+							if JannaMenu.ProdictionSettings.UsePacketsCast then
+							Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
+							else
+							CastSpell(_E, unit)
+							end
 						end
 					end
 				end
@@ -537,9 +549,17 @@ function OnProcessSpell(unit, spell)
             local enemy = heroManager:GetHero(i)
             if ValidTarget(enemy) then
                 if JannaMenu.ShildTowers.OnlyifhaveArdentCenser and ArdentCReady and GetDistance(spell.endPos, enemy)<80 and GetDistance(unit) <= ERange and not mymanaislowerthen(JannaMenu.ShildTowers.minmana) and not myhpislowerthen(JannaMenu.ShildTowers.minhp) and myHero.mana >= ManaCost(E) and EReady then
-				CastE_unit()
+					if JannaMenu.ProdictionSettings.UsePacketsCast then
+					Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
+					else
+					CastSpell(_E, unit)
+					end
 				elseif not JannaMenu.ShildTowers.OnlyifhaveArdentCenser and GetDistance(spell.endPos, enemy)<80 and GetDistance(unit) <= ERange and not mymanaislowerthen(JannaMenu.ShildTowers.minmana) and not myhpislowerthen(JannaMenu.ShildTowers.minhp) and myHero.mana >= ManaCost(E) and EReady then
-				CastE_unit()
+					if JannaMenu.ProdictionSettings.UsePacketsCast then
+					Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
+					else
+					CastSpell(_E, unit)
+					end
 				end
             end
         end  
@@ -574,11 +594,23 @@ function OnGainBuff(unit, buff)
 	
 	if caitlynheadshot == true and JannaMenu.BoostAlliesDmgOutput.CaitPassive and EReady and myHero.mana >= ManaCost(E) and (GetDistance(unit) < ERange) and unit.team == myHero.team and not myHero.dead then
 		if JannaMenu.BoostAlliesDmgOutput.CaitPlevel == 1 and not mymanaislowerthen(JannaMenu.ManaSettings.Prioritylvl1) then 
-		CastE_unit()
+			if JannaMenu.ProdictionSettings.UsePacketsCast then
+			Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
+			else
+			CastSpell(_E, unit)
+			end
 		elseif JannaMenu.BoostAlliesDmgOutput.CaitPlevel == 2 and not mymanaislowerthen(JannaMenu.ManaSettings.Prioritylvl2) then 
-		CastE_unit()
+			if JannaMenu.ProdictionSettings.UsePacketsCast then
+			Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
+			else
+			CastSpell(_E, unit)
+			end
 		elseif JannaMenu.BoostAlliesDmgOutput.CaitPlevel == 3 and not mymanaislowerthen(JannaMenu.ManaSettings.Prioritylvl3) then 
-		CastE_unit()
+			if JannaMenu.ProdictionSettings.UsePacketsCast then
+			Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
+			else
+			CastSpell(_E, unit)
+			end
 		end
 	end 
 end
@@ -631,13 +663,7 @@ function CastW()
 	end
 end 
 
-function CastE_unit()
-	if JannaMenu.ProdictionSettings.UsePacketsCast then
-	Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
-	else
-	CastSpell(_E, unit)
-	end
-end 
+
 
 -----------------------------------------------------------------------------------------------
 	--JannaMenu:addSubMenu("[Orbwalker]", "Orbwalk")
