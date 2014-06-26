@@ -1,6 +1,6 @@
 if myHero.charName ~= "Janna" then return end
 	
-local version = "0.04"
+local version = "0.05"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Janna's Assistant.lua".."?rand="..math.random(1,10000)
@@ -31,6 +31,7 @@ local RRange = 700
 local WRange = 600
 local ERange = 800
 local onHowlingGale = false 
+local secondqcheck = false
 
 ComboKey = 32
 LastHitKey = string.byte("X")
@@ -46,8 +47,8 @@ local is_SAC = false
 local itsme = false
 
 
-local	SpellsTOInterrupt_Anticaplose = {}
-local	SpellsDBInterrupt_Anticaplose = 
+local	SpellsTOInterrupt_Antigaplose = {}
+local	SpellsDBInterrupt_Antigaplose = 
 {
 	-- Interrupter
 	{charName = "FiddleSticks", spellName = "Drain", endposcast = false, useult = "no", cap = 0, spellSlot = "W"},
@@ -68,7 +69,7 @@ local	SpellsDBInterrupt_Anticaplose =
 	{charName = "Zac",  spellName = "ZacE", endposcast = false, useult = "no", cap = 0, spellSlot = "E"},
 	{charName = "Twitch",  spellName = "HideInShadows", endposcast = false, useult = "no", cap = 0, spellSlot = "Q"},
 	{charName = "Xerath",  spellName = "XerathArcanopulseChargeUp", endposcast = false, useult = "no", cap = 0, spellSlot = "Q"},
-	-- Anticapcloser
+	-- Antigaploser
 	{charName = "Aatrox", spellName = "AatroxQ", endposcast = true, useult = "no", cap = 1, spellSlot = "Q"},
 	{charName = "Corki", spellName = "CarpetBomb", endposcast = false, useult = "no", cap = 1, spellSlot = "W"},
 	{charName = "Diana", spellName = "DianaTeleport", endposcast = true, useult = "no", cap = 1, spellSlot = "R"},
@@ -251,9 +252,9 @@ function OnLoad()
 	JannaMenu.Int:addParam("interrupterdebug","Interrupter Debug", SCRIPT_PARAM_ONOFF, true)
 	JannaMenu.Int:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 	
-	JannaMenu:addSubMenu("[Anticapcloser]", "Anticapcloser")
-	JannaMenu.Anticapcloser:addParam("Anticapcloserdebug","Anticapcloser Debug", SCRIPT_PARAM_ONOFF, true)
-	JannaMenu.Anticapcloser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
+	JannaMenu:addSubMenu("[Antigaploser]", "Antigaploser")
+	JannaMenu.Antigaploser:addParam("Antigaploserdebug","Antigaploser Debug", SCRIPT_PARAM_ONOFF, true)
+	JannaMenu.Antigaploser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 		
 	JannaMenu:addSubMenu("[Shild Towers]", "ShildTowers")
 	JannaMenu.ShildTowers:addParam("STiae","Shild Towers if enemys get attacked", SCRIPT_PARAM_ONOFF, true)
@@ -273,23 +274,23 @@ function OnLoad()
 	JannaMenu:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 
 	JannaMenu:addParam("evadee","Evadeee Intergration", SCRIPT_PARAM_ONOFF, true)
-
-
+	
+	JannaMenu:addParam("AlwaysDoubleQ","Always Double Q", SCRIPT_PARAM_ONOFF, false)
 	JannaMenu:addParam("combo","Combo Key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 	JannaMenu:addParam("harassw","Harass W", SCRIPT_PARAM_ONKEYDOWN, false, 88)
 	JannaMenu:addParam("castq","Spam Q Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, 65)
 
 	-- interrupter + anticap
 	for i, enemy in ipairs(GetEnemyHeroes()) do
-		for _, champ in pairs(SpellsDBInterrupt_Anticaplose) do
+		for _, champ in pairs(SpellsDBInterrupt_Antigaplose) do
 			if enemy.charName == champ.charName then
-			table.insert(SpellsTOInterrupt_Anticaplose, {charName = champ.charName, spellSlot = champ.spellSlot, spellName = champ.spellName, useult = champ.useult, cap = champ.cap, spellType = champ.spellType, endposcast = champ.endposcast})
+			table.insert(SpellsTOInterrupt_Antigaplose, {charName = champ.charName, spellSlot = champ.spellSlot, spellName = champ.spellName, useult = champ.useult, cap = champ.cap, spellType = champ.spellType, endposcast = champ.endposcast})
 			end
 		end
 	end
 
-	if #SpellsTOInterrupt_Anticaplose > 0 then
-		for _, Inter in pairs(SpellsTOInterrupt_Anticaplose) do
+	if #SpellsTOInterrupt_Antigaplose > 0 then
+		for _, Inter in pairs(SpellsTOInterrupt_Antigaplose) do
 				if Inter.cap == 0 then
 				JannaMenu.Int:addParam(Inter.spellName, ""..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName, SCRIPT_PARAM_ONOFF, true)
 				if Inter.useult == "no" then
@@ -300,13 +301,13 @@ function OnLoad()
 				JannaMenu.Int:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 				
 				elseif Inter.cap == 1 then
-				JannaMenu.Anticapcloser:addParam(Inter.spellName, ""..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName, SCRIPT_PARAM_ONOFF, true)
+				JannaMenu.Antigaploser:addParam(Inter.spellName, ""..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName, SCRIPT_PARAM_ONOFF, true)
 				if Inter.useult == "no" then
-				JannaMenu.Anticapcloser:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, false)
+				JannaMenu.Antigaploser:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, false)
 				elseif Inter.useult == "yes" then
-				JannaMenu.Anticapcloser:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, true)
+				JannaMenu.Antigaploser:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, true)
 				end
-				JannaMenu.Anticapcloser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
+				JannaMenu.Antigaploser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 				end
 		end
 
@@ -374,6 +375,7 @@ function OnTick()
 	RReady = (myHero:CanUseSpell(_R) == READY)
 	ArdentC = GetInventorySlotItem(3504)
 	ArdentCReady = (ArdentC ~= nil)
+
 
 	if JannaMenu.castq and ValidTarget(Target) and myHero.mana >= ManaCost(Q) and not myHero.dead then
 	CastQ()
@@ -449,19 +451,27 @@ end
 
 function OnProcessSpell(unit, spell)
 
-		if #SpellsTOInterrupt_Anticaplose > 0 then
-			for _, Inter in pairs(SpellsTOInterrupt_Anticaplose) do
+		if #SpellsTOInterrupt_Antigaplose > 0 then
+			for _, Inter in pairs(SpellsTOInterrupt_Antigaplose) do
 				if spell.name == Inter.spellName and not myHero.dead and unit.team ~= myHero.team then
+				
 				-- interupter
+
+					
 					if JannaMenu.Int[Inter.spellName] and QReady and myHero.mana >= ManaCost(Q) and ValidTarget(unit, QRangeMin) then
 					if JannaMenu.Int.interrupterdebug then PrintChat("Tried to interrupt with Q: " ..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName) end
+					
 						if JannaMenu.ProdictionSettings.UsePacketsCast then
 						Packet("S_CAST", {spellId = _Q, fromX =  unit.x, fromY =  unit.z, toX =  unit.x, toY =  unit.z}):send()
+							if QReady then secondqcheck = true elseif not QReady then secondqcheck = false
+							end
 							if JannaMenu.debugmode then
 							PrintChat("casted packets using interrupter")
 							end
 						else
 						CastSpell(_Q, unit.x, unit.z)
+							if QReady then secondqcheck = true elseif not QReady then secondqcheck = false
+							end
 						if JannaMenu.debugmode then
                         PrintChat("casted normal using interrupter")
 						end
@@ -472,53 +482,71 @@ function OnProcessSpell(unit, spell)
 					if JannaMenu.Int.interrupterdebug then PrintChat("Tried to interrupt with R: " ..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName) end
 						CastSpell(_R)
 						
-					end 	
+					end 
+					
 					-- capcloser
-					if JannaMenu.Anticapcloser[Inter.spellName] and QReady and myHero.mana >= ManaCost(Q) and ValidTarget(unit, QRangeMin) then
-					if JannaMenu.Anticapcloser.Anticapcloserdebug then PrintChat("Anticapcloser: "  ..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName) end
+					if JannaMenu.Antigaploser[Inter.spellName] and QReady and myHero.mana >= ManaCost(Q) and ValidTarget(unit, QRangeMin) then
+					if JannaMenu.Antigaploser.Antigaploserdebug then PrintChat("Antigaploser: "  ..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName) end
 					
 						if Inter.endposcast == true then
 							if JannaMenu.ProdictionSettings.UsePacketsCast then
 
 							Packet("S_CAST", {spellId = _Q, fromX =  spell.endPos.x, fromY = spell.endPos.z, toX =  spell.endPos.x, toY = spell.endPos.z}):send()
-
+							if QReady then secondqcheck = true elseif not QReady then secondqcheck = false
+							end
+							
 							if JannaMenu.debugmode then
-							PrintChat("casted packets using Anticapcloser endpos")
+							PrintChat("casted packets using Antigaploser endpos")
 							end
 							else
 							CastSpell(_Q, endPos.x, spell.endPos.z)
+							if QReady then secondqcheck = true elseif not QReady then secondqcheck = false
+							end
+							
 							if JannaMenu.debugmode then
-							PrintChat("casted normal using Anticapcloser endpos")
+							PrintChat("casted normal using Antigaploser endpos")
 							end
 							end
 						elseif Inter.endposcast == false then
 							if JannaMenu.ProdictionSettings.UsePacketsCast then
 
 							Packet("S_CAST", {spellId = _Q, fromX = spell.startPos.x, fromY = spell.startPos.z, toX = spell.startPos.x, toY = spell.startPos.z}):send()
+							if QReady then secondqcheck = true elseif not QReady then secondqcheck = false
+							end
 
 							if JannaMenu.debugmode then
-							PrintChat("casted packets using Anticapcloser startPos")
+							PrintChat("casted packets using Antigaploser startPos")
 							end
 							else
 							CastSpell(_Q, spell.startPos.x, spell.startPos.z)
+							if QReady then secondqcheck = true elseif not QReady then secondqcheck = false
+							end
+							
 							if JannaMenu.debugmode then
-							PrintChat("casted normal using Anticapcloser startPos")
+							PrintChat("casted normal using Antigaploser startPos")
 							end
 							
 							end
+							
 						end
 						end
+				
 
-
-					elseif JannaMenu.Anticapcloser[Inter.spellName..2] and JannaMenu.Anticapcloser[Inter.spellName] and not QReady and myHero.mana >= ManaCost(R) and RReady and ValidTarget(unit, RRange) then
-					if JannaMenu.Anticapcloser.Anticapcloserdebug then PrintChat("Anticapcloser with R: " ..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName) end
+					elseif JannaMenu.Antigaploser[Inter.spellName..2] and JannaMenu.Antigaploser[Inter.spellName] and not QReady and myHero.mana >= ManaCost(R) and RReady and ValidTarget(unit, RRange) then
+					if JannaMenu.Antigaploser.Antigaploserdebug then PrintChat("Antigaploser with R: " ..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName) end
 						CastSpell(_R)
 						
-					end 
-
+					end
+					
+				if spell.name == Inter.spellName and not QReady then 
+				secondqcheck = false
+				elseif not spell.name == Inter.spellName then 
+				secondqcheck = false
 				end
+					
 			end
-				
+		end
+	--	secondqcheck = false		
 			if #SpellsToShild > 0 then
 			for _, Boost in pairs(SpellsToShild) do
 				if spell.name == Boost.spellName and not myHero.dead and unit.team == myHero.team then
@@ -571,6 +599,8 @@ function OnProcessSpell(unit, spell)
 		
 		end
 	end
+	
+
 
 end
 
@@ -583,11 +613,20 @@ function OnGainBuff(unit, buff)
 		if JannaMenu.debugmode then
 		PrintChat("GAINED: " .. buff.name)
 		end
-		if buff.name == "HowlingGale" and not myHero.dead then
-			if JannaMenu.debugmode then
-			PrintChat("TRUE")
+		if not JannaMenu.AlwaysDoubleQ then
+			if buff.name == "HowlingGale" and not myHero.dead and secondqcheck == true then
+				if JannaMenu.debugmode then
+				PrintChat("TRUE")
+				end
+			onHowlingGale = true
 			end
-		onHowlingGale = true
+		elseif JannaMenu.AlwaysDoubleQ then
+			if buff.name == "HowlingGale" and not myHero.dead then
+				if JannaMenu.debugmode then
+				PrintChat("TRUE")
+				end
+			onHowlingGale = true
+			end
 		end 
 	end
 
@@ -639,15 +678,16 @@ function CastQ()
 
 	if QReady and not myHero.dead and GetDistance(Target) <= QRangeMin then
 	local qpos, qinfo = Prodiction.GetPrediction(Target, QRangeMin, QSpeed, QDelay, QWidth, myPlayer)
-				
+			
 		if qpos and qinfo.hitchance >= 2 then
+		secondqcheck = true	
 			if JannaMenu.ProdictionSettings.UsePacketsCast then
 			Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 			else
 			CastSpell(_Q, qpos.x, qpos.z)
 			end
 		end 
-					
+		secondqcheck = false		
 	end 
 	
 end
