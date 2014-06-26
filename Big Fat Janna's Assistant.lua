@@ -69,7 +69,7 @@ local	SpellsDBInterrupt_Antigaplose =
 	{charName = "Zac",  spellName = "ZacE", endposcast = false, useult = "no", cap = 0, spellSlot = "E"},
 	{charName = "Twitch",  spellName = "HideInShadows", endposcast = false, useult = "no", cap = 0, spellSlot = "Q"},
 	{charName = "Xerath",  spellName = "XerathArcanopulseChargeUp", endposcast = false, useult = "no", cap = 0, spellSlot = "Q"},
-	-- Antigaploser
+	-- Antigapcloser
 	{charName = "Aatrox", spellName = "AatroxQ", endposcast = true, useult = "no", cap = 1, spellSlot = "Q"},
 	{charName = "Corki", spellName = "CarpetBomb", endposcast = false, useult = "no", cap = 1, spellSlot = "W"},
 	{charName = "Diana", spellName = "DianaTeleport", endposcast = true, useult = "no", cap = 1, spellSlot = "R"},
@@ -252,9 +252,9 @@ function OnLoad()
 	JannaMenu.Int:addParam("interrupterdebug","Interrupter Debug", SCRIPT_PARAM_ONOFF, true)
 	JannaMenu.Int:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 	
-	JannaMenu:addSubMenu("[Antigaploser]", "Antigaploser")
-	JannaMenu.Antigaploser:addParam("Antigaploserdebug","Antigaploser Debug", SCRIPT_PARAM_ONOFF, true)
-	JannaMenu.Antigaploser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
+	JannaMenu:addSubMenu("[Antigapcloser]", "Antigapcloser")
+	JannaMenu.Antigapcloser:addParam("Antigapcloserdebug","Antigapcloser Debug", SCRIPT_PARAM_ONOFF, true)
+	JannaMenu.Antigapcloser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 		
 	JannaMenu:addSubMenu("[Shild Towers]", "ShildTowers")
 	JannaMenu.ShildTowers:addParam("STiae","Shild Towers if enemys get attacked", SCRIPT_PARAM_ONOFF, true)
@@ -301,13 +301,13 @@ function OnLoad()
 				JannaMenu.Int:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 				
 				elseif Inter.cap == 1 then
-				JannaMenu.Antigaploser:addParam(Inter.spellName, ""..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName, SCRIPT_PARAM_ONOFF, true)
+				JannaMenu.Antigapcloser:addParam(Inter.spellName, ""..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName, SCRIPT_PARAM_ONOFF, true)
 				if Inter.useult == "no" then
-				JannaMenu.Antigaploser:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, false)
+				JannaMenu.Antigapcloser:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, false)
 				elseif Inter.useult == "yes" then
-				JannaMenu.Antigaploser:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, true)
+				JannaMenu.Antigapcloser:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, true)
 				end
-				JannaMenu.Antigaploser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
+				JannaMenu.Antigapcloser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 				end
 		end
 
@@ -485,8 +485,8 @@ function OnProcessSpell(unit, spell)
 					end 
 					
 					-- capcloser
-					if JannaMenu.Antigaploser[Inter.spellName] and QReady and myHero.mana >= ManaCost(Q) and ValidTarget(unit, QRangeMin) then
-					if JannaMenu.Antigaploser.Antigaploserdebug then PrintChat("Antigaploser: "  ..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName) end
+					if JannaMenu.Antigapcloser[Inter.spellName] and QReady and myHero.mana >= ManaCost(Q) and ValidTarget(unit, QRangeMin) then
+					if JannaMenu.Antigapcloser.Antigapcloserdebug then PrintChat("Antigapcloser: "  ..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName) end
 					
 						if Inter.endposcast == true then
 							if JannaMenu.ProdictionSettings.UsePacketsCast then
@@ -496,7 +496,7 @@ function OnProcessSpell(unit, spell)
 							end
 							
 							if JannaMenu.debugmode then
-							PrintChat("casted packets using Antigaploser endpos")
+							PrintChat("casted packets using Antigapcloser endpos")
 							end
 							else
 							CastSpell(_Q, endPos.x, spell.endPos.z)
@@ -504,7 +504,7 @@ function OnProcessSpell(unit, spell)
 							end
 							
 							if JannaMenu.debugmode then
-							PrintChat("casted normal using Antigaploser endpos")
+							PrintChat("casted normal using Antigapcloser endpos")
 							end
 							end
 						elseif Inter.endposcast == false then
@@ -515,7 +515,7 @@ function OnProcessSpell(unit, spell)
 							end
 
 							if JannaMenu.debugmode then
-							PrintChat("casted packets using Antigaploser startPos")
+							PrintChat("casted packets using Antigapcloser startPos")
 							end
 							else
 							CastSpell(_Q, spell.startPos.x, spell.startPos.z)
@@ -523,7 +523,7 @@ function OnProcessSpell(unit, spell)
 							end
 							
 							if JannaMenu.debugmode then
-							PrintChat("casted normal using Antigaploser startPos")
+							PrintChat("casted normal using Antigapcloser startPos")
 							end
 							
 							end
@@ -532,8 +532,8 @@ function OnProcessSpell(unit, spell)
 						end
 				
 
-					elseif JannaMenu.Antigaploser[Inter.spellName..2] and JannaMenu.Antigaploser[Inter.spellName] and not QReady and myHero.mana >= ManaCost(R) and RReady and ValidTarget(unit, RRange) then
-					if JannaMenu.Antigaploser.Antigaploserdebug then PrintChat("Antigaploser with R: " ..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName) end
+					elseif JannaMenu.Antigapcloser[Inter.spellName..2] and JannaMenu.Antigapcloser[Inter.spellName] and not QReady and myHero.mana >= ManaCost(R) and RReady and ValidTarget(unit, RRange) then
+					if JannaMenu.Antigapcloser.Antigapcloserdebug then PrintChat("Antigapcloser with R: " ..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName) end
 						CastSpell(_R)
 						
 					end
