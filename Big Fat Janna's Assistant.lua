@@ -1,6 +1,6 @@
 if myHero.charName ~= "Janna" then return end
 	
-local version = "0.03"
+local version = "0.04"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Janna's Assistant.lua".."?rand="..math.random(1,10000)
@@ -31,6 +31,7 @@ local RRange = 700
 local WRange = 600
 local ERange = 800
 local onHowlingGale = false 
+
 ComboKey = 32
 LastHitKey = string.byte("X")
 LaneClearKey = string.byte("V")
@@ -42,6 +43,7 @@ local is_MMA = false
 local is_REVAMP = false
 local is_REBORN = false
 local is_SAC = false
+local itsme = false
 
 
 local	SpellsTOInterrupt_Anticaplose = {}
@@ -77,6 +79,7 @@ local	SpellsDBInterrupt_Anticaplose =
 	{charName = "Leblanc", spellName = "LeblancSlide", endposcast = true, useult = "no", cap = 1, spellSlot = "W"},
 	{charName = "Leblanc", spellName = "leblacslidereturn", endposcast = true, useult = "no", cap = 1, spellSlot = "W"},
 	{charName = "Fizz", spellName = "FizzPiercingStrike", endposcast = true, useult = "no", cap = 1, spellSlot = "Q"},
+	{charName = "Amumu", spellName = "BandageToss", endposcast = false, useult = "no", cap = 1, spellSlot = "Q"},
 	{charName = "Gragas", spellName = "GragasE", endposcast = false, useult = "no", cap = 1, spellSlot = "E"},
 	{charName = "Irelia", spellName = "IreliaGatotsu", endposcast = true, useult = "no", cap = 1, spellSlot = "Q"},
 	{charName = "Jax", spellName = "JaxLeapStrike", endposcast = false, useult = "no", cap = 1, spellSlot = "Q"},
@@ -119,30 +122,30 @@ local ShildSpellsDB = {
 	{charName = "Ezreal", spellName = "EzrealTrueshotBarrage", description = "R", important = 3},
 	{charName = "Graves", spellName = "GravesClusterShot", description = "Q", important = 1},
 	{charName = "Graves", spellName = "GravesChargeShot", description = "R", important = 3},
-	{charName = "Jinx", spellName = "JinxW", description = "W", important = 1},
+	{charName = "Jinx", spellName = "JinxW", description = "W", important = 2},
 	{charName = "Jinx", spellName = "JinxRWrapper", description = "R", important = 3},
 	{charName = "KogMaw", spellName = "KogMawLivingArtillery", description = "R", important = 3},
 	{charName = "Lucian", spellName = "LucianQ", description = "Q", important = 2},
 	{charName = "Lucian", spellName = "LucianW", description = "W", important = 1},
 	{charName = "Lucian", spellName = "LucianR", description = "R", important = 3},
-	{charName = "MissFortune", spellName = "MissFortuneRicochetShot", description = "Q", important = 3},
-	{charName = "MissFortune", spellName = "MissFortuneBulletTime", description = "R", important = 2},
+	{charName = "MissFortune", spellName = "MissFortuneRicochetShot", description = "Q", important = 2},
+	{charName = "MissFortune", spellName = "MissFortuneBulletTime", description = "R", important = 3},
 	{charName = "Quinn", spellName = "QuinnQ", description = "Q", important = 1},
-	{charName = "Quinn", spellName = "QuinnE", description = "E", important = 2},
-	{charName = "Sivir", spellName = "SivirQ", description = "Q", important = 1},
+	{charName = "Quinn", spellName = "QuinnE", description = "E", important = 3},
+	{charName = "Sivir", spellName = "SivirQ", description = "Q", important = 2},
 --	{charName = "Sivir", spellName = "SivirW", description = "W", important = 2},
-	{charName = "Tristana", spellName = "RapidFire", description = "Q", important = 2},
+	{charName = "Tristana", spellName = "RapidFire", description = "Q", important = 1},
 	{charName = "Twitch", spellName = "Expunge", description = "E", important = 3},
 --	{charName = "Twitch", spellName = "FullAutomatic", description = "R", important = 3}, -- new ult name ???
-	{charName = "Urgot", spellName = "UrgotHeatseekingMissile", description = "Q", important = 1},
+	{charName = "Urgot", spellName = "UrgotHeatseekingMissile", description = "Q", important = 2},
 	{charName = "Urgot", spellName = "UrgotPlasmaGrenade", description = "E", important = 1},
-	{charName = "Varus", spellName = "VarusQ", description = "Q", important = 2},
-	{charName = "Varus", spellName = "VarusE", description = "E", important = 2},
+	{charName = "Varus", spellName = "VarusQ", description = "Q", important = 3},
+	{charName = "Varus", spellName = "VarusE", description = "E", important = 1},
 	{charName = "Vayne", spellName = "VayneTumble", description = "Q", important = 2},
 	{charName = "Vayne", spellName = "VayneCondemn", description = "E", important = 1},
 	{charName = "Vayne", spellName = "VayneInquisition", description = "R", important = 3},
 	{charName = "LeeSin", spellName = "BlindMonkRKick", description = "R", important = 3},
-	{charName = "Nasus", spellName = "NasusQ", description = "Q", important = 3},
+	{charName = "Nasus", spellName = "NasusQ", description = "Q", important = 2},
 	{charName = "Nocturne", spellName = "NocturneParanoia", description = "R", important = 3},
 	{charName = "Shaco", spellName = "TwoShivPoison", description = "E", important = 2},
 	{charName = "Trundle", spellName = "TrundleTrollSmash", description = "Q", important = 2},
@@ -151,34 +154,35 @@ local ShildSpellsDB = {
 	{charName = "Khazix", spellName = "KhazixQ", description = "Q", important = 2},
 	{charName = "Khazix", spellName = "KhazixW", description = "W", important = 2},
 	{charName = "MasterYi", spellName = "AlphaStrike", description = "Q", important = 1},
-	{charName = "MasterYi", spellName = "WujuStyle", description = "E", important = 2},
+	{charName = "MasterYi", spellName = "WujuStyle", description = "E", important = 1},
 	{charName = "Talon", spellName = "TalonNoxianDiplomacy", description = "Q", important = 1},
 	{charName = "Talon", spellName = "TalonShadowAssault", description = "R", important = 3},
 	{charName = "Pantheon", spellName = "PantheonQ", description = "Q", important = 2}, -- mby wrong name
 	{charName = "Yasuo", spellName = "YasuoQW", description = "Q", important = 2}, 
-	{charName = "Zed", spellName = "ZedShuriken", description = "Q", important = 2}, -- mby wrong name
-	{charName = "Zed", spellName = "ZedPBAOEDummy", description = "E", important = 1}, -- mby wrong name
-	{charName = "Aatrox", spellName = "AatroxW", description = "W", important = 1},
+	{charName = "Zed", spellName = "ZedShuriken", description = "Q", important = 1}, -- mby wrong name
+	{charName = "Zed", spellName = "ZedPBAOEDummy", description = "E", important = 2}, -- mby wrong name
+	{charName = "Aatrox", spellName = "AatroxW", description = "W", important = 2},
 	{charName = "Darius", spellName = "DariusExecute", description = "R", important = 3},
 	{charName = "Gangplank", spellName = "Parley", description = "Q", important = 1},
-	{charName = "Garen", spellName = "GarenQ", description = "Q", important = 2},
-	{charName = "Garen", spellName = "GarenE", description = "E", important = 1},
+	{charName = "Garen", spellName = "GarenQ", description = "Q", important = 1},
+	{charName = "Garen", spellName = "GarenE", description = "E", important = 2},
 	{charName = "Jayce", spellName = "JayceToTheSkies", description = "Q", important = 2},
 	{charName = "Jayce", spellName = "jayceshockblast", description = "2 Q", important = 2},
 	{charName = "Renekton", spellName = "RenektonCleave", description = "Q", important = 2},
 	{charName = "Renekton", spellName = "RenektonPreExecute", description = "W", important = 2},
 	{charName = "Renekton", spellName = "RenektonSliceAndDice", description = "E", important = 2},
 	{charName = "Rengar", spellName = "RengarQ", description = "Q", important = 2},
-	{charName = "Rengar", spellName = "RengarE", description = "E", important = 2},
+	{charName = "Rengar", spellName = "RengarE", description = "E", important = 1},
 	{charName = "Rengar", spellName = "RengarR", description = "R", important = 3},
 	{charName = "Riven", spellName = "RivenFengShuiEngine", description = "R", important = 3},
 	{charName = "Tryndamere", spellName = "UndyingRage", description = "R", important = 3},
-	{charName = "MonkeyKing", spellName = "MonkeyKingDoubleAttack", description = "Q", important = 2},
+	{charName = "MonkeyKing", spellName = "MonkeyKingDoubleAttack", description = "Q", important = 1},
 	{charName = "MonkeyKing", spellName = "MonkeyKingNimbus", description = "E", important = 2},
 	{charName = "MonkeyKing", spellName = "MonkeyKingSpinToWin", description = "R", important = 3}
 
 
 }
+
 
 function OnLoad()
 
@@ -250,6 +254,7 @@ function OnLoad()
 	JannaMenu:addSubMenu("[Anticapcloser]", "Anticapcloser")
 	JannaMenu.Anticapcloser:addParam("Anticapcloserdebug","Anticapcloser Debug", SCRIPT_PARAM_ONOFF, true)
 	JannaMenu.Anticapcloser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
+		
 	JannaMenu:addSubMenu("[Shild Towers]", "ShildTowers")
 	JannaMenu.ShildTowers:addParam("STiae","Shild Towers if enemys get attacked", SCRIPT_PARAM_ONOFF, true)
 	JannaMenu.ShildTowers:addParam("OnlyifhaveArdentCenser","Only if have Ardent Censer", SCRIPT_PARAM_ONOFF, false)
@@ -259,9 +264,9 @@ function OnLoad()
 	JannaMenu:addSubMenu("[Mana Settings]", "ManaSettings")
 	JannaMenu.ManaSettings:addParam("info", "~=[ Minimum Mana to use skills in % ]=~", SCRIPT_PARAM_INFO, "")
 	JannaMenu.ManaSettings:addParam("info", "~=[ Boost Allies Dmg Output ]=~", SCRIPT_PARAM_INFO, "")
-	JannaMenu.ManaSettings:addParam("Prioritylvl1", "Mana Priority lvl 1",   SCRIPT_PARAM_SLICE, 75, 0, 100, 0)
-	JannaMenu.ManaSettings:addParam("Prioritylvl2", "Mana Priority lvl 2",   SCRIPT_PARAM_SLICE, 45, 0, 100, 0)
-	JannaMenu.ManaSettings:addParam("Prioritylvl3", "Mana Priority lvl 3",   SCRIPT_PARAM_SLICE, 15, 0, 100, 0)
+	JannaMenu.ManaSettings:addParam("Prioritylvl1", "Mana Priority lvl 1",   SCRIPT_PARAM_SLICE, 45, 0, 100, 0)
+	JannaMenu.ManaSettings:addParam("Prioritylvl2", "Mana Priority lvl 2",   SCRIPT_PARAM_SLICE, 25, 0, 100, 0)
+	JannaMenu.ManaSettings:addParam("Prioritylvl3", "Mana Priority lvl 3",   SCRIPT_PARAM_SLICE, 10, 0, 100, 0)
 	JannaMenu.ManaSettings:addParam("info", "~=[ Harass ]=~", SCRIPT_PARAM_INFO, "")
 	JannaMenu.ManaSettings:addParam("HarassMana", "Min Mana",   SCRIPT_PARAM_SLICE, 60, 0, 100, 0)
 	--JannaMenu:addParam("debugmode","debugmode", SCRIPT_PARAM_ONOFF, false)
@@ -359,9 +364,9 @@ function OnTick()
 
 	ts:update()
 	
-		orbwalkcheck()
-		target = ts.target
-		Target = getTarget()
+	orbwalkcheck()
+	target = ts.target
+	Target = getTarget()
 	
 	QReady = (myHero:CanUseSpell(_Q) == READY)
 	WReady = (myHero:CanUseSpell(_W) == READY)
@@ -566,9 +571,8 @@ function OnProcessSpell(unit, spell)
 		
 		end
 	end
-			
-end
 
+end
 
 
 
@@ -662,7 +666,6 @@ function CastW()
 					
 	end
 end 
-
 
 
 -----------------------------------------------------------------------------------------------
