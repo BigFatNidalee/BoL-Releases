@@ -16,4 +16,9 @@
 0.05 -
       added manual q cast option
       renamed anticapcloser to antigapcloser
+0.06 - 
+      forced to update prodiction 0.3 version to 1.1
+      added poppy 
+      renabled ks q
+      "Always Double Q" changed to toggle on key option
       
