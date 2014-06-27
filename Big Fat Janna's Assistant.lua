@@ -1,6 +1,6 @@
 if myHero.charName ~= "Janna" then return end
 	
-local version = "0.05"
+local version = "0.06"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Janna's Assistant.lua".."?rand="..math.random(1,10000)
@@ -74,6 +74,7 @@ local	SpellsDBInterrupt_Antigaplose =
 	{charName = "Corki", spellName = "CarpetBomb", endposcast = false, useult = "no", cap = 1, spellSlot = "W"},
 	{charName = "Diana", spellName = "DianaTeleport", endposcast = true, useult = "no", cap = 1, spellSlot = "R"},
 	{charName = "LeeSin", spellName = "blindmonkqtwo", endposcast = false, useult = "no", cap = 1, spellSlot = "Q"},
+	{charName = "Poppy", spellName = "PoppyHeroicCharge", endposcast = false, useult = "no", cap = 1, spellSlot = "E"},
 	{charName = "Shaco",  spellName = "Deceive", endposcast = true, useult = "no", cap = 1, spellSlot = "Q"},
 	{charName = "JarvanIV", spellName = "JarvanIVDragonStrike", endposcast = false, useult = "no", cap = 1, spellSlot = "Q"},
 	{charName = "Fiora", spellName = "FioraQ", endposcast = true, useult = "no", cap = 1, spellSlot = "Q"},
@@ -206,12 +207,13 @@ function OnLoad()
 	
 	JannaMenu:addSubMenu("[KS Options]", "KSOptions")
 	JannaMenu.KSOptions:addParam("KSwithW","KS with W", SCRIPT_PARAM_ONOFF, true)
-	--JannaMenu.KSOptions:addParam("KSwithQ","KS with Q", SCRIPT_PARAM_ONOFF, true)
+	JannaMenu.KSOptions:addParam("KSwithQ","KS with Q", SCRIPT_PARAM_ONOFF, true)
 	
 	JannaMenu:addSubMenu("[Show in Game]", "Show")
 	JannaMenu.Show:addParam("info", "~=[ New Settings will be saved after Reload ]=~", SCRIPT_PARAM_INFO, "")
 	JannaMenu.Show:addParam("showcombo","Combo Key", SCRIPT_PARAM_ONOFF, false)
 	JannaMenu.Show:addParam("showspamq","Spam Q Toggle", SCRIPT_PARAM_ONOFF, true)
+	JannaMenu.Show:addParam("DoubleQ","Double Q Toggle", SCRIPT_PARAM_ONOFF, true)
 	
 	JannaMenu:addSubMenu("[Draws]", "Draws")
 	JannaMenu.Draws:addSubMenu("[Q Settings]", "QSettings")
@@ -275,7 +277,7 @@ function OnLoad()
 
 	JannaMenu:addParam("evadee","Evadeee Intergration", SCRIPT_PARAM_ONOFF, true)
 	
-	JannaMenu:addParam("AlwaysDoubleQ","Always Double Q", SCRIPT_PARAM_ONOFF, false)
+	JannaMenu:addParam("AlwaysDoubleQ","Always Double Q Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("Y"))
 	JannaMenu:addParam("combo","Combo Key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 	JannaMenu:addParam("harassw","Harass W", SCRIPT_PARAM_ONKEYDOWN, false, 88)
 	JannaMenu:addParam("castq","Spam Q Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, 65)
@@ -332,6 +334,9 @@ function OnLoad()
 	end	
 	--
 
+	if JannaMenu.Show.DoubleQ then
+	JannaMenu:permaShow("AlwaysDoubleQ")
+	end	
 	if JannaMenu.Show.showcombo then
 	JannaMenu:permaShow("combo")
 	end	
@@ -398,9 +403,9 @@ function OnTick()
 	KSW()
 	end 
 	
-	--if JannaMenu.KSOptions.KSwithQ and QReady and myHero.mana >= ManaCost(Q) and not myHero.dead then	
-	--KSQ()
-	--end 
+	if JannaMenu.KSOptions.KSwithQ and QReady and myHero.mana >= ManaCost(Q) and not myHero.dead then	
+	KSQ()
+	end 
 
 	if JannaMenu.evadee then
 	if _G.Evadeee_impossibleToEvade and EReady and myHero.mana >= ManaCost(E) and not myHero.dead then
@@ -428,26 +433,28 @@ function KSW()
 	return false
 	
 end
---[[
+
 function KSQ()
 
 	for _, enemy in pairs(GetEnemyHeroes()) do
 		if enemy and not enemy.dead and enemy.health < getDmg("Q", enemy, myHero) then
 		if GetDistance(enemy) <= QRangeMin then
+		secondqcheck = true
 			if JannaMenu.ProdictionSettings.UsePacketsCast then
 				Packet("S_CAST", {spellId = _Q, fromX =  enemy.x, fromY =  enemy.z, toX =  enemy.x, toY =  enemy.z}):send()
 			else
 				CastSpell(_Q, enemy.x, enemy.z)
 			end
-	 end
-			return true
+		end
+		secondqcheck = false
+		return true
 		end
 	end
 	
 	return false
 	
 end
-]]--
+
 
 function OnProcessSpell(unit, spell)
 
