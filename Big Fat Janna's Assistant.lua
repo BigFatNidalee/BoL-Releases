@@ -9,7 +9,7 @@ local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
 
 function AutoupdaterMsg(msg) print("<font color=\"#64f879\">Big Fat Janna's Assistant:</font> <font color=\"#FFFFFF\">"..msg..".</font>") end
 if AUTOUPDATE then
-local ServerData = GetWebResult(UPDATE_HOST, "/BigFatNidalee/BoL-Releases/master/versions/Big Fat Janna's Assistant1.version")
+local ServerData = GetWebResult(UPDATE_HOST, "/BigFatNidalee/BoL-Releases/master/versions/Big Fat Janna's Assistant.version")
 if ServerData then
 ServerVersion = type(tonumber(ServerData)) == "number" and tonumber(ServerData) or nil
 if ServerVersion then
