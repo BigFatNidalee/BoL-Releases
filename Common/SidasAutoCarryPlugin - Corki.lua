@@ -1,6 +1,6 @@
 if myHero.charName ~= "Corki" then return end
 
-local version = "0.16"
+local version = "0.17"
 
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
