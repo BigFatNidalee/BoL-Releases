@@ -1,13 +1,13 @@
 if myHero.charName ~= "Janna" then return end
 	
-local version = "0.06"
+local version = "0.07"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Janna's Assistant.lua".."?rand="..math.random(1,10000)
 local UPDATE_FILE_PATH = SCRIPT_PATH.."Big Fat Janna's Assistant.lua"
 local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
 
-function AutoupdaterMsg(msg) print("<font color=\"#64f879\">Big Fat Janna's Assistant:</font> <font color=\"#FFFFFF\">"..msg..".</font>") end
+function AutoupdaterMsg(msg) print("<font color=\"#66cc00\">Big Fat Janna's Assistant:</font> <font color=\"#FFFFFF\">"..msg..".</font>") end
 if AUTOUPDATE then
 local ServerData = GetWebResult(UPDATE_HOST, "/BigFatNidalee/BoL-Releases/master/versions/Big Fat Janna's Assistant.version")
 if ServerData then
@@ -26,16 +26,14 @@ AutoupdaterMsg("Error downloading version info")
 end
 end
 
-local QRangeMin, QSpeed, QDelay, QWidth = 1025, 910, 0, 200 
+local QRangeMin, QSpeed, QDelay, QWidth = 1025, 910, 0, 200
+local ComfortRange = 950 
 local RRange = 700
 local WRange = 600
 local ERange = 800
 local onHowlingGale = false 
 local secondqcheck = false
 
-ComboKey = 32
-LastHitKey = string.byte("X")
-LaneClearKey = string.byte("V")
 
 --[MMA & SAC Information]--
 local starttick = 0
@@ -47,63 +45,63 @@ local is_SAC = false
 local itsme = false
 
 
-local	SpellsTOInterrupt_Antigaplose = {}
-local	SpellsDBInterrupt_Antigaplose = 
+local	SpellsTOInterrupt_Antigapclose = {}
+local	SpellsDBInterrupt_Antigapclose = 
 {
 	-- Interrupter
-	{charName = "FiddleSticks", spellName = "Drain", endposcast = false, useult = "no", cap = 0, spellSlot = "W"},
-	{charName = "FiddleSticks", spellName = "Crowstorm", endposcast = false, useult = "yes", cap = 0, spellSlot = "R"},
-    {charName = "MissFortune", spellName = "MissFortuneBulletTime", endposcast = false, useult = "yes", cap = 0, spellSlot = "R"},
-	{charName = "Caitlyn", spellName = "CaitlynAceintheHole", endposcast = false, useult = "no", cap = 0, spellSlot = "R"},
-    {charName = "Katarina", spellName = "KatarinaR", endposcast = false, useult = "yes", cap = 0, spellSlot = "R"},
-	{charName = "Karthus", spellName = "FallenOne", endposcast = false, useult = "yes", cap = 0, spellSlot = "R"},
-	{charName = "Malzahar", spellName = "AlZaharNetherGrasp", endposcast = false, useult = "yes", cap = 0, spellSlot = "R"},
-	{charName = "Galio", spellName = "GalioIdolOfDurand", endposcast = false, useult = "yes", cap = 0, spellSlot = "R"},
-	{charName = "Lucian", spellName = "LucianR", endposcast = false, useult = "no", cap = 0, spellSlot = "R"},	
-	{charName = "Shen",  spellName = "ShenStandUnited", endposcast = false, useult = "no", cap = 0, spellSlot = "R"},
-	{charName = "Urgot",  spellName = "UrgotSwap2", endposcast = false, useult = "no", cap = 0, spellSlot = "R"},
-	{charName = "Pantheon",  spellName = "PantheonRJump", endposcast = false, useult = "no", cap = 0, spellSlot = "R"},
-	{charName = "Warwick",  spellName = "InfiniteDuress", endposcast = false, useult = "yes", cap = 0, spellSlot = "R"},
-	{charName = "Xerath",  spellName = "XerathLocusOfPower2", endposcast = false, useult = "yes", cap = 0, spellSlot = "R"},
-	{charName = "Velkoz",  spellName = "VelkozR", endposcast = false, useult = "no", cap = 0, spellSlot = "R"},
-	{charName = "Zac",  spellName = "ZacE", endposcast = false, useult = "no", cap = 0, spellSlot = "E"},
-	{charName = "Twitch",  spellName = "HideInShadows", endposcast = false, useult = "no", cap = 0, spellSlot = "Q"},
-	{charName = "Xerath",  spellName = "XerathArcanopulseChargeUp", endposcast = false, useult = "no", cap = 0, spellSlot = "Q"},
+	{charName = "FiddleSticks", spellName = "Drain", endposcast = false, useult = "no", gap = 0, description = "W"},
+	{charName = "FiddleSticks", spellName = "Crowstorm", endposcast = false, useult = "yes", gap = 0, description = "R"},
+    {charName = "MissFortune", spellName = "MissFortuneBulletTime", endposcast = false, useult = "yes", gap = 0, description = "R"},
+	{charName = "Caitlyn", spellName = "CaitlynAceintheHole", endposcast = false, useult = "no", gap = 0, description = "R"},
+    {charName = "Katarina", spellName = "KatarinaR", endposcast = false, useult = "yes", gap = 0, description = "R"},
+	{charName = "Karthus", spellName = "FallenOne", endposcast = false, useult = "yes", gap = 0, description = "R"},
+	{charName = "Malzahar", spellName = "AlZaharNetherGrasp", endposcast = false, useult = "yes", gap = 0, description = "R"},
+	{charName = "Galio", spellName = "GalioIdolOfDurand", endposcast = false, useult = "yes", gap = 0, description = "R"},
+	{charName = "Lucian", spellName = "LucianR", endposcast = false, useult = "no", gap = 0, description = "R"},	
+	{charName = "Shen",  spellName = "ShenStandUnited", endposcast = false, useult = "no", gap = 0, description = "R"},
+	{charName = "Urgot",  spellName = "UrgotSwap2", endposcast = false, useult = "no", gap = 0, description = "R"},
+	{charName = "Pantheon",  spellName = "PantheonRJump", endposcast = false, useult = "no", gap = 0, description = "R"},
+	{charName = "Warwick",  spellName = "InfiniteDuress", endposcast = false, useult = "yes", gap = 0, description = "R"},
+	{charName = "Xerath",  spellName = "XerathLocusOfPower2", endposcast = false, useult = "yes", gap = 0, description = "R"},
+	{charName = "Velkoz",  spellName = "VelkozR", endposcast = false, useult = "no", gap = 0, description = "R"},
+	{charName = "Zac",  spellName = "ZacE", endposcast = false, useult = "no", gap = 0, description = "E"},
+	{charName = "Twitch",  spellName = "HideInShadows", endposcast = false, useult = "no", gap = 0, description = "Q"},
+	{charName = "Xerath",  spellName = "XerathArcanopulseChargeUp", endposcast = false, useult = "no", gap = 0, description = "Q"},
 	-- Antigapcloser
-	{charName = "Aatrox", spellName = "AatroxQ", endposcast = true, useult = "no", cap = 1, spellSlot = "Q"},
-	{charName = "Corki", spellName = "CarpetBomb", endposcast = false, useult = "no", cap = 1, spellSlot = "W"},
-	{charName = "Diana", spellName = "DianaTeleport", endposcast = true, useult = "no", cap = 1, spellSlot = "R"},
-	{charName = "LeeSin", spellName = "blindmonkqtwo", endposcast = false, useult = "no", cap = 1, spellSlot = "Q"},
-	{charName = "Poppy", spellName = "PoppyHeroicCharge", endposcast = false, useult = "no", cap = 1, spellSlot = "E"},
-	{charName = "Shaco",  spellName = "Deceive", endposcast = true, useult = "no", cap = 1, spellSlot = "Q"},
-	{charName = "JarvanIV", spellName = "JarvanIVDragonStrike", endposcast = false, useult = "no", cap = 1, spellSlot = "Q"},
-	{charName = "Fiora", spellName = "FioraQ", endposcast = true, useult = "no", cap = 1, spellSlot = "Q"},
-	{charName = "Leblanc", spellName = "LeblancSlide", endposcast = true, useult = "no", cap = 1, spellSlot = "W"},
-	{charName = "Leblanc", spellName = "leblacslidereturn", endposcast = true, useult = "no", cap = 1, spellSlot = "W"},
-	{charName = "Fizz", spellName = "FizzPiercingStrike", endposcast = true, useult = "no", cap = 1, spellSlot = "Q"},
-	{charName = "Amumu", spellName = "BandageToss", endposcast = false, useult = "no", cap = 1, spellSlot = "Q"},
-	{charName = "Gragas", spellName = "GragasE", endposcast = false, useult = "no", cap = 1, spellSlot = "E"},
-	{charName = "Irelia", spellName = "IreliaGatotsu", endposcast = true, useult = "no", cap = 1, spellSlot = "Q"},
-	{charName = "Jax", spellName = "JaxLeapStrike", endposcast = false, useult = "no", cap = 1, spellSlot = "Q"},
-    {charName = "Khazix", spellName = "KhazixE", endposcast = false, useult = "no", cap = 1, spellSlot = "E"},
-    {charName = "Khazix", spellName = "khazixelong", endposcast = false, useult = "no", cap = 1, spellSlot = "E"},
-	{charName = "Braum", spellName = "BraumW", endposcast = true, useult = "no", cap = 1, spellSlot = "W"},
-	{charName = "Thresh", spellName = "threshqleap", endposcast = false, useult = "no", cap = 1, spellSlot = "Q 2"},
-    {charName = "Ahri", spellName = "AhriTumble", endposcast = true, useult = "no", cap = 1, spellSlot = "R"},
-    {charName = "Kassadin", spellName = "RiftWalk", endposcast = true, useult = "no", cap = 1, spellSlot = "R"},
-    {charName = "Tristana", spellName = "RocketJump", endposcast = false, useult = "no", cap = 1, spellSlot = "W"},
-	{charName = "Akali", spellName = "AkaliShadowDance", endposcast = true, useult = "no", cap = 1, spellSlot = "R"},
-	{charName = "Caitlyn", spellName = "CaitlynEntrapment", endposcast = false, useult = "no", cap = 1, spellSlot = "E"},
-	{charName = "Pantheon",  spellName = "PantheonW", endposcast = true, useult = "no", cap = 1, spellSlot = "W"},
-	{charName = "Quinn",  spellName = "QuinnE", endposcast = false, useult = "no", cap = 1, spellSlot = "E"},
-	{charName = "Renekton",  spellName = "RenektonSliceAndDice", endposcast = true, useult = "no", cap = 1, spellSlot = "E"},
-	{charName = "Sejuani",  spellName = "SejuaniArcticAssault", endposcast = false, useult = "no", cap = 1, spellSlot = "Q"},
-	{charName = "Shyvana",  spellName = "ShyvanaTransformCast", endposcast = false, useult = "no", cap = 1, spellSlot = "R"},
-	{charName = "Tryndamere",  spellName = "slashCast", endposcast = true, useult = "no", cap = 1, spellSlot = "E"},
-	{charName = "Vi",  spellName = "ViQ", endposcast = false, useult = "no", cap = 1, spellSlot = "Q"},
-	{charName = "XinZhao",  spellName = "XenZhaoSweep", endposcast = true, useult = "no", cap = 1, spellSlot = "E"},
-	{charName = "Yasuo",  spellName = "YasuoDashWrapper", endposcast = true, useult = "no", cap = 1, spellSlot = "E"},
-	{charName = "Leona", spellName = "LeonaZenithBlade", endposcast = false, useult = "no", cap = 1, spellSlot = "E"}
+	{charName = "Aatrox", spellName = "AatroxQ", endposcast = true, useult = "no", gap = 1, description = "Q"},
+	{charName = "Corki", spellName = "CarpetBomb", endposcast = false, useult = "no", gap = 1, description = "W"},
+	{charName = "Diana", spellName = "DianaTeleport", endposcast = false, useult = "no", gap = 1, description = "R"},
+	{charName = "LeeSin", spellName = "blindmonkqtwo", endposcast = false, useult = "no", gap = 1, description = "Q"},
+	{charName = "Poppy", spellName = "PoppyHeroicCharge", endposcast = false, useult = "no", gap = 1, description = "E"},
+	{charName = "Shaco",  spellName = "Deceive", endposcast = true, useult = "no", gap = 1, description = "Q"},
+	{charName = "JarvanIV", spellName = "JarvanIVDragonStrike", endposcast = false, useult = "no", gap = 1, description = "Q"},
+	{charName = "Fiora", spellName = "FioraQ", endposcast = true, useult = "no", gap = 1, description = "Q"},
+	{charName = "Leblanc", spellName = "LeblancSlide", endposcast = true, useult = "no", gap = 1, description = "W"},
+	{charName = "Leblanc", spellName = "leblacslidereturn", endposcast = true, useult = "no", gap = 1, description = "W"},
+	{charName = "Fizz", spellName = "FizzPiercingStrike", endposcast = true, useult = "no", gap = 1, description = "Q"},
+	{charName = "Amumu", spellName = "BandageToss", endposcast = false, useult = "no", gap = 1, description = "Q"},
+	{charName = "Gragas", spellName = "GragasE", endposcast = false, useult = "no", gap = 1, description = "E"},
+	{charName = "Irelia", spellName = "IreliaGatotsu", endposcast = true, useult = "no", gap = 1, description = "Q"},
+	{charName = "Jax", spellName = "JaxLeapStrike", endposcast = false, useult = "no", gap = 1, description = "Q"},
+    {charName = "Khazix", spellName = "KhazixE", endposcast = false, useult = "no", gap = 1, description = "E"},
+    {charName = "Khazix", spellName = "khazixelong", endposcast = false, useult = "no", gap = 1, description = "E"},
+	{charName = "Braum", spellName = "BraumW", endposcast = true, useult = "no", gap = 1, description = "W"},
+	{charName = "Thresh", spellName = "threshqleap", endposcast = false, useult = "no", gap = 1, description = "Q 2"},
+    {charName = "Ahri", spellName = "AhriTumble", endposcast = true, useult = "no", gap = 1, description = "R"},
+    {charName = "Kassadin", spellName = "RiftWalk", endposcast = true, useult = "no", gap = 1, description = "R"},
+    {charName = "Tristana", spellName = "RocketJump", endposcast = false, useult = "no", gap = 1, description = "W"},
+	{charName = "Akali", spellName = "AkaliShadowDance", endposcast = true, useult = "no", gap = 1, description = "R"},
+	{charName = "Caitlyn", spellName = "CaitlynEntrapment", endposcast = false, useult = "no", gap = 1, description = "E"},
+	{charName = "Pantheon",  spellName = "PantheonW", endposcast = true, useult = "no", gap = 1, description = "W"},
+	{charName = "Quinn",  spellName = "QuinnE", endposcast = false, useult = "no", gap = 1, description = "E"},
+	{charName = "Renekton",  spellName = "RenektonSliceAndDice", endposcast = true, useult = "no", gap = 1, description = "E"},
+	{charName = "Sejuani",  spellName = "SejuaniArcticAssault", endposcast = false, useult = "no", gap = 1, description = "Q"},
+	{charName = "Shyvana",  spellName = "ShyvanaTransformCast", endposcast = false, useult = "no", gap = 1, description = "R"},
+	{charName = "Tryndamere",  spellName = "slashCast", endposcast = true, useult = "no", gap = 1, description = "E"},
+	{charName = "Vi",  spellName = "ViQ", endposcast = false, useult = "no", gap = 1, description = "Q"},
+	{charName = "XinZhao",  spellName = "XenZhaoSweep", endposcast = true, useult = "no", gap = 1, description = "E"},
+	{charName = "Yasuo",  spellName = "YasuoDashWrapper", endposcast = true, useult = "no", gap = 1, description = "E"},
+	{charName = "Leona", spellName = "LeonaZenithBlade", endposcast = false, useult = "no", gap = 1, description = "E"}
 
 	}
 	
@@ -275,26 +273,26 @@ function OnLoad()
 	--JannaMenu:addParam("debugmode","debugmode", SCRIPT_PARAM_ONOFF, false)
 	JannaMenu:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 
-	JannaMenu:addParam("evadee","Evadeee Intergration", SCRIPT_PARAM_ONOFF, true)
+	JannaMenu:addParam("evadee","Evadeee Intergration", SCRIPT_PARAM_ONOFF, false)
 	
 	JannaMenu:addParam("AlwaysDoubleQ","Always Double Q Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("Y"))
 	JannaMenu:addParam("combo","Combo Key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 	JannaMenu:addParam("harassw","Harass W", SCRIPT_PARAM_ONKEYDOWN, false, 88)
 	JannaMenu:addParam("castq","Spam Q Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, 65)
 
-	-- interrupter + anticap
+	-- interrupter + antigap
 	for i, enemy in ipairs(GetEnemyHeroes()) do
-		for _, champ in pairs(SpellsDBInterrupt_Antigaplose) do
+		for _, champ in pairs(SpellsDBInterrupt_Antigapclose) do
 			if enemy.charName == champ.charName then
-			table.insert(SpellsTOInterrupt_Antigaplose, {charName = champ.charName, spellSlot = champ.spellSlot, spellName = champ.spellName, useult = champ.useult, cap = champ.cap, spellType = champ.spellType, endposcast = champ.endposcast})
+			table.insert(SpellsTOInterrupt_Antigapclose, {charName = champ.charName, description = champ.description, spellName = champ.spellName, useult = champ.useult, gap = champ.gap, spellType = champ.spellType, endposcast = champ.endposcast})
 			end
 		end
 	end
 
-	if #SpellsTOInterrupt_Antigaplose > 0 then
-		for _, Inter in pairs(SpellsTOInterrupt_Antigaplose) do
-				if Inter.cap == 0 then
-				JannaMenu.Int:addParam(Inter.spellName, ""..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName, SCRIPT_PARAM_ONOFF, true)
+	if #SpellsTOInterrupt_Antigapclose > 0 then
+		for _, Inter in pairs(SpellsTOInterrupt_Antigapclose) do
+				if Inter.gap == 0 then
+				JannaMenu.Int:addParam(Inter.spellName, ""..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName, SCRIPT_PARAM_ONOFF, true)
 				if Inter.useult == "no" then
 				JannaMenu.Int:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, false)
 				elseif Inter.useult == "yes" then
@@ -302,13 +300,19 @@ function OnLoad()
 				end
 				JannaMenu.Int:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 				
-				elseif Inter.cap == 1 then
-				JannaMenu.Antigapcloser:addParam(Inter.spellName, ""..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName, SCRIPT_PARAM_ONOFF, true)
-				if Inter.useult == "no" then
-				JannaMenu.Antigapcloser:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, false)
-				elseif Inter.useult == "yes" then
-				JannaMenu.Antigapcloser:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, true)
-				end
+				elseif Inter.gap == 1 then
+				JannaMenu.Antigapcloser:addParam(Inter.spellName, ""..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName, SCRIPT_PARAM_ONOFF, true)
+					if Inter.useult == "no" then
+					JannaMenu.Antigapcloser:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, false)
+					elseif Inter.useult == "yes" then
+					JannaMenu.Antigapcloser:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, true)
+					end
+					
+					if Inter.endposcast == true then 
+					JannaMenu.Antigapcloser:addParam(Inter.spellName..3, "Cast to: ", SCRIPT_PARAM_LIST, 2, { "Start Position", "End Position" })
+					elseif Inter.endposcast == false then
+					JannaMenu.Antigapcloser:addParam(Inter.spellName..3, "Cast to: ", SCRIPT_PARAM_LIST, 1, { "Start Position", "End Position" })
+					end
 				JannaMenu.Antigapcloser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 				end
 		end
@@ -347,8 +351,7 @@ function OnLoad()
 	JannaMenu:addSubMenu("[Orbwalker]", "Orbwalk")
 	JannaMenu.Orbwalk:addParam("standartts", "Use Standart TargetSelector", SCRIPT_PARAM_ONOFF, true)
 
-	
-	PrintChat("<font color='#c9d7ff'> Big Fat Janna's Assistant </font><font color='#64f879'> v. "..version.." </font><font color='#c9d7ff'> by Big Fat Nidalee, loaded! </font>")
+	PrintChat("<font color='#66cc00'>Big Fat Janna's Assistant</font><font color='#ffffff'> v. "..version.." </font><font color='#99ff99'>by Big Fat Nidalee,</font><font color='#66cc00'> loaded !</font>")
 end
 
 
@@ -458,15 +461,15 @@ end
 
 function OnProcessSpell(unit, spell)
 
-		if #SpellsTOInterrupt_Antigaplose > 0 then
-			for _, Inter in pairs(SpellsTOInterrupt_Antigaplose) do
+		if #SpellsTOInterrupt_Antigapclose > 0 then
+			for _, Inter in pairs(SpellsTOInterrupt_Antigapclose) do
 				if spell.name == Inter.spellName and not myHero.dead and unit.team ~= myHero.team then
 				
 				-- interupter
 
 					
 					if JannaMenu.Int[Inter.spellName] and QReady and myHero.mana >= ManaCost(Q) and ValidTarget(unit, QRangeMin) then
-					if JannaMenu.Int.interrupterdebug then PrintChat("Tried to interrupt with Q: " ..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName) end
+					if JannaMenu.Int.interrupterdebug then PrintChat("Tried to interrupt with Q: " ..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName) end
 					
 						if JannaMenu.ProdictionSettings.UsePacketsCast then
 						Packet("S_CAST", {spellId = _Q, fromX =  unit.x, fromY =  unit.z, toX =  unit.x, toY =  unit.z}):send()
@@ -486,16 +489,16 @@ function OnProcessSpell(unit, spell)
 						end
 
 					elseif JannaMenu.Int[Inter.spellName..2] and JannaMenu.Int[Inter.spellName] and not QReady and myHero.mana >= ManaCost(R) and RReady and ValidTarget(unit, RRange) then
-					if JannaMenu.Int.interrupterdebug then PrintChat("Tried to interrupt with R: " ..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName) end
+					if JannaMenu.Int.interrupterdebug then PrintChat("Tried to interrupt with R: " ..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName) end
 						CastSpell(_R)
 						
 					end 
 					
-					-- capcloser
-					if JannaMenu.Antigapcloser[Inter.spellName] and QReady and myHero.mana >= ManaCost(Q) and ValidTarget(unit, QRangeMin) then
-					if JannaMenu.Antigapcloser.Antigapcloserdebug then PrintChat("Antigapcloser: "  ..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName) end
+					-- gapcloser
+					if JannaMenu.Antigapcloser[Inter.spellName] and QReady and myHero.mana >= ManaCost(Q) and ValidTarget(unit, QRangeMin) and GetDistance(spell.endPos) <= ComfortRange then
+					if JannaMenu.Antigapcloser.Antigapcloserdebug then PrintChat("Antigapcloser: "  ..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName) end
 					
-						if Inter.endposcast == true then
+						if JannaMenu.Antigapcloser[Inter.spellName..3] == 2 then
 							if JannaMenu.ProdictionSettings.UsePacketsCast then
 
 							Packet("S_CAST", {spellId = _Q, fromX =  spell.endPos.x, fromY = spell.endPos.z, toX =  spell.endPos.x, toY = spell.endPos.z}):send()
@@ -514,7 +517,7 @@ function OnProcessSpell(unit, spell)
 							PrintChat("casted normal using Antigapcloser endpos")
 							end
 							end
-						elseif Inter.endposcast == false then
+						elseif JannaMenu.Antigapcloser[Inter.spellName..3] == 1 then						
 							if JannaMenu.ProdictionSettings.UsePacketsCast then
 
 							Packet("S_CAST", {spellId = _Q, fromX = spell.startPos.x, fromY = spell.startPos.z, toX = spell.startPos.x, toY = spell.startPos.z}):send()
@@ -540,7 +543,7 @@ function OnProcessSpell(unit, spell)
 				
 
 					elseif JannaMenu.Antigapcloser[Inter.spellName..2] and JannaMenu.Antigapcloser[Inter.spellName] and not QReady and myHero.mana >= ManaCost(R) and RReady and ValidTarget(unit, RRange) then
-					if JannaMenu.Antigapcloser.Antigapcloserdebug then PrintChat("Antigapcloser with R: " ..Inter.charName.. " | " ..Inter.spellSlot.. " - " ..Inter.spellName) end
+					if JannaMenu.Antigapcloser.Antigapcloserdebug then PrintChat("Antigapcloser with R: " ..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName) end
 						CastSpell(_R)
 						
 					end
@@ -686,7 +689,7 @@ function CastQ()
 	if QReady and not myHero.dead and GetDistance(Target) <= QRangeMin then
 	local qpos, qinfo = Prodiction.GetPrediction(Target, QRangeMin, QSpeed, QDelay, QWidth, myPlayer)
 			
-		if qpos and qinfo.hitchance >= 2 then
+		if qpos and qinfo.hitchance >= 1 then
 		secondqcheck = true	
 			if JannaMenu.ProdictionSettings.UsePacketsCast then
 			Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
@@ -968,4 +971,3 @@ function DrawCircleR(x, y, z, radius, color)
 		DrawCircleNextLvlW(x, y, z, radius, JannaMenu.Draws.RSettings.width, color, 75)	
 	end
 end 	
-
