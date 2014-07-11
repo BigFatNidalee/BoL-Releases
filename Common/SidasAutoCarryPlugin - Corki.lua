@@ -85,7 +85,7 @@ function PluginOnLoad()
 
 	if AutoCarry.Skills then IsSACReborn = true else IsSACReborn = false end
 
-	-- Disable SAC Reborn's skills. Ours are better.
+
 	if IsSACReborn then
 		AutoCarry.Skills:DisableAll()
 		AutoCarry.Plugins:RegisterBonusLastHitDamage(PassiveFarm)
@@ -156,7 +156,7 @@ function KS()
 	for i = 1, heroManager.iCount do
 	local enemy = heroManager:getHero(i)
 --	
-		if QReady and AutoCarry.PluginMenu.KSOptions.KSwithQ and ValidTarget(enemy, QRange) and not enemy.dead and enemy.health < getDmg("Q",enemy,myHero) and myHero.mana >= ManaCost(Q) then
+		if QReady and AutoCarry.PluginMenu.KSOptions.KSwithQ and ValidTarget(enemy, QRange) and not enemy.dead and enemy.health < getDmg("Q",enemy,myHero) and myHero.mana >= MyMana(Q) then
 		local qpos, qinfo = Prodiction.GetPrediction(enemy, QRange, QSpeed, QDelay, QWidth, myPlayer)
 		
 		if qpos and qinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.QHitchance then
@@ -175,7 +175,7 @@ function KS()
 		
 
 --
-		if RReady and AutoCarry.PluginMenu.KSOptions.KSwithR and ValidTarget(enemy, RRange) and not enemy.dead and enemy.health < getDmg("R",enemy,myHero) and myHero.mana >= ManaCost(R) then
+		if RReady and AutoCarry.PluginMenu.KSOptions.KSwithR and ValidTarget(enemy, RRange) and not enemy.dead and enemy.health < getDmg("R",enemy,myHero) and myHero.mana >= MyMana(R) then
 		local rpos, rinfo = Prodiction.GetPrediction(enemy, RRange, RSpeed, RDelay, RWidth, myPlayer)
 		local coll = Collision(RRange, RSpeed, RDelay, RWidth)
 		
@@ -194,7 +194,7 @@ function KS()
 		end
 --
 --
-		if RReady and QReady and AutoCarry.PluginMenu.KSOptions.KSwithR and AutoCarry.PluginMenu.KSOptions.KSwithQ and ValidTarget(enemy, QRange) and not enemy.dead and enemy.health < getDmg("R",enemy,myHero) + getDmg("Q",enemy,myHero) and myHero.mana >= ManaCost(R) then
+		if RReady and QReady and AutoCarry.PluginMenu.KSOptions.KSwithR and AutoCarry.PluginMenu.KSOptions.KSwithQ and ValidTarget(enemy, QRange) and not enemy.dead and enemy.health < getDmg("R",enemy,myHero) + getDmg("Q",enemy,myHero) and myHero.mana >= MyMana(R) then
 		local rpos, rinfo = Prodiction.GetPrediction(enemy, RRange, RSpeed, RDelay, RWidth, myPlayer)
 		local qpos, qinfo = Prodiction.GetPrediction(enemy, QRange, QSpeed, QDelay, QWidth, myPlayer)
 		local coll = Collision(RRange, RSpeed, RDelay, RWidth)
@@ -238,7 +238,7 @@ end
 function Combo()
 	if not Target then return end
 	
-	if AutoCarry.PluginMenu.Combo.UseQ and QReady and myHero.mana >= ManaCost(Q) and GetDistance(Target) <= QRange then
+	if AutoCarry.PluginMenu.Combo.UseQ and QReady and myHero.mana >= MyMana(Q) and GetDistance(Target) <= QRange then
 		--local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
 		local qpos, qinfo = Prodiction.GetCircularAOEPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
 		
@@ -250,7 +250,7 @@ function Combo()
 			end
 		end			
 	end 	
-	if AutoCarry.PluginMenu.Combo.UseE and EReady and myHero.mana >= ManaCost(E) and GetDistance(Target) <= ERange then
+	if AutoCarry.PluginMenu.Combo.UseE and EReady and myHero.mana >= MyMana(E) and GetDistance(Target) <= ERange then
 		local epos, einfo = Prodiction.GetPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
 		
 		if epos and einfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.EHitchance then
@@ -261,7 +261,7 @@ function Combo()
 			end
 		end		
 	end  	
-	if AutoCarry.PluginMenu.Combo.UseR and RReady and myHero.mana >= ManaCost(R) and GetDistance(Target) <= RRange then
+	if AutoCarry.PluginMenu.Combo.UseR and RReady and myHero.mana >= MyMana(R) and GetDistance(Target) <= RRange then
 		local rpos, rinfo = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
 		local coll = Collision(RRange, RSpeed, RDelay, RWidth)
 		
@@ -281,8 +281,8 @@ end
 function Harass1()
 	if not Target then return end
 	
-	if AutoCarry.PluginMenu.Harass.Harass1UseQ and QReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass1) and myHero.mana >= ManaCost(Q) and GetDistance(Target) <= QRange then
-		--local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
+	if AutoCarry.PluginMenu.Harass.Harass1UseQ and QReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass1) and myHero.mana >= MyMana(Q) and GetDistance(Target) <= QRange then
+
 		local qpos, qinfo = Prodiction.GetCircularAOEPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
 		
 		if qpos and qinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.QHitchance then
@@ -304,7 +304,7 @@ function Harass1()
 			end
 		end		
 	end  	
-	if AutoCarry.PluginMenu.Harass.Harass1UseR and RReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass1) and myHero.mana >= ManaCost(R) and GetDistance(Target) <= RRange then
+	if AutoCarry.PluginMenu.Harass.Harass1UseR and RReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass1) and myHero.mana >= MyMana(R) and GetDistance(Target) <= RRange then
 		local rpos, rinfo = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
 		local coll = Collision(RRange, RSpeed, RDelay, RWidth)
 		
@@ -322,8 +322,8 @@ end
 function Harass2()
 	if not Target then return end
 	
-	if AutoCarry.PluginMenu.Harass.Harass2UseQ and QReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass2) and myHero.mana >= ManaCost(Q) and GetDistance(Target) <= QRange then
-		--local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
+	if AutoCarry.PluginMenu.Harass.Harass2UseQ and QReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass2) and myHero.mana >= MyMana(Q) and GetDistance(Target) <= QRange then
+
 		local qpos, qinfo = Prodiction.GetCircularAOEPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
 		
 		if qpos and qinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.QHitchance then
@@ -345,7 +345,7 @@ function Harass2()
 			end
 		end		
 	end  	
-	if AutoCarry.PluginMenu.Harass.Harass2UseR and RReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass2) and myHero.mana >= ManaCost(R) and GetDistance(Target) <= RRange then
+	if AutoCarry.PluginMenu.Harass.Harass2UseR and RReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass2) and myHero.mana >= MyMana(R) and GetDistance(Target) <= RRange then
 		local rpos, rinfo = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
 		local coll = Collision(RRange, RSpeed, RDelay, RWidth)
 		
@@ -360,7 +360,6 @@ function Harass2()
 
 end 
 
-
 -- << --  -- << --  -- << --  -- << -- [MANA]  -- >> --  -- >> --  -- >> --  -- >> --
  
 function mymanaislowerthen(percent)
@@ -371,7 +370,7 @@ function mymanaislowerthen(percent)
     end
 end
 
-function ManaCost(spell)
+function MyMana(spell)
 	if spell == Q then
 		return 50 + (10 * myHero:GetSpellData(_Q).level)
 	elseif spell == E then
