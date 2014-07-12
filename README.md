@@ -7,11 +7,17 @@ includes anticapcloser, interrupter, boost dmg output, ks, and simple sbtw
 ============
 prodiction 1.0+. 
 includes:
+
 Combo: Q/E/R
+
 Harass: Q/E/R  with manamanager on Mixed/Laneclear mods
+
 KS: QR/Q/R
+
 Skin Hack by Shalzuth
+
 Low FPS Draws
+
 Prodiction: Hitchance, Packet Cast
 
 I reommend to use Prodiction 1.1a for max performance
