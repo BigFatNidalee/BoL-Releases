@@ -1,6 +1,6 @@
 if myHero.charName ~= "Corki" then return end
 
-local version = "0.17"
+local version = "0.18"
 
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
@@ -29,12 +29,13 @@ end
 
 	local Target = AutoCarry.GetAttackTarget()
 	local QReady, WReady, EReady, RReady = false, false, false, false
-	local QRange, QSpeed, QDelay, QWidth = 825, 1500, 0.350, 220
+	local QRange, QSpeed, QDelay, QWidth = 825, 1500, 0.350, 250
 	local WRange = 800
 	local ERange, ESpeed, EDelay, EWidth = 720, 902, 0.5, 100
-	local RRange, RSpeed, RDelay, RWidth = 1225, 2000, 0.165, 80
+	local RRange, RSpeed, RDelay, RWidth, RWidthCol = 1220, 2000, 0.200, 40, 60
 	local ksfilter = false
 	local lastSkin = 0
+
 
 function PluginOnLoad()
 
@@ -190,7 +191,7 @@ function KS()
 --
 		if RReady and AutoCarry.PluginMenu.KSOptions.KSwithR and ValidTarget(enemy, RRange) and not enemy.dead and enemy.health < getDmg("R",enemy,myHero) and myHero.mana >= MyMana(R) then
 		local rpos, rinfo = Prodiction.GetPrediction(enemy, RRange, RSpeed, RDelay, RWidth, myPlayer)
-		local coll = Collision(RRange, RSpeed, RDelay, RWidth)
+		local coll = Collision(RRange, RSpeed, RDelay, RWidthCol)
 
 		if rpos and rinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.RHitchance and not coll:GetMinionCollision(rpos, myHero) then
 
@@ -210,7 +211,7 @@ function KS()
 		if RReady and QReady and AutoCarry.PluginMenu.KSOptions.KSwithR and AutoCarry.PluginMenu.KSOptions.KSwithQ and ValidTarget(enemy, QRange) and not enemy.dead and enemy.health < getDmg("R",enemy,myHero) + getDmg("Q",enemy,myHero) and myHero.mana >= MyMana(R) then
 		local rpos, rinfo = Prodiction.GetPrediction(enemy, RRange, RSpeed, RDelay, RWidth, myPlayer)
 		local qpos, qinfo = Prodiction.GetPrediction(enemy, QRange, QSpeed, QDelay, QWidth, myPlayer)
-		local coll = Collision(RRange, RSpeed, RDelay, RWidth)
+		local coll = Collision(RRange, RSpeed, RDelay, RWidthCol)
 		
 		if rpos and qpos and rinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.RHitchance and not coll:GetMinionCollision(rpos, myHero) then
 
@@ -273,7 +274,7 @@ function Combo()
 	end  
 	if AutoCarry.PluginMenu.Combo.UseR and RReady and myHero.mana >= MyMana(R) and GetDistance(Target) <= RRange then
 		local rpos, rinfo = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
-		local coll = Collision(RRange, RSpeed, RDelay, RWidth)
+		local coll = Collision(RRange, RSpeed, RDelay, RWidthCol)
 		
 		if rpos and rinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.RHitchance and not coll:GetMinionCollision(rpos, myHero) then
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
@@ -316,7 +317,7 @@ function Harass1()
 	end  
 	if AutoCarry.PluginMenu.Harass.Harass1UseR and RReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass1) and myHero.mana >= MyMana(R) and GetDistance(Target) <= RRange then
 		local rpos, rinfo = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
-		local coll = Collision(RRange, RSpeed, RDelay, RWidth)
+		local coll = Collision(RRange, RSpeed, RDelay, RWidthCol)
 
 		if rpos and rinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.RHitchance and not coll:GetMinionCollision(rpos, myHero) then
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
@@ -357,7 +358,7 @@ function Harass2()
 	end
 	if AutoCarry.PluginMenu.Harass.Harass2UseR and RReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass2) and myHero.mana >= MyMana(R) and GetDistance(Target) <= RRange then
 		local rpos, rinfo = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
-		local coll = Collision(RRange, RSpeed, RDelay, RWidth)
+		local coll = Collision(RRange, RSpeed, RDelay, RWidthCol)
 
 		if rpos and rinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.RHitchance and not coll:GetMinionCollision(rpos, myHero) then
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
