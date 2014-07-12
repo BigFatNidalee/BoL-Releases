@@ -27,14 +27,14 @@ AutoupdaterMsg("Error downloading version info")
 end
 end
 
-local Target = AutoCarry.GetAttackTarget()
-local QReady, WReady, EReady, RReady = false, false, false, false
-local QRange, QSpeed, QDelay, QWidth = 825, 1500, 0.350, 220
-local WRange = 800
-local ERange, ESpeed, EDelay, EWidth = 720, 902, 0.5, 100
-local RRange, RSpeed, RDelay, RWidth = 1225, 2000, 0.165, 80
-local ksfilter = false
-local lastSkin = 0
+	local Target = AutoCarry.GetAttackTarget()
+	local QReady, WReady, EReady, RReady = false, false, false, false
+	local QRange, QSpeed, QDelay, QWidth = 825, 1500, 0.350, 220
+	local WRange = 800
+	local ERange, ESpeed, EDelay, EWidth = 720, 902, 0.5, 100
+	local RRange, RSpeed, RDelay, RWidth = 1225, 2000, 0.165, 80
+	local ksfilter = false
+	local lastSkin = 0
 
 function PluginOnLoad()
 
@@ -42,26 +42,25 @@ function PluginOnLoad()
 	require "Collision"
 	require "Prodiction"
 
-	
+
 	AutoCarry.PluginMenu:addSubMenu("[Combo]", "Combo")
 	AutoCarry.PluginMenu.Combo:addParam("UseQ","Use Q", SCRIPT_PARAM_ONOFF, true)
 	AutoCarry.PluginMenu.Combo:addParam("UseE","Use E", SCRIPT_PARAM_ONOFF, true)
 	AutoCarry.PluginMenu.Combo:addParam("UseR","Use R", SCRIPT_PARAM_ONOFF, true)
-	
+
 	AutoCarry.PluginMenu:addSubMenu("[Harass]", "Harass")
 	AutoCarry.PluginMenu.Harass:addParam("info", "~=[ Harass Mixed Mode ]=~", SCRIPT_PARAM_INFO, "")
-    	AutoCarry.PluginMenu.Harass:addParam("Harass1UseQ","Use Q", SCRIPT_PARAM_ONOFF, true)
-    	AutoCarry.PluginMenu.Harass:addParam("Harass1UseE","Use E", SCRIPT_PARAM_ONOFF, false)
-    	AutoCarry.PluginMenu.Harass:addParam("Harass1UseR","Use R", SCRIPT_PARAM_ONOFF, true)
+	AutoCarry.PluginMenu.Harass:addParam("Harass1UseQ","Use Q", SCRIPT_PARAM_ONOFF, true)
+	AutoCarry.PluginMenu.Harass:addParam("Harass1UseE","Use E", SCRIPT_PARAM_ONOFF, false)
+	AutoCarry.PluginMenu.Harass:addParam("Harass1UseR","Use R", SCRIPT_PARAM_ONOFF, true)
 	AutoCarry.PluginMenu.Harass:addParam("ManaSliderHarass1", "Min mana to use skills",   SCRIPT_PARAM_SLICE, 55, 0, 100, 0)
-	
+
 	AutoCarry.PluginMenu.Harass:addParam("info", "~=[ Harass Lane Clear ]=~", SCRIPT_PARAM_INFO, "")
-    	AutoCarry.PluginMenu.Harass:addParam("Harass2UseQ","Use Q", SCRIPT_PARAM_ONOFF, true)
-    	AutoCarry.PluginMenu.Harass:addParam("Harass2UseE","Use E", SCRIPT_PARAM_ONOFF, false)
-    	AutoCarry.PluginMenu.Harass:addParam("Harass2UseR","Use R", SCRIPT_PARAM_ONOFF, true)
+	AutoCarry.PluginMenu.Harass:addParam("Harass2UseQ","Use Q", SCRIPT_PARAM_ONOFF, true)
+	AutoCarry.PluginMenu.Harass:addParam("Harass2UseE","Use E", SCRIPT_PARAM_ONOFF, false)
+	AutoCarry.PluginMenu.Harass:addParam("Harass2UseR","Use R", SCRIPT_PARAM_ONOFF, true)
 	AutoCarry.PluginMenu.Harass:addParam("ManaSliderHarass2", "Min mana to use skills",   SCRIPT_PARAM_SLICE, 55, 0, 100, 0)
-	
-	
+
 	AutoCarry.PluginMenu:addSubMenu("[Prodiction Settings]", "ProdictionSettings")
 	AutoCarry.PluginMenu.ProdictionSettings:addParam("UsePacketsCast","Use Packets Cast", SCRIPT_PARAM_ONOFF, true)
 	AutoCarry.PluginMenu.ProdictionSettings:addParam("info0", "", SCRIPT_PARAM_INFO, "")
@@ -71,11 +70,11 @@ function PluginOnLoad()
 	AutoCarry.PluginMenu.ProdictionSettings:addParam("info", "", SCRIPT_PARAM_INFO, "")
 	AutoCarry.PluginMenu.ProdictionSettings:addParam("info2", "HITCHANCE:", SCRIPT_PARAM_INFO, "")
 	AutoCarry.PluginMenu.ProdictionSettings:addParam("info3", "LOW = 1  NORMAL = 2  HIGH = 3", SCRIPT_PARAM_INFO, "")
-	
+
 	AutoCarry.PluginMenu:addSubMenu("[KS Options]", "KSOptions")
 	AutoCarry.PluginMenu.KSOptions:addParam("KSwithQ","KS with Q", SCRIPT_PARAM_ONOFF, true)
 	AutoCarry.PluginMenu.KSOptions:addParam("KSwithR","KS with R", SCRIPT_PARAM_ONOFF, true)
-	
+
 	AutoCarry.PluginMenu:addSubMenu("[Draws]", "Draws")
 	AutoCarry.PluginMenu.Draws:addSubMenu("[Q Settings]", "QSettings")
 	AutoCarry.PluginMenu.Draws.QSettings:addParam("colorAA", "Circle Color", SCRIPT_PARAM_COLOR, {255, 0, 255, 0})
@@ -99,28 +98,21 @@ function PluginOnLoad()
 	AutoCarry.PluginMenu.Draws:addParam("DrawERange","Draw E Range", SCRIPT_PARAM_ONOFF, false)
 	AutoCarry.PluginMenu.Draws:addParam("DrawRRange","Draw R Range", SCRIPT_PARAM_ONOFF, false)
 	
-	
 	AutoCarry.PluginMenu:addParam("info8", "", SCRIPT_PARAM_INFO, "")
 	AutoCarry.PluginMenu:addParam("skin", "Skin Hack by Shalzuth:", SCRIPT_PARAM_LIST, 5, { "UFO", "Ice Toboggan", "Red Baron", "Hot Rod", "Urfrider", "Dragonwing", "No Skin" })
 	AutoCarry.PluginMenu:addParam("info8", "", SCRIPT_PARAM_INFO, "")
 	AutoCarry.PluginMenu:addParam("info", "Big Fat Corki v. "..version.."", SCRIPT_PARAM_INFO, "")
 	AutoCarry.PluginMenu:addParam("info9", "by Big Fat Nidalee", SCRIPT_PARAM_INFO, "")
 
-	
 
 	if AutoCarry.Skills then IsSACReborn = true else IsSACReborn = false end
 
-
 	if IsSACReborn then
-		AutoCarry.Skills:DisableAll()
-		AutoCarry.Plugins:RegisterBonusLastHitDamage(PassiveFarm)
+	AutoCarry.Skills:DisableAll()
+	AutoCarry.Plugins:RegisterBonusLastHitDamage(PassiveFarm)
 	end
 	
-	
-	
 	PrintChat("<font color='#c9d7ff'>Big Fat Corki: </font><font color='#64f879'> v. "..version.." </font><font color='#c9d7ff'> loaded, happy elo boosting! </font>")
-
-
 
 end 
 
@@ -137,9 +129,6 @@ function PluginOnTick()
 	if Target and AutoCarry.MainMenu.MixedMode and not ksfilter == true then Harass1() end
 	if Target and AutoCarry.MainMenu.LaneClear and not ksfilter == true then Harass2() end
 	SkinHack()
-
-	
-
 
 end 
 
@@ -168,7 +157,6 @@ function GenModelPacket(champ, skinId)
 	RecvPacket(p)
 end
 
-
 function SkinHack()
 if AutoCarry.PluginMenu.skin ~= lastSkin and VIP_USER then
 	lastSkin = AutoCarry.PluginMenu.skin
@@ -183,37 +171,37 @@ function KS()
 --	
 		if QReady and AutoCarry.PluginMenu.KSOptions.KSwithQ and ValidTarget(enemy, QRange) and not enemy.dead and enemy.health < getDmg("Q",enemy,myHero) and myHero.mana >= MyMana(Q) then
 		local qpos, qinfo = Prodiction.GetPrediction(enemy, QRange, QSpeed, QDelay, QWidth, myPlayer)
-		
+
 		if qpos and qinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.QHitchance then
-			
+
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+			Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 			else 
 			CastSpell(_Q, qpos.x, qpos.z)
 			end
-			
+
 		ksfilter = true 
-		
+
 		end	
 		else ksfilter = false
 		end
-		
+
 
 --
 		if RReady and AutoCarry.PluginMenu.KSOptions.KSwithR and ValidTarget(enemy, RRange) and not enemy.dead and enemy.health < getDmg("R",enemy,myHero) and myHero.mana >= MyMana(R) then
 		local rpos, rinfo = Prodiction.GetPrediction(enemy, RRange, RSpeed, RDelay, RWidth, myPlayer)
 		local coll = Collision(RRange, RSpeed, RDelay, RWidth)
-		
+
 		if rpos and rinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.RHitchance and not coll:GetMinionCollision(rpos, myHero) then
 
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
+			Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
 			else 
 			CastSpell(_R, rpos.x, rpos.z)
 			end
-			
+
 		ksfilter = true 
-		
+
 		end	
 		else ksfilter = false
 		end
@@ -226,22 +214,20 @@ function KS()
 		
 		if rpos and qpos and rinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.RHitchance and not coll:GetMinionCollision(rpos, myHero) then
 
-			
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+			Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 			else 
 			CastSpell(_Q, qpos.x, qpos.z)
 			end
-			
-			
+
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
+			Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
 			else 
 			CastSpell(_R, rpos.x, rpos.z)
 			end
-			
+
 		ksfilter = true 
-		
+
 		end	
 		else ksfilter = false
 		end
@@ -264,17 +250,16 @@ function Combo()
 	if not Target then return end
 	
 	if AutoCarry.PluginMenu.Combo.UseQ and QReady and myHero.mana >= MyMana(Q) and GetDistance(Target) <= QRange then
-		--local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
 		local qpos, qinfo = Prodiction.GetCircularAOEPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
 		
 		if qpos and qinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.QHitchance then
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+			Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 			else 
 			CastSpell(_Q, qpos.x, qpos.z)
 			end
-		end			
-	end 	
+		end	
+	end 
 	if AutoCarry.PluginMenu.Combo.UseE and EReady and myHero.mana >= MyMana(E) and GetDistance(Target) <= ERange then
 		local epos, einfo = Prodiction.GetPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
 		
@@ -284,19 +269,19 @@ function Combo()
 			else 
 			CastSpell(_E, epos.x, epos.z)
 			end
-		end		
-	end  	
+		end	
+	end  
 	if AutoCarry.PluginMenu.Combo.UseR and RReady and myHero.mana >= MyMana(R) and GetDistance(Target) <= RRange then
 		local rpos, rinfo = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
 		local coll = Collision(RRange, RSpeed, RDelay, RWidth)
 		
 		if rpos and rinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.RHitchance and not coll:GetMinionCollision(rpos, myHero) then
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
+			Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
 			else 
 			CastSpell(_R, rpos.x, rpos.z)
 			end
-		end		
+		end	
 	end 
 
 end 
@@ -312,12 +297,12 @@ function Harass1()
 		
 		if qpos and qinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.QHitchance then
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+			Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 			else 
 			CastSpell(_Q, qpos.x, qpos.z)
 			end
-		end			
-	end 	
+		end	
+	end 
 	if AutoCarry.PluginMenu.Harass.Harass1UseE and EReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass1)  and GetDistance(Target) <= ERange then
 		local epos, einfo = Prodiction.GetPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
 		
@@ -327,19 +312,19 @@ function Harass1()
 			else 
 			CastSpell(_E, epos.x, epos.z)
 			end
-		end		
-	end  	
+		end	
+	end  
 	if AutoCarry.PluginMenu.Harass.Harass1UseR and RReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass1) and myHero.mana >= MyMana(R) and GetDistance(Target) <= RRange then
 		local rpos, rinfo = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
 		local coll = Collision(RRange, RSpeed, RDelay, RWidth)
-		
+
 		if rpos and rinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.RHitchance and not coll:GetMinionCollision(rpos, myHero) then
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
+			Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
 			else 
 			CastSpell(_R, rpos.x, rpos.z)
 			end
-		end		
+		end	
 	end 
 
 end 
@@ -350,37 +335,37 @@ function Harass2()
 	if AutoCarry.PluginMenu.Harass.Harass2UseQ and QReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass2) and myHero.mana >= MyMana(Q) and GetDistance(Target) <= QRange then
 
 		local qpos, qinfo = Prodiction.GetCircularAOEPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
-		
+
 		if qpos and qinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.QHitchance then
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
 				Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 			else 
 			CastSpell(_Q, qpos.x, qpos.z)
 			end
-		end			
-	end 	
+		end	
+	end 
 	if AutoCarry.PluginMenu.Harass.Harass2UseE and EReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass2)  and GetDistance(Target) <= ERange then
 		local epos, einfo = Prodiction.GetPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
-		
+
 		if epos and einfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.EHitchance then
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
+			Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
 			else 
 			CastSpell(_E, epos.x, epos.z)
 			end
-		end		
-	end  	
+		end	
+	end
 	if AutoCarry.PluginMenu.Harass.Harass2UseR and RReady and not mymanaislowerthen(AutoCarry.PluginMenu.Harass.ManaSliderHarass2) and myHero.mana >= MyMana(R) and GetDistance(Target) <= RRange then
 		local rpos, rinfo = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
 		local coll = Collision(RRange, RSpeed, RDelay, RWidth)
-		
+
 		if rpos and rinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.RHitchance and not coll:GetMinionCollision(rpos, myHero) then
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
+			Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
 			else 
 			CastSpell(_R, rpos.x, rpos.z)
 			end
-		end		
+		end	
 	end 
 
 end 
@@ -394,10 +379,10 @@ function PluginOnDraw()
 		end	
 		if WReady and AutoCarry.PluginMenu.Draws.DrawWRange and not myHero.dead then
 		DrawCircleW(myHero.x, myHero.y, myHero.z, WRange, ARGB(AutoCarry.PluginMenu.Draws.WSettings.colorAA[1],AutoCarry.PluginMenu.Draws.WSettings.colorAA[2],AutoCarry.PluginMenu.Draws.WSettings.colorAA[3],AutoCarry.PluginMenu.Draws.WSettings.colorAA[4]))
-		end		
+		end	
 		if EReady and AutoCarry.PluginMenu.Draws.DrawERange and not myHero.dead then
 		DrawCircleE(myHero.x, myHero.y, myHero.z, ERange, ARGB(AutoCarry.PluginMenu.Draws.ESettings.colorAA[1],AutoCarry.PluginMenu.Draws.ESettings.colorAA[2],AutoCarry.PluginMenu.Draws.ESettings.colorAA[3],AutoCarry.PluginMenu.Draws.ESettings.colorAA[4]))
-		end		
+		end	
 		if RReady and AutoCarry.PluginMenu.Draws.DrawRRange and not myHero.dead then
 		DrawCircleR(myHero.x, myHero.y, myHero.z, RRange, ARGB(AutoCarry.PluginMenu.Draws.RSettings.colorAA[1],AutoCarry.PluginMenu.Draws.RSettings.colorAA[2],AutoCarry.PluginMenu.Draws.RSettings.colorAA[3],AutoCarry.PluginMenu.Draws.RSettings.colorAA[4]))
 		end	
@@ -425,7 +410,6 @@ function PluginOnDraw()
 		end
 	end
 	end
-	
 
 end 
 
@@ -454,7 +438,7 @@ function DrawCircleQ(x, y, z, radius, color)
 	if OnScreen({ x = sPos.x, y = sPos.y }, { x = sPos.x, y = sPos.y })  then
 		DrawCircleNextLvlQ(x, y, z, radius, AutoCarry.PluginMenu.Draws.QSettings.width, color, 75)	
 	end
-end 	
+end 
 
 --W Range Circle QUality
 function DrawCircleNextLvlW(x, y, z, radius, width, color, chordlength)
@@ -480,8 +464,8 @@ function DrawCircleW(x, y, z, radius, color)
 	if OnScreen({ x = sPos.x, y = sPos.y }, { x = sPos.x, y = sPos.y })  then
 		DrawCircleNextLvlW(x, y, z, radius, AutoCarry.PluginMenu.Draws.WSettings.width, color, 75)	
 	end
-end 	
-	
+end 
+
 
 --E Range Circle QUality
 function DrawCircleNextLvlE(x, y, z, radius, width, color, chordlength)
@@ -507,8 +491,8 @@ function DrawCircleE(x, y, z, radius, color)
 	if OnScreen({ x = sPos.x, y = sPos.y }, { x = sPos.x, y = sPos.y })  then
 		DrawCircleNextLvlW(x, y, z, radius, AutoCarry.PluginMenu.Draws.ESettings.width, color, 75)	
 	end
-end 	
-	
+end 
+
 
 --R Range Circle QUality
 function DrawCircleNextLvlR(x, y, z, radius, width, color, chordlength)
@@ -534,7 +518,7 @@ function DrawCircleR(x, y, z, radius, color)
 	if OnScreen({ x = sPos.x, y = sPos.y }, { x = sPos.x, y = sPos.y })  then
 		DrawCircleNextLvlW(x, y, z, radius, AutoCarry.PluginMenu.Draws.RSettings.width, color, 75)	
 	end
-end 	
+end 
 
 
 -- << --  -- << --  -- << --  -- << -- [MANA]  -- >> --  -- >> --  -- >> --  -- >> --
@@ -557,6 +541,4 @@ function MyMana(spell)
 	elseif spell == R then
 		return 20
 	end
-end			
-
-
+end	
