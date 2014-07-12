@@ -1,7 +1,30 @@
 [Big Fat Janna's Assistant ] (http://botoflegends.com/forum/topic/26471-script-free-big-fat-jannas-assistant/)
 ============
 prodiction 1.0+. 
-includes anticapcloser, interrupter, boost dmg output, ks, and simple sbtw
+includes:
+
+Interrupter -> Interrupts important spells with Q or Ult.
+
+Antigapcloser -> Will let your enemys forever alone and makes Leona rage ^---^
+
+Boost Allies Dmg Output with mana manager -> For example Cait casts ult and you gonna shild her.
+
+Simple SBTW -> Q and W
+
+Harass -> W
+
+Spam Q Toggle -> just turn it on only if get chased
+
+KS -> with W and Q
+
+Draws -> Q, W, E, R lagfree
+
+Shild Towers if enemys get tower aggro
+
+Always Double Q Toggle -> you can turn it on if wanna always double q manualy
+
+SOW
+
 
 [Big Fat Corki ] (http://botoflegends.com/forum/topic/28814-reborn-plugin-free-big-fat-corki/)
 ============
