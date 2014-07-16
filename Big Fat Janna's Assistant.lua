@@ -1,6 +1,6 @@
 if myHero.charName ~= "Janna" then return end
 	
-local version = "0.07"
+local version = "0.08"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Janna's Assistant.lua".."?rand="..math.random(1,10000)
@@ -81,7 +81,8 @@ local	SpellsDBInterrupt_Antigapclose =
 	{charName = "Fizz", spellName = "FizzPiercingStrike", endposcast = true, useult = "no", gap = 1, description = "Q"},
 	{charName = "Amumu", spellName = "BandageToss", endposcast = false, useult = "no", gap = 1, description = "Q"},
 	{charName = "Gragas", spellName = "GragasE", endposcast = false, useult = "no", gap = 1, description = "E"},
-	{charName = "Irelia", spellName = "IreliaGatotsu", endposcast = true, useult = "no", gap = 1, description = "Q"},
+	{charName = "Irelia", spellName = "IreliaGatotsu", endposcast = false, useult = "no", gap = 1, description = "Q"},
+	{charName = "Alistar", spellName = "Headbutt", endposcast = false, useult = "no", gap = 1, description = "W"},
 	{charName = "Jax", spellName = "JaxLeapStrike", endposcast = false, useult = "no", gap = 1, description = "Q"},
     {charName = "Khazix", spellName = "KhazixE", endposcast = false, useult = "no", gap = 1, description = "E"},
     {charName = "Khazix", spellName = "khazixelong", endposcast = false, useult = "no", gap = 1, description = "E"},
@@ -705,9 +706,6 @@ end
 function CastW()
 
 	if WReady and GetDistance(Target) <= WRange then 
-		if JannaMenu.debugmode then
-        PrintChat("casted normal W sbtw")
-		end
 		if JannaMenu.ProdictionSettings.UsePacketsCast then
 		Packet("S_CAST", {spellId = _W, targetNetworkId = Target.networkID}):send()
 		else
