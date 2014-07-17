@@ -1,6 +1,6 @@
 if myHero.charName ~= "Janna" then return end
 	
-local version = "0.08"
+local version = "0.09"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Janna's Assistant.lua".."?rand="..math.random(1,10000)
@@ -26,219 +26,109 @@ AutoupdaterMsg("Error downloading version info")
 end
 end
 
-local QRangeMin, QSpeed, QDelay, QWidth = 1025, 910, 0, 200
-local ComfortRange = 950 
+local QRange, QSpeed, QDelay, QWidth = 1025, 910, 0, 200
 local RRange = 700
 local WRange = 600
 local ERange = 800
+--x2Q
 local onHowlingGale = false 
 local secondqcheck = false
-
-
---[MMA & SAC Information]--
-local starttick = 0
-local checkedMMASAC = false
-local is_MMA = false
-local is_REVAMP = false
-local is_REBORN = false
-local is_SAC = false
-local itsme = false
-
-
-local	SpellsTOInterrupt_Antigapclose = {}
-local	SpellsDBInterrupt_Antigapclose = 
-{
-	-- Interrupter
-	{charName = "FiddleSticks", spellName = "Drain", endposcast = false, useult = "no", gap = 0, description = "W"},
-	{charName = "FiddleSticks", spellName = "Crowstorm", endposcast = false, useult = "yes", gap = 0, description = "R"},
-    {charName = "MissFortune", spellName = "MissFortuneBulletTime", endposcast = false, useult = "yes", gap = 0, description = "R"},
-	{charName = "Caitlyn", spellName = "CaitlynAceintheHole", endposcast = false, useult = "no", gap = 0, description = "R"},
-    {charName = "Katarina", spellName = "KatarinaR", endposcast = false, useult = "yes", gap = 0, description = "R"},
-	{charName = "Karthus", spellName = "FallenOne", endposcast = false, useult = "yes", gap = 0, description = "R"},
-	{charName = "Malzahar", spellName = "AlZaharNetherGrasp", endposcast = false, useult = "yes", gap = 0, description = "R"},
-	{charName = "Galio", spellName = "GalioIdolOfDurand", endposcast = false, useult = "yes", gap = 0, description = "R"},
-	{charName = "Lucian", spellName = "LucianR", endposcast = false, useult = "no", gap = 0, description = "R"},	
-	{charName = "Shen",  spellName = "ShenStandUnited", endposcast = false, useult = "no", gap = 0, description = "R"},
-	{charName = "Urgot",  spellName = "UrgotSwap2", endposcast = false, useult = "no", gap = 0, description = "R"},
-	{charName = "Pantheon",  spellName = "PantheonRJump", endposcast = false, useult = "no", gap = 0, description = "R"},
-	{charName = "Warwick",  spellName = "InfiniteDuress", endposcast = false, useult = "yes", gap = 0, description = "R"},
-	{charName = "Xerath",  spellName = "XerathLocusOfPower2", endposcast = false, useult = "yes", gap = 0, description = "R"},
-	{charName = "Velkoz",  spellName = "VelkozR", endposcast = false, useult = "no", gap = 0, description = "R"},
-	{charName = "Zac",  spellName = "ZacE", endposcast = false, useult = "no", gap = 0, description = "E"},
-	{charName = "Twitch",  spellName = "HideInShadows", endposcast = false, useult = "no", gap = 0, description = "Q"},
-	{charName = "Xerath",  spellName = "XerathArcanopulseChargeUp", endposcast = false, useult = "no", gap = 0, description = "Q"},
-	-- Antigapcloser
-	{charName = "Aatrox", spellName = "AatroxQ", endposcast = true, useult = "no", gap = 1, description = "Q"},
-	{charName = "Corki", spellName = "CarpetBomb", endposcast = false, useult = "no", gap = 1, description = "W"},
-	{charName = "Diana", spellName = "DianaTeleport", endposcast = false, useult = "no", gap = 1, description = "R"},
-	{charName = "LeeSin", spellName = "blindmonkqtwo", endposcast = false, useult = "no", gap = 1, description = "Q"},
-	{charName = "Poppy", spellName = "PoppyHeroicCharge", endposcast = false, useult = "no", gap = 1, description = "E"},
-	{charName = "Shaco",  spellName = "Deceive", endposcast = true, useult = "no", gap = 1, description = "Q"},
-	{charName = "JarvanIV", spellName = "JarvanIVDragonStrike", endposcast = false, useult = "no", gap = 1, description = "Q"},
-	{charName = "Fiora", spellName = "FioraQ", endposcast = true, useult = "no", gap = 1, description = "Q"},
-	{charName = "Leblanc", spellName = "LeblancSlide", endposcast = true, useult = "no", gap = 1, description = "W"},
-	{charName = "Leblanc", spellName = "leblacslidereturn", endposcast = true, useult = "no", gap = 1, description = "W"},
-	{charName = "Fizz", spellName = "FizzPiercingStrike", endposcast = true, useult = "no", gap = 1, description = "Q"},
-	{charName = "Amumu", spellName = "BandageToss", endposcast = false, useult = "no", gap = 1, description = "Q"},
-	{charName = "Gragas", spellName = "GragasE", endposcast = false, useult = "no", gap = 1, description = "E"},
-	{charName = "Irelia", spellName = "IreliaGatotsu", endposcast = false, useult = "no", gap = 1, description = "Q"},
-	{charName = "Alistar", spellName = "Headbutt", endposcast = false, useult = "no", gap = 1, description = "W"},
-	{charName = "Jax", spellName = "JaxLeapStrike", endposcast = false, useult = "no", gap = 1, description = "Q"},
-    {charName = "Khazix", spellName = "KhazixE", endposcast = false, useult = "no", gap = 1, description = "E"},
-    {charName = "Khazix", spellName = "khazixelong", endposcast = false, useult = "no", gap = 1, description = "E"},
-	{charName = "Braum", spellName = "BraumW", endposcast = true, useult = "no", gap = 1, description = "W"},
-	{charName = "Thresh", spellName = "threshqleap", endposcast = false, useult = "no", gap = 1, description = "Q 2"},
-    {charName = "Ahri", spellName = "AhriTumble", endposcast = true, useult = "no", gap = 1, description = "R"},
-    {charName = "Kassadin", spellName = "RiftWalk", endposcast = true, useult = "no", gap = 1, description = "R"},
-    {charName = "Tristana", spellName = "RocketJump", endposcast = false, useult = "no", gap = 1, description = "W"},
-	{charName = "Akali", spellName = "AkaliShadowDance", endposcast = true, useult = "no", gap = 1, description = "R"},
-	{charName = "Caitlyn", spellName = "CaitlynEntrapment", endposcast = false, useult = "no", gap = 1, description = "E"},
-	{charName = "Pantheon",  spellName = "PantheonW", endposcast = true, useult = "no", gap = 1, description = "W"},
-	{charName = "Quinn",  spellName = "QuinnE", endposcast = false, useult = "no", gap = 1, description = "E"},
-	{charName = "Renekton",  spellName = "RenektonSliceAndDice", endposcast = true, useult = "no", gap = 1, description = "E"},
-	{charName = "Sejuani",  spellName = "SejuaniArcticAssault", endposcast = false, useult = "no", gap = 1, description = "Q"},
-	{charName = "Shyvana",  spellName = "ShyvanaTransformCast", endposcast = false, useult = "no", gap = 1, description = "R"},
-	{charName = "Tryndamere",  spellName = "slashCast", endposcast = true, useult = "no", gap = 1, description = "E"},
-	{charName = "Vi",  spellName = "ViQ", endposcast = false, useult = "no", gap = 1, description = "Q"},
-	{charName = "XinZhao",  spellName = "XenZhaoSweep", endposcast = true, useult = "no", gap = 1, description = "E"},
-	{charName = "Yasuo",  spellName = "YasuoDashWrapper", endposcast = true, useult = "no", gap = 1, description = "E"},
-	{charName = "Leona", spellName = "LeonaZenithBlade", endposcast = false, useult = "no", gap = 1, description = "E"}
-
-	}
-	
-	
-local SpellsToShild = {}
-local ShildSpellsDB = {
-
-	{charName = "Ashe", spellName = "Volley", description = "W", important = 1},
-	{charName = "Caitlyn", spellName = "CaitlynPiltoverPeacemaker", description = "Q", important = 1},
-	{charName = "Caitlyn", spellName = "CaitlynAceintheHole", description = "R", important = 3},
-	{charName = "Corki", spellName = "PhosphorusBomb", description = "Q", important = 1},
-	{charName = "Corki", spellName = "GGun", description = "E", important = 1},
-	{charName = "Corki", spellName = "MissileBarrage", description = "R", important = 3},
-	{charName = "Draven", spellName = "DravenSpinning", description = "Q", important = 1},
-	{charName = "Draven", spellName = "DravenDoubleShot", description = "E", important = 2},
-	{charName = "Draven", spellName = "DravenRCast", description = "R", important = 3},
-	{charName = "Ezreal", spellName = "EzrealMysticShot", description = "Q", important = 1},
-	{charName = "Ezreal", spellName = "EzrealTrueshotBarrage", description = "R", important = 3},
-	{charName = "Graves", spellName = "GravesClusterShot", description = "Q", important = 1},
-	{charName = "Graves", spellName = "GravesChargeShot", description = "R", important = 3},
-	{charName = "Jinx", spellName = "JinxW", description = "W", important = 2},
-	{charName = "Jinx", spellName = "JinxRWrapper", description = "R", important = 3},
-	{charName = "KogMaw", spellName = "KogMawLivingArtillery", description = "R", important = 3},
-	{charName = "Lucian", spellName = "LucianQ", description = "Q", important = 2},
-	{charName = "Lucian", spellName = "LucianW", description = "W", important = 1},
-	{charName = "Lucian", spellName = "LucianR", description = "R", important = 3},
-	{charName = "MissFortune", spellName = "MissFortuneRicochetShot", description = "Q", important = 2},
-	{charName = "MissFortune", spellName = "MissFortuneBulletTime", description = "R", important = 3},
-	{charName = "Quinn", spellName = "QuinnQ", description = "Q", important = 1},
-	{charName = "Quinn", spellName = "QuinnE", description = "E", important = 3},
-	{charName = "Sivir", spellName = "SivirQ", description = "Q", important = 2},
---	{charName = "Sivir", spellName = "SivirW", description = "W", important = 2},
-	{charName = "Tristana", spellName = "RapidFire", description = "Q", important = 1},
-	{charName = "Twitch", spellName = "Expunge", description = "E", important = 3},
---	{charName = "Twitch", spellName = "FullAutomatic", description = "R", important = 3}, -- new ult name ???
-	{charName = "Urgot", spellName = "UrgotHeatseekingMissile", description = "Q", important = 2},
-	{charName = "Urgot", spellName = "UrgotPlasmaGrenade", description = "E", important = 1},
-	{charName = "Varus", spellName = "VarusQ", description = "Q", important = 3},
-	{charName = "Varus", spellName = "VarusE", description = "E", important = 1},
-	{charName = "Vayne", spellName = "VayneTumble", description = "Q", important = 2},
-	{charName = "Vayne", spellName = "VayneCondemn", description = "E", important = 1},
-	{charName = "Vayne", spellName = "VayneInquisition", description = "R", important = 3},
-	{charName = "LeeSin", spellName = "BlindMonkRKick", description = "R", important = 3},
-	{charName = "Nasus", spellName = "NasusQ", description = "Q", important = 2},
-	{charName = "Nocturne", spellName = "NocturneParanoia", description = "R", important = 3},
-	{charName = "Shaco", spellName = "TwoShivPoison", description = "E", important = 2},
-	{charName = "Trundle", spellName = "TrundleTrollSmash", description = "Q", important = 2},
-	{charName = "Vi", spellName = "ViE", description = "E", important = 2},
-	{charName = "XinZhao", spellName = "XenZhaoComboTarget", description = "Q", important = 2},
-	{charName = "Khazix", spellName = "KhazixQ", description = "Q", important = 2},
-	{charName = "Khazix", spellName = "KhazixW", description = "W", important = 2},
-	{charName = "MasterYi", spellName = "AlphaStrike", description = "Q", important = 1},
-	{charName = "MasterYi", spellName = "WujuStyle", description = "E", important = 1},
-	{charName = "Talon", spellName = "TalonNoxianDiplomacy", description = "Q", important = 1},
-	{charName = "Talon", spellName = "TalonShadowAssault", description = "R", important = 3},
-	{charName = "Pantheon", spellName = "PantheonQ", description = "Q", important = 2}, -- mby wrong name
-	{charName = "Yasuo", spellName = "YasuoQW", description = "Q", important = 2}, 
-	{charName = "Zed", spellName = "ZedShuriken", description = "Q", important = 1}, -- mby wrong name
-	{charName = "Zed", spellName = "ZedPBAOEDummy", description = "E", important = 2}, -- mby wrong name
-	{charName = "Aatrox", spellName = "AatroxW", description = "W", important = 2},
-	{charName = "Darius", spellName = "DariusExecute", description = "R", important = 3},
-	{charName = "Gangplank", spellName = "Parley", description = "Q", important = 1},
-	{charName = "Garen", spellName = "GarenQ", description = "Q", important = 1},
-	{charName = "Garen", spellName = "GarenE", description = "E", important = 2},
-	{charName = "Jayce", spellName = "JayceToTheSkies", description = "Q", important = 2},
-	{charName = "Jayce", spellName = "jayceshockblast", description = "2 Q", important = 2},
-	{charName = "Renekton", spellName = "RenektonCleave", description = "Q", important = 2},
-	{charName = "Renekton", spellName = "RenektonPreExecute", description = "W", important = 2},
-	{charName = "Renekton", spellName = "RenektonSliceAndDice", description = "E", important = 2},
-	{charName = "Rengar", spellName = "RengarQ", description = "Q", important = 2},
-	{charName = "Rengar", spellName = "RengarE", description = "E", important = 1},
-	{charName = "Rengar", spellName = "RengarR", description = "R", important = 3},
-	{charName = "Riven", spellName = "RivenFengShuiEngine", description = "R", important = 3},
-	{charName = "Tryndamere", spellName = "UndyingRage", description = "R", important = 3},
-	{charName = "MonkeyKing", spellName = "MonkeyKingDoubleAttack", description = "Q", important = 1},
-	{charName = "MonkeyKing", spellName = "MonkeyKingNimbus", description = "E", important = 2},
-	{charName = "MonkeyKing", spellName = "MonkeyKingSpinToWin", description = "R", important = 3}
-
-
-}
-
+-- Orbwalk --
+local myTarget = nil
+local lastAttack, lastWindUpTime, lastAttackCD = 0, 0, 0
+-- Skinhack
+local lastSkin = 0
+-- end pos draw
 
 function OnLoad()
-
+	
 	require "Prodiction"
-	require 'VPrediction'
-	require 'SOW'
+	get_tables()
 	
+	if _G.allowSpells then 
+	evade_found = true
+	PrintChat("<font color='#c9d7ff'>Big Fat Janna's Assistant: </font><font color='#64f879'> Evadeee found =)) ! </font>")
+	else
+	evade_found = false
+	PrintChat("<font color='#c9d7ff'>Big Fat Janna's Assistant: </font><font color='#64f879'> Evadeee not found ;'( </font>")
+	end
 	
-	VPred = VPrediction()
-	iSOW = SOW(VPred)
-
+	Myspace = GetDistance(myHero.minBBox)
+	
+	myTrueRange = 475 + Myspace
+	
 	JannaMenu = scriptConfig("Big Fat Janna's Assistant", "Big Fat Janna's Assistant")
-	
-	ts = TargetSelector(TARGET_LESS_CAST, 1400, true)
-	ts.name = "JannaMenu"
-    JannaMenu:addTS(ts)
-
 	JannaMenu:addSubMenu("[Prodiction Settings]", "ProdictionSettings")
-	JannaMenu.ProdictionSettings:addParam("UsePacketsCast","Use Packets Cast", SCRIPT_PARAM_ONOFF, true)
-	
+		JannaMenu.ProdictionSettings:addParam("UsePacketsCast","Use Packets Cast", SCRIPT_PARAM_ONOFF, true)
+		JannaMenu.ProdictionSettings:addParam("blank", "", SCRIPT_PARAM_INFO, "")
+		JannaMenu.ProdictionSettings:addParam("QHitchance", "Q Hitchance", SCRIPT_PARAM_SLICE, 1, 1, 3, 0)
+		JannaMenu.ProdictionSettings:addParam("blank", "", SCRIPT_PARAM_INFO, "")
+		JannaMenu.ProdictionSettings:addParam("info2", "HITCHANCE:", SCRIPT_PARAM_INFO, "")
+		JannaMenu.ProdictionSettings:addParam("info3", "LOW = 1  NORMAL = 2  HIGH = 3", SCRIPT_PARAM_INFO, "")
+		
 	JannaMenu:addSubMenu("[KS Options]", "KSOptions")
-	JannaMenu.KSOptions:addParam("KSwithW","KS with W", SCRIPT_PARAM_ONOFF, true)
-	JannaMenu.KSOptions:addParam("KSwithQ","KS with Q", SCRIPT_PARAM_ONOFF, true)
+		JannaMenu.KSOptions:addParam("KSwithW","KS with W", SCRIPT_PARAM_ONOFF, true)
+		JannaMenu.KSOptions:addParam("KSwithQ","KS with Q", SCRIPT_PARAM_ONOFF, true)
 	
-	JannaMenu:addSubMenu("[Show in Game]", "Show")
-	JannaMenu.Show:addParam("info", "~=[ New Settings will be saved after Reload ]=~", SCRIPT_PARAM_INFO, "")
-	JannaMenu.Show:addParam("showcombo","Combo Key", SCRIPT_PARAM_ONOFF, false)
-	JannaMenu.Show:addParam("showspamq","Spam Q Toggle", SCRIPT_PARAM_ONOFF, true)
-	JannaMenu.Show:addParam("DoubleQ","Double Q Toggle", SCRIPT_PARAM_ONOFF, true)
-	
-	JannaMenu:addSubMenu("[Draws]", "Draws")
-	JannaMenu.Draws:addSubMenu("[Q Settings]", "QSettings")
-	JannaMenu.Draws.QSettings:addParam("colorAA", "Circle Color", SCRIPT_PARAM_COLOR, {255, 0, 255, 0})
-	JannaMenu.Draws.QSettings:addParam("width", "Circle Width", SCRIPT_PARAM_SLICE, 1, 1, 5)
-	JannaMenu.Draws.QSettings:addParam("quality", "Circle Quality", SCRIPT_PARAM_SLICE, 90, 0, 360)	
-	JannaMenu.Draws:addSubMenu("[W Settings]", "WSettings")
-	JannaMenu.Draws.WSettings:addParam("colorAA", "Circle Color", SCRIPT_PARAM_COLOR, {255, 0, 255, 0})
-	JannaMenu.Draws.WSettings:addParam("width", "Circle Width", SCRIPT_PARAM_SLICE, 1, 1, 5)
-	JannaMenu.Draws.WSettings:addParam("quality", "Circle Quality", SCRIPT_PARAM_SLICE, 90, 0, 360)	
-	JannaMenu.Draws:addSubMenu("[E Settings]", "ESettings")
-	JannaMenu.Draws.ESettings:addParam("colorAA", "Circle Color", SCRIPT_PARAM_COLOR, {255, 0, 255, 0})
-	JannaMenu.Draws.ESettings:addParam("width", "Circle Width", SCRIPT_PARAM_SLICE, 1, 1, 5)
-	JannaMenu.Draws.ESettings:addParam("quality", "Circle Quality", SCRIPT_PARAM_SLICE, 90, 0, 360)	
-	JannaMenu.Draws:addSubMenu("[R Settings]", "RSettings")
-	JannaMenu.Draws.RSettings:addParam("colorAA", "Circle Color", SCRIPT_PARAM_COLOR, {255, 0, 255, 0})
-	JannaMenu.Draws.RSettings:addParam("width", "Circle Width", SCRIPT_PARAM_SLICE, 1, 1, 5)
-	JannaMenu.Draws.RSettings:addParam("quality", "Circle Quality", SCRIPT_PARAM_SLICE, 90, 0, 360)
-	JannaMenu.Draws:addParam("UselowfpsDraws","Use low fps Draws", SCRIPT_PARAM_ONOFF, true)
-	JannaMenu.Draws:addParam("DrawQRange","Draw Q Range", SCRIPT_PARAM_ONOFF, true)
-	JannaMenu.Draws:addParam("DrawWRange","Draw W Range", SCRIPT_PARAM_ONOFF, false)
-	JannaMenu.Draws:addParam("DrawERange","Draw E Range", SCRIPT_PARAM_ONOFF, false)
-	JannaMenu.Draws:addParam("DrawRRange","Draw R Range", SCRIPT_PARAM_ONOFF, false)
-	
+	JannaMenu:addSubMenu("[Interrupter]", "Int")
+		JannaMenu.Int:addParam("interrupterdebug","Interrupter Debug", SCRIPT_PARAM_ONOFF, true)
+		JannaMenu.Int:addParam("info", " ", SCRIPT_PARAM_INFO, "")
+			-- interrupter
+		for i, enemy in ipairs(GetEnemyHeroes()) do
+			for _, champ in pairs(SpellsDBInterrupt) do
+				if enemy.charName == champ.charName then
+				table.insert(SpellsTOInterrupt, {charName = champ.charName, description = champ.description, spellName = champ.spellName, useult = champ.useult, endposcast = champ.endposcast})
+				end
+			end
+		end
 
+		if #SpellsTOInterrupt > 0 then
+			for _, Inter in pairs(SpellsTOInterrupt) do
+					JannaMenu.Int:addParam(Inter.spellName, ""..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName, SCRIPT_PARAM_ONOFF, true)
+					if Inter.useult == "no" then
+					JannaMenu.Int:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, false)
+					elseif Inter.useult == "yes" then
+					JannaMenu.Int:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, true)
+					end
+					JannaMenu.Int:addParam("info", " ", SCRIPT_PARAM_INFO, "")
+			
+			end
+		else	JannaMenu.Int:addParam("404", "0 supported skills found =( ", SCRIPT_PARAM_INFO, "")	
+		end
+		
+	JannaMenu:addSubMenu("[Antigapcloser]", "Antigapcloser")
+		JannaMenu.Antigapcloser:addParam("Antigapcloserdebug","Antigapcloser Debug", SCRIPT_PARAM_ONOFF, true)
+		JannaMenu.Antigapcloser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
+		-- antigap
+		for i, enemy in ipairs(GetEnemyHeroes()) do
+			for _, champ in pairs(SpellsDBAntigapclose) do
+				if enemy.charName == champ.charName then
+				table.insert(SpellsTOAntigapclose, {charName = champ.charName, description = champ.description, spellName = champ.spellName, useult = champ.useult, endposcast = champ.endposcast})
+				end
+			end
+		end
 
+		if #SpellsTOAntigapclose > 0 then
+			for _, Antigap in pairs(SpellsTOAntigapclose) do
+
+					JannaMenu.Antigapcloser:addParam(Antigap.spellName, ""..Antigap.charName.. " | " ..Antigap.description.. " - " ..Antigap.spellName, SCRIPT_PARAM_ONOFF, true)
+						if Antigap.useult == "no" then
+						JannaMenu.Antigapcloser:addParam(Antigap.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, false)
+						elseif Antigap.useult == "yes" then
+						JannaMenu.Antigapcloser:addParam(Antigap.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, true)
+						end
+						
+						if Antigap.endposcast == true then 
+						JannaMenu.Antigapcloser:addParam(Antigap.spellName..3, "Cast to: ", SCRIPT_PARAM_LIST, 2, { "Start Position", "End Position" })
+						elseif Antigap.endposcast == false then
+						JannaMenu.Antigapcloser:addParam(Antigap.spellName..3, "Cast to: ", SCRIPT_PARAM_LIST, 1, { "Start Position", "End Position" })
+						end
+					JannaMenu.Antigapcloser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
+				
+			end
+		else	JannaMenu.Antigapcloser:addParam("404", "0 supported skills found =( ", SCRIPT_PARAM_INFO, "")	
+		end
+		
 	JannaMenu:addSubMenu("[Boost Allies Dmg Output]", "BoostAlliesDmgOutput")
 		for i=1, heroManager.iCount do
 			local teammate = heroManager:GetHero(i)
@@ -248,135 +138,114 @@ function OnLoad()
 				JannaMenu.BoostAlliesDmgOutput:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 			end
 		end
-	
-	JannaMenu:addSubMenu("[Interrupter]", "Int")
-	JannaMenu.Int:addParam("interrupterdebug","Interrupter Debug", SCRIPT_PARAM_ONOFF, true)
-	JannaMenu.Int:addParam("info", " ", SCRIPT_PARAM_INFO, "")
-	
-	JannaMenu:addSubMenu("[Antigapcloser]", "Antigapcloser")
-	JannaMenu.Antigapcloser:addParam("Antigapcloserdebug","Antigapcloser Debug", SCRIPT_PARAM_ONOFF, true)
-	JannaMenu.Antigapcloser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
-		
+		--Boost Allies Dmg
+
+		for i, ally in ipairs(GetAllyHeroes()) do
+			for _, champ in pairs(ShildSpellsDB) do
+				if ally.charName == champ.charName then
+				table.insert(SpellsToShild, {charName = champ.charName, spellName = champ.spellName, description = champ.description, important = champ.important})
+				end
+			end
+		end
+
+		if #SpellsToShild > 0 then
+			for _, Boost in pairs(SpellsToShild) do
+			JannaMenu.BoostAlliesDmgOutput:addParam(Boost.spellName, ""..Boost.charName.. " | " ..Boost.description.. " - " ..Boost.spellName, SCRIPT_PARAM_ONOFF, true)
+			JannaMenu.BoostAlliesDmgOutput:addParam(Boost.spellName..0, "Mana Priority level", SCRIPT_PARAM_SLICE, Boost.important, 1, 3)
+			JannaMenu.BoostAlliesDmgOutput:addParam("info", " ", SCRIPT_PARAM_INFO, "")
+			end 
+		else JannaMenu.BoostAlliesDmgOutput:addParam("404", "0 supported skills found =( ", SCRIPT_PARAM_INFO, "")	
+		end	
+	--
 	JannaMenu:addSubMenu("[Shild Towers]", "ShildTowers")
-	JannaMenu.ShildTowers:addParam("STiae","Shild Towers if enemys get attacked", SCRIPT_PARAM_ONOFF, true)
-	JannaMenu.ShildTowers:addParam("OnlyifhaveArdentCenser","Only if have Ardent Censer", SCRIPT_PARAM_ONOFF, false)
-	JannaMenu.ShildTowers:addParam("info", "~=[ Will cast only if not lower: ]=~", SCRIPT_PARAM_INFO, "")
-	JannaMenu.ShildTowers:addParam("minhp", "My minimal Life %",   SCRIPT_PARAM_SLICE, 30, 0, 100, 0)
-	JannaMenu.ShildTowers:addParam("minmana", "My minimal Mana %",   SCRIPT_PARAM_SLICE, 25, 0, 100, 0)
+		JannaMenu.ShildTowers:addParam("STiae","Shild Towers if enemys get attacked", SCRIPT_PARAM_ONOFF, true)
+		JannaMenu.ShildTowers:addParam("OnlyifhaveArdentCenser","Only if have Ardent Censer", SCRIPT_PARAM_ONOFF, false)
+		JannaMenu.ShildTowers:addParam("info", "~=[ Will cast only if not lower: ]=~", SCRIPT_PARAM_INFO, "")
+		JannaMenu.ShildTowers:addParam("minhp", "My minimal Life %",   SCRIPT_PARAM_SLICE, 30, 0, 100, 0)
+		JannaMenu.ShildTowers:addParam("minmana", "My minimal Mana %",   SCRIPT_PARAM_SLICE, 25, 0, 100, 0)
+	
 	JannaMenu:addSubMenu("[Mana Settings]", "ManaSettings")
-	JannaMenu.ManaSettings:addParam("info", "~=[ Minimum Mana till skills used ]=~", SCRIPT_PARAM_INFO, "")
-	JannaMenu.ManaSettings:addParam("info", "~=[ Boost Allies Dmg Output ]=~", SCRIPT_PARAM_INFO, "")
-	JannaMenu.ManaSettings:addParam("Prioritylvl1", "Mana Priority lvl 1",   SCRIPT_PARAM_SLICE, 45, 0, 100, 0)
-	JannaMenu.ManaSettings:addParam("Prioritylvl2", "Mana Priority lvl 2",   SCRIPT_PARAM_SLICE, 25, 0, 100, 0)
-	JannaMenu.ManaSettings:addParam("Prioritylvl3", "Mana Priority lvl 3",   SCRIPT_PARAM_SLICE, 10, 0, 100, 0)
-	JannaMenu.ManaSettings:addParam("info", "~=[ Harass ]=~", SCRIPT_PARAM_INFO, "")
-	JannaMenu.ManaSettings:addParam("HarassMana", "Min Mana",   SCRIPT_PARAM_SLICE, 60, 0, 100, 0)
-	--JannaMenu:addParam("debugmode","debugmode", SCRIPT_PARAM_ONOFF, false)
-	JannaMenu:addParam("info", " ", SCRIPT_PARAM_INFO, "")
+		JannaMenu.ManaSettings:addParam("info1", "Minimum Mana till skills used", SCRIPT_PARAM_INFO, "")
+		JannaMenu.ManaSettings:addParam("info3", "", SCRIPT_PARAM_INFO, "")
+		JannaMenu.ManaSettings:addParam("info2", "Boost Allies Dmg Output:", SCRIPT_PARAM_INFO, "")
+		JannaMenu.ManaSettings:addParam("Prioritylvl1", "Mana Priority lvl 1",   SCRIPT_PARAM_SLICE, 45, 0, 100, 0)
+		JannaMenu.ManaSettings:addParam("Prioritylvl2", "Mana Priority lvl 2",   SCRIPT_PARAM_SLICE, 25, 0, 100, 0)
+		JannaMenu.ManaSettings:addParam("Prioritylvl3", "Mana Priority lvl 3",   SCRIPT_PARAM_SLICE, 10, 0, 100, 0)
+		JannaMenu.ManaSettings:addParam("info4", "", SCRIPT_PARAM_INFO, "")
+		JannaMenu.ManaSettings:addParam("info", "Harass:" , SCRIPT_PARAM_INFO, "")
+		JannaMenu.ManaSettings:addParam("HarassMana", "Min Mana",   SCRIPT_PARAM_SLICE, 55, 0, 100, 0)
+		
+	JannaMenu:addSubMenu("[Draws]", "Draws")
+		JannaMenu.Draws:addSubMenu("[Q Settings]", "QSettings")
+		JannaMenu.Draws.QSettings:addParam("colorAA", "Circle Color", SCRIPT_PARAM_COLOR, {255, 0, 255, 0})
+		JannaMenu.Draws.QSettings:addParam("width", "Circle Width", SCRIPT_PARAM_SLICE, 1, 1, 5)
+		JannaMenu.Draws.QSettings:addParam("quality", "Circle Quality", SCRIPT_PARAM_SLICE, 90, 0, 360)	
+		JannaMenu.Draws:addSubMenu("[W Settings]", "WSettings")
+		JannaMenu.Draws.WSettings:addParam("colorAA", "Circle Color", SCRIPT_PARAM_COLOR, {255, 0, 255, 0})
+		JannaMenu.Draws.WSettings:addParam("width", "Circle Width", SCRIPT_PARAM_SLICE, 1, 1, 5)
+		JannaMenu.Draws.WSettings:addParam("quality", "Circle Quality", SCRIPT_PARAM_SLICE, 90, 0, 360)	
+		JannaMenu.Draws:addSubMenu("[E Settings]", "ESettings")
+		JannaMenu.Draws.ESettings:addParam("colorAA", "Circle Color", SCRIPT_PARAM_COLOR, {255, 0, 255, 0})
+		JannaMenu.Draws.ESettings:addParam("width", "Circle Width", SCRIPT_PARAM_SLICE, 1, 1, 5)
+		JannaMenu.Draws.ESettings:addParam("quality", "Circle Quality", SCRIPT_PARAM_SLICE, 90, 0, 360)	
+		JannaMenu.Draws:addSubMenu("[R Settings]", "RSettings")
+		JannaMenu.Draws.RSettings:addParam("colorAA", "Circle Color", SCRIPT_PARAM_COLOR, {255, 0, 255, 0})
+		JannaMenu.Draws.RSettings:addParam("width", "Circle Width", SCRIPT_PARAM_SLICE, 1, 1, 5)
+		JannaMenu.Draws.RSettings:addParam("quality", "Circle Quality", SCRIPT_PARAM_SLICE, 90, 0, 360)
+		JannaMenu.Draws:addParam("UselowfpsDraws","Use low fps Draws", SCRIPT_PARAM_ONOFF, true)
+		JannaMenu.Draws:addParam("DrawQRange","Draw Q Range", SCRIPT_PARAM_ONOFF, true)
+		JannaMenu.Draws:addParam("DrawWRange","Draw W Range", SCRIPT_PARAM_ONOFF, false)
+		JannaMenu.Draws:addParam("DrawERange","Draw E Range", SCRIPT_PARAM_ONOFF, false)
+		JannaMenu.Draws:addParam("DrawRRange","Draw R Range", SCRIPT_PARAM_ONOFF, false)
+		
+	JannaMenu:addSubMenu("[Show in Game]", "Show")
+		JannaMenu.Show:addParam("info", "New Settings will be saved after Reload", SCRIPT_PARAM_INFO, "")
+		JannaMenu.Show:addParam("info2", "", SCRIPT_PARAM_INFO, "")
+		JannaMenu.Show:addParam("showcombo","Combo Key", SCRIPT_PARAM_ONOFF, true)
+		JannaMenu.Show:addParam("showspamq","Spam Q Toggle", SCRIPT_PARAM_ONOFF, true)
+		JannaMenu.Show:addParam("DoubleQ","Always 2 Q Toggle", SCRIPT_PARAM_ONOFF, true)
 
+	JannaMenu:addParam("always2q","Always 2 Q Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("Y"))
+	JannaMenu:addParam("Orbwalk","Use Orbwalk", SCRIPT_PARAM_ONOFF, true)
+	if evade_found == true then
+	JannaMenu:addParam("evadee","Evadeee Intergration", SCRIPT_PARAM_ONOFF, true)
+	elseif evade_found == false then
 	JannaMenu:addParam("evadee","Evadeee Intergration", SCRIPT_PARAM_ONOFF, false)
-	
-	JannaMenu:addParam("AlwaysDoubleQ","Always Double Q Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("Y"))
-	JannaMenu:addParam("combo","Combo Key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
-	JannaMenu:addParam("harassw","Harass W", SCRIPT_PARAM_ONKEYDOWN, false, 88)
+	end
+	JannaMenu:addParam("blank1", "", SCRIPT_PARAM_INFO, "")
 	JannaMenu:addParam("castq","Spam Q Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, 65)
-
-	-- interrupter + antigap
-	for i, enemy in ipairs(GetEnemyHeroes()) do
-		for _, champ in pairs(SpellsDBInterrupt_Antigapclose) do
-			if enemy.charName == champ.charName then
-			table.insert(SpellsTOInterrupt_Antigapclose, {charName = champ.charName, description = champ.description, spellName = champ.spellName, useult = champ.useult, gap = champ.gap, spellType = champ.spellType, endposcast = champ.endposcast})
-			end
-		end
-	end
-
-	if #SpellsTOInterrupt_Antigapclose > 0 then
-		for _, Inter in pairs(SpellsTOInterrupt_Antigapclose) do
-				if Inter.gap == 0 then
-				JannaMenu.Int:addParam(Inter.spellName, ""..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName, SCRIPT_PARAM_ONOFF, true)
-				if Inter.useult == "no" then
-				JannaMenu.Int:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, false)
-				elseif Inter.useult == "yes" then
-				JannaMenu.Int:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, true)
-				end
-				JannaMenu.Int:addParam("info", " ", SCRIPT_PARAM_INFO, "")
-				
-				elseif Inter.gap == 1 then
-				JannaMenu.Antigapcloser:addParam(Inter.spellName, ""..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName, SCRIPT_PARAM_ONOFF, true)
-					if Inter.useult == "no" then
-					JannaMenu.Antigapcloser:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, false)
-					elseif Inter.useult == "yes" then
-					JannaMenu.Antigapcloser:addParam(Inter.spellName..2, "allow to use ult", SCRIPT_PARAM_ONOFF, true)
-					end
-					
-					if Inter.endposcast == true then 
-					JannaMenu.Antigapcloser:addParam(Inter.spellName..3, "Cast to: ", SCRIPT_PARAM_LIST, 2, { "Start Position", "End Position" })
-					elseif Inter.endposcast == false then
-					JannaMenu.Antigapcloser:addParam(Inter.spellName..3, "Cast to: ", SCRIPT_PARAM_LIST, 1, { "Start Position", "End Position" })
-					end
-				JannaMenu.Antigapcloser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
-				end
-		end
-
-	end		
-	--
-	--Boost Allies Dmg
-
-	for i, ally in ipairs(GetAllyHeroes()) do
-		for _, champ in pairs(ShildSpellsDB) do
-			if ally.charName == champ.charName then
-			table.insert(SpellsToShild, {charName = champ.charName, spellName = champ.spellName, description = champ.description, important = champ.important})
-			end
-		end
-	end
-
-	if #SpellsToShild > 0 then
-		for _, Boost in pairs(SpellsToShild) do
-		JannaMenu.BoostAlliesDmgOutput:addParam(Boost.spellName, ""..Boost.charName.. " | " ..Boost.description.. " - " ..Boost.spellName, SCRIPT_PARAM_ONOFF, true)
-		JannaMenu.BoostAlliesDmgOutput:addParam(Boost.spellName..0, "Mana Priority level", SCRIPT_PARAM_SLICE, Boost.important, 1, 3)
-		JannaMenu.BoostAlliesDmgOutput:addParam("info", " ", SCRIPT_PARAM_INFO, "")
-		end 
-	end	
-	--
-
-	if JannaMenu.Show.DoubleQ then
-	JannaMenu:permaShow("AlwaysDoubleQ")
-	end	
-	if JannaMenu.Show.showcombo then
-	JannaMenu:permaShow("combo")
-	end	
-	if JannaMenu.Show.showspamq then
-	JannaMenu:permaShow("castq")
-	end
+	JannaMenu:addParam("Combo","Combo Key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
+	JannaMenu:addParam("Harass","Harass Key", SCRIPT_PARAM_ONKEYDOWN, false, 88)
+	JannaMenu:addParam("blank2", "", SCRIPT_PARAM_INFO, "")
+	JannaMenu:addParam("skin", "Skin Hack by Shalzuth:", SCRIPT_PARAM_LIST, 3, { "Tempest", "Hextech", "Frost Queen", "Victorious", "Forecast", "No Skin" })
+	JannaMenu:addParam("blank3", "", SCRIPT_PARAM_INFO, "")
+	JannaMenu:addParam("info1", "Big Fat Janna's Assistant v. "..version.."", SCRIPT_PARAM_INFO, "")
+	JannaMenu:addParam("info2", "by Big Fat Nidalee", SCRIPT_PARAM_INFO, "")
 	
-	JannaMenu:addSubMenu("[Orbwalker]", "Orbwalk")
-	JannaMenu.Orbwalk:addParam("standartts", "Use Standart TargetSelector", SCRIPT_PARAM_ONOFF, true)
 
-	PrintChat("<font color='#66cc00'>Big Fat Janna's Assistant</font><font color='#ffffff'> v. "..version.." </font><font color='#99ff99'>by Big Fat Nidalee,</font><font color='#66cc00'> loaded !</font>")
-end
+	ts = TargetSelector(TARGET_LESS_CAST, 1400, true)
+	ts.name = "JannaMenu"
+    JannaMenu:addTS(ts)
+		if JannaMenu.Show.DoubleQ then
+		JannaMenu:permaShow("always2q")
+		end	
+
+		if JannaMenu.Show.showspamq then
+		JannaMenu:permaShow("castq")
+		end
+		
+		if JannaMenu.Show.showcombo then
+		JannaMenu:permaShow("Combo")
+		end	
+		
+	PrintChat("<font color='#c9d7ff'>Big Fat Janna's Assistant: </font><font color='#64f879'> v. "..version.." </font><font color='#c9d7ff'> loaded, happy elo boosting! </font>")
+end 
 
 
 function OnTick()
 
-	if onHowlingGale == true and not myHero.dead then
-		if JannaMenu.ProdictionSettings.UsePacketsCast then
-			Packet("S_CAST", {spellId = _Q}):send()
-			if JannaMenu.debugmode then
-            PrintChat("casted packets onHowlingGale")
-			end
-		else
-			CastSpell(_Q)
-			if JannaMenu.debugmode then
-			PrintChat("casted normal onHowlingGale")
-			end
-		end
-	end
-
 	ts:update()
-	
-	orbwalkcheck()
-	target = ts.target
-	Target = getTarget()
+	Target = ts.target
 	
 	QReady = (myHero:CanUseSpell(_Q) == READY)
 	WReady = (myHero:CanUseSpell(_W) == READY)
@@ -384,184 +253,139 @@ function OnTick()
 	RReady = (myHero:CanUseSpell(_R) == READY)
 	ArdentC = GetInventorySlotItem(3504)
 	ArdentCReady = (ArdentC ~= nil)
-
-
-	if JannaMenu.castq and ValidTarget(Target) and myHero.mana >= ManaCost(Q) and not myHero.dead then
-	CastQ()
+	--KS
+	
+	if onHowlingGale == true and ValidTarget(Target, QRange) and not myHero.dead then
+		if JannaMenu.ProdictionSettings.UsePacketsCast then
+			Packet("S_CAST", {spellId = _Q}):send()
+		else
+			CastSpell(_Q)
+		end
 	end
 	
-	if JannaMenu.combo and ValidTarget(Target) and not myHero.dead then
-		if myHero.mana >= ManaCost(WQ) then
-		CastQ()
-		CastW()
-		elseif myHero.mana <= ManaCost(WQ) then
-		CastQ()
-		end
-	end	
-	
-	if JannaMenu.harassw and ValidTarget(Target) and not myHero.dead and not mymanaislowerthen(JannaMenu.ManaSettings.HarassMana) then
-	CastW()
-	end		
-	
-	if JannaMenu.KSOptions.KSwithW and WReady and myHero.mana >= ManaCost(W) and not myHero.dead then	
-	KSW()
-	end 
-	
-	if JannaMenu.KSOptions.KSwithQ and QReady and myHero.mana >= ManaCost(Q) and not myHero.dead then	
-	KSQ()
-	end 
 
+	
+	KS()
 	if JannaMenu.evadee then
-	if _G.Evadeee_impossibleToEvade and EReady and myHero.mana >= ManaCost(E) and not myHero.dead then
+	if _G.Evadeee_impossibleToEvade and EReady and myHero.mana >= MyMana(E) and not myHero.dead then
 	CastSpell(_E)
 	end
 	end
+	--
+	-- Skinhack
+	SkinHack()
+	-- Orbwalk
+	if JannaMenu.Orbwalk and JannaMenu.Combo or JannaMenu.Harass then
+	OrbWalk()
+	end
+	--Combo
+	if Target and JannaMenu.Combo then
+	Combo()
+	end
+	-- Harass
+	if Target and JannaMenu.Harass then
+	Harass()
+	end
+	-- QSPam
+	if Target and JannaMenu.castq and not JannaMenu.Combo then
+	QSpam()
+	end
+
 
 end 
 
-function KSW()
-
-	for _, enemy in pairs(GetEnemyHeroes()) do
-		if enemy and not enemy.dead and enemy.health < getDmg("W", enemy, myHero) then
-		if GetDistance(enemy) <= WRange then
-			if JannaMenu.ProdictionSettings.UsePacketsCast then
-				Packet("S_CAST", {spellId = _W, targetNetworkId = enemy.networkID}):send()
-			else
-				CastSpell(_W, enemy)
-			end
-	 end
-			return true
-		end
-	end
-	
-	return false
-	
-end
-
-function KSQ()
-
-	for _, enemy in pairs(GetEnemyHeroes()) do
-		if enemy and not enemy.dead and enemy.health < getDmg("Q", enemy, myHero) then
-		if GetDistance(enemy) <= QRangeMin then
-		secondqcheck = true
-			if JannaMenu.ProdictionSettings.UsePacketsCast then
-				Packet("S_CAST", {spellId = _Q, fromX =  enemy.x, fromY =  enemy.z, toX =  enemy.x, toY =  enemy.z}):send()
-			else
-				CastSpell(_Q, enemy.x, enemy.z)
-			end
-		end
-		secondqcheck = false
-		return true
-		end
-	end
-	
-	return false
-	
-end
-
-
 function OnProcessSpell(unit, spell)
 
-		if #SpellsTOInterrupt_Antigapclose > 0 then
-			for _, Inter in pairs(SpellsTOInterrupt_Antigapclose) do
-				if spell.name == Inter.spellName and not myHero.dead and unit.team ~= myHero.team then
-				
-				-- interupter
+-- Orbwalker
+	if unit == myHero then
+		--print(""..spell.name.."")
+		if spell.name:lower():find("attack") then
+			lastAttack = GetTickCount() - GetLatency() / 2
+			lastWindUpTime = spell.windUpTime * 1000
+			lastAttackCD = spell.animationTime * 1000
+		end 
+	end
+--
 
-					
-					if JannaMenu.Int[Inter.spellName] and QReady and myHero.mana >= ManaCost(Q) and ValidTarget(unit, QRangeMin) then
-					if JannaMenu.Int.interrupterdebug then PrintChat("Tried to interrupt with Q: " ..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName) end
-					
-						if JannaMenu.ProdictionSettings.UsePacketsCast then
-						Packet("S_CAST", {spellId = _Q, fromX =  unit.x, fromY =  unit.z, toX =  unit.x, toY =  unit.z}):send()
-							if QReady then secondqcheck = true elseif not QReady then secondqcheck = false
-							end
-							if JannaMenu.debugmode then
-							PrintChat("casted packets using interrupter")
-							end
-						else
-						CastSpell(_Q, unit.x, unit.z)
-							if QReady then secondqcheck = true elseif not QReady then secondqcheck = false
-							end
-						if JannaMenu.debugmode then
-                        PrintChat("casted normal using interrupter")
-						end
-						
-						end
 
-					elseif JannaMenu.Int[Inter.spellName..2] and JannaMenu.Int[Inter.spellName] and not QReady and myHero.mana >= ManaCost(R) and RReady and ValidTarget(unit, RRange) then
-					if JannaMenu.Int.interrupterdebug then PrintChat("Tried to interrupt with R: " ..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName) end
-						CastSpell(_R)
-						
-					end 
+	-- Antigap
+		if #SpellsTOAntigapclose > 0 then
+			for _, Antigap in pairs(SpellsTOAntigapclose) do
+				if spell.name == Antigap.spellName and not myHero.dead and not unit.dead and unit.team ~= myHero.team then
+					if JannaMenu.Antigapcloser[Antigap.spellName] and QReady and myHero.mana >= MyMana(Q) and GetDistance(spell.endPos) <= QRange then
+					secondqcheck = true
 					
-					-- gapcloser
-					if JannaMenu.Antigapcloser[Inter.spellName] and QReady and myHero.mana >= ManaCost(Q) and ValidTarget(unit, QRangeMin) and GetDistance(spell.endPos) <= ComfortRange then
-					if JannaMenu.Antigapcloser.Antigapcloserdebug then PrintChat("Antigapcloser: "  ..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName) end
-					
-						if JannaMenu.Antigapcloser[Inter.spellName..3] == 2 then
+						if JannaMenu.Antigapcloser[Antigap.spellName..3] == 1 then
 							if JannaMenu.ProdictionSettings.UsePacketsCast then
-
-							Packet("S_CAST", {spellId = _Q, fromX =  spell.endPos.x, fromY = spell.endPos.z, toX =  spell.endPos.x, toY = spell.endPos.z}):send()
-							if QReady then secondqcheck = true elseif not QReady then secondqcheck = false
-							end
-							
-							if JannaMenu.debugmode then
-							PrintChat("casted packets using Antigapcloser endpos")
-							end
-							else
-							CastSpell(_Q, endPos.x, spell.endPos.z)
-							if QReady then secondqcheck = true elseif not QReady then secondqcheck = false
-							end
-							
-							if JannaMenu.debugmode then
-							PrintChat("casted normal using Antigapcloser endpos")
-							end
-							end
-						elseif JannaMenu.Antigapcloser[Inter.spellName..3] == 1 then						
-							if JannaMenu.ProdictionSettings.UsePacketsCast then
-
-							Packet("S_CAST", {spellId = _Q, fromX = spell.startPos.x, fromY = spell.startPos.z, toX = spell.startPos.x, toY = spell.startPos.z}):send()
-							if QReady then secondqcheck = true elseif not QReady then secondqcheck = false
-							end
-
-							if JannaMenu.debugmode then
-							PrintChat("casted packets using Antigapcloser startPos")
-							end
+							Packet("S_CAST", {spellId = _Q, fromX =  spell.startPos.x, fromY =  spell.startPos.z, toX =  spell.startPos.x, toY =  spell.startPos.z}):send()
 							else
 							CastSpell(_Q, spell.startPos.x, spell.startPos.z)
-							if QReady then secondqcheck = true elseif not QReady then secondqcheck = false
 							end
-							
-							if JannaMenu.debugmode then
-							PrintChat("casted normal using Antigapcloser startPos")
+							PrintChat("Antigapcloser: Tried to interrupt with Q: " ..Antigap.charName.. " | " ..Antigap.description.. " - " ..Antigap.spellName)
+						elseif JannaMenu.Antigapcloser[Antigap.spellName..3] == 2 then
+							if JannaMenu.ProdictionSettings.UsePacketsCast then
+							Packet("S_CAST", {spellId = _Q, fromX =  spell.endPos.x, fromY =  spell.endPos.z, toX =  spell.endPos.x, toY =  spell.endPos.z}):send()
+							else
+							CastSpell(_Q, spell.endPos.x, spell.endPos.z)
 							end
-							
-							end
-							
+							PrintChat("Antigapcloser: Tried to interrupt with Q: " ..Antigap.charName.. " | " ..Antigap.description.. " - " ..Antigap.spellName)
 						end
-						end
-				
-
-					elseif JannaMenu.Antigapcloser[Inter.spellName..2] and JannaMenu.Antigapcloser[Inter.spellName] and not QReady and myHero.mana >= ManaCost(R) and RReady and ValidTarget(unit, RRange) then
-					if JannaMenu.Antigapcloser.Antigapcloserdebug then PrintChat("Antigapcloser with R: " ..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName) end
-						CastSpell(_R)
 						
-					end
+					elseif JannaMenu.Antigapcloser[Antigap.spellName..2] and not QReady and RReady and myHero.mana >= MyMana(R) and GetDistance(unit) <= RRange and unit.visible then
+							secondqcheck = false
+							CastSpell(_R)
+							if JannaMenu.Antigapcloser.interrupterdebug then PrintChat("Antigapcloser: Tried to interrupt with R: " ..Antigap.charName.. " | " ..Antigap.description.. " - " ..Antigap.spellName) end
 					
-				if spell.name == Inter.spellName and not QReady then 
-				secondqcheck = false
-				elseif not spell.name == Inter.spellName then 
+					
+					end
+				end
+				
+				if spell.name == Antigap.spellName and not QReady and unit.team ~= myHero.team then 
 				secondqcheck = false
 				end
-					
 			end
 		end
-	--	secondqcheck = false		
-			if #SpellsToShild > 0 then
+		
+
+		
+	----------
+	-- Interrupter
+		if #SpellsTOInterrupt > 0 then
+			for _, Inter in pairs(SpellsTOInterrupt) do
+				if spell.name == Inter.spellName and not myHero.dead and not unit.dead and unit.team ~= myHero.team then
+					if JannaMenu.Int[Inter.spellName] and QReady and myHero.mana >= MyMana(Q) and GetDistance(unit) <= QRange and unit.visible then
+					secondqcheck = true
+							if JannaMenu.ProdictionSettings.UsePacketsCast then
+							Packet("S_CAST", {spellId = _Q, fromX =  unit.x, fromY =  unit.z, toX =  unit.x, toY =  unit.z}):send()
+							else
+							CastSpell(_Q, unit.x, unit.z)		
+							end
+							if JannaMenu.Int.interrupterdebug then PrintChat("Tried to interrupt with Q: " ..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName) end
+							
+					elseif JannaMenu.Int[Inter.spellName] and JannaMenu.Int[Inter.spellName..2] and not QReady and RReady and myHero.mana >= MyMana(R) and GetDistance(unit) <= RRange and unit.visible then
+					secondqcheck = false
+							CastSpell(_R)
+							if JannaMenu.Int.interrupterdebug then PrintChat("Tried to interrupt with R: " ..Inter.charName.. " | " ..Inter.description.. " - " ..Inter.spellName) end
+					end
+					
+					
+				if spell.name == Inter.spellName and not QReady and unit.team ~= myHero.team then 
+				secondqcheck = false
+				end
+				end
+				
+				
+				
+			end
+		end
+	----------
+	
+	----------
+	-- Boost Dmg
+				if #SpellsToShild > 0 then
 			for _, Boost in pairs(SpellsToShild) do
 				if spell.name == Boost.spellName and not myHero.dead and unit.team == myHero.team then
-					if JannaMenu.BoostAlliesDmgOutput[Boost.spellName] and EReady and myHero.mana >= ManaCost(E) and (GetDistance(unit) < ERange) then
+					if JannaMenu.BoostAlliesDmgOutput[Boost.spellName] and EReady and myHero.mana >= MyMana(E) and (GetDistance(unit) < ERange) then
 						if JannaMenu.BoostAlliesDmgOutput[Boost.spellName..0] == 1 and not mymanaislowerthen(JannaMenu.ManaSettings.Prioritylvl1) then 
 							if JannaMenu.ProdictionSettings.UsePacketsCast then
 							Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
@@ -586,19 +410,23 @@ function OnProcessSpell(unit, spell)
 			end
 			end
 			
+	----------
+	
+	----------
+	-- Shild Towers
 	if JannaMenu.ShildTowers.STiae and not myHero.dead then
         if (spell.name:find("ChaosTurret") and myHero.team == TEAM_RED) or (spell.name:find("OrderTurret") and myHero.team == TEAM_BLUE) then
 
 		for i=1, heroManager.iCount do
             local enemy = heroManager:GetHero(i)
             if ValidTarget(enemy) then
-                if JannaMenu.ShildTowers.OnlyifhaveArdentCenser and ArdentCReady and GetDistance(spell.endPos, enemy)<80 and GetDistance(unit) <= ERange and not mymanaislowerthen(JannaMenu.ShildTowers.minmana) and not myhpislowerthen(JannaMenu.ShildTowers.minhp) and myHero.mana >= ManaCost(E) and EReady then
+                if JannaMenu.ShildTowers.OnlyifhaveArdentCenser and ArdentCReady and GetDistance(spell.endPos, enemy)<80 and GetDistance(unit) <= ERange and not mymanaislowerthen(JannaMenu.ShildTowers.minmana) and not myhpislowerthen(JannaMenu.ShildTowers.minhp) and myHero.mana >= MyMana(E) and EReady then
 					if JannaMenu.ProdictionSettings.UsePacketsCast then
 					Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
 					else
 					CastSpell(_E, unit)
 					end
-				elseif not JannaMenu.ShildTowers.OnlyifhaveArdentCenser and GetDistance(spell.endPos, enemy)<80 and GetDistance(unit) <= ERange and not mymanaislowerthen(JannaMenu.ShildTowers.minmana) and not myhpislowerthen(JannaMenu.ShildTowers.minhp) and myHero.mana >= ManaCost(E) and EReady then
+				elseif not JannaMenu.ShildTowers.OnlyifhaveArdentCenser and GetDistance(spell.endPos, enemy)<80 and GetDistance(unit) <= ERange and not mymanaislowerthen(JannaMenu.ShildTowers.minmana) and not myhpislowerthen(JannaMenu.ShildTowers.minhp) and myHero.mana >= MyMana(E) and EReady then
 					if JannaMenu.ProdictionSettings.UsePacketsCast then
 					Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
 					else
@@ -610,32 +438,21 @@ function OnProcessSpell(unit, spell)
 		
 		end
 	end
-	
-
-
+		
 end
-
 
 
 function OnGainBuff(unit, buff)
 
     if unit == nil or buff == nil then return end
     if unit.isMe and buff then
-		if JannaMenu.debugmode then
-		PrintChat("GAINED: " .. buff.name)
-		end
-		if not JannaMenu.AlwaysDoubleQ then
+
+		if not JannaMenu.always2q then
 			if buff.name == "HowlingGale" and not myHero.dead and secondqcheck == true then
-				if JannaMenu.debugmode then
-				PrintChat("TRUE")
-				end
 			onHowlingGale = true
 			end
-		elseif JannaMenu.AlwaysDoubleQ then
+		elseif JannaMenu.always2q then
 			if buff.name == "HowlingGale" and not myHero.dead then
-				if JannaMenu.debugmode then
-				PrintChat("TRUE")
-				end
 			onHowlingGale = true
 			end
 		end 
@@ -646,7 +463,7 @@ function OnGainBuff(unit, buff)
 	caitlynheadshot = true
 	end 
 	
-	if caitlynheadshot == true and JannaMenu.BoostAlliesDmgOutput.CaitPassive and EReady and myHero.mana >= ManaCost(E) and (GetDistance(unit) < ERange) and unit.team == myHero.team and not myHero.dead then
+	if caitlynheadshot == true and JannaMenu.BoostAlliesDmgOutput.CaitPassive and EReady and myHero.mana >= MyMana(E) and (GetDistance(unit) < ERange) and unit.team == myHero.team and not myHero.dead then
 		if JannaMenu.BoostAlliesDmgOutput.CaitPlevel == 1 and not mymanaislowerthen(JannaMenu.ManaSettings.Prioritylvl1) then 
 			if JannaMenu.ProdictionSettings.UsePacketsCast then
 			Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
@@ -672,9 +489,6 @@ end
 function OnLoseBuff(unit, buff)
     if unit == nil or buff == nil then return end
     if unit.isMe and buff then
-		if JannaMenu.debugmode then
-        PrintChat("LOST: " .. buff.name)
-		end
         if buff.name == "HowlingGale" then
         onHowlingGale = false
         end
@@ -685,27 +499,32 @@ function OnLoseBuff(unit, buff)
 	end  
 end 
 
-function CastQ()
 
-	if QReady and not myHero.dead and GetDistance(Target) <= QRangeMin then
-	local qpos, qinfo = Prodiction.GetPrediction(Target, QRangeMin, QSpeed, QDelay, QWidth, myPlayer)
-			
-		if qpos and qinfo.hitchance >= 1 then
-		secondqcheck = true	
+ -- << --  -- << --  -- << --  -- << -- [Combo]  -- >> --  -- >> --  -- >> --  -- >> --
+function Combo()
+
+ 	if QReady and not myHero.dead and GetDistance(Target) <= QRange and myHero.mana >= MyMana(Q) then
+	local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
+	
+		if qpos and qinfo.hitchance >= JannaMenu.ProdictionSettings.QHitchance then
+		secondqcheck = true
 			if JannaMenu.ProdictionSettings.UsePacketsCast then
 			Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 			else
 			CastSpell(_Q, qpos.x, qpos.z)
 			end
-		end 
-		secondqcheck = false		
+		end
+		if not qpos then
+		secondqcheck = false
+		end
 	end 
+	if not QReady then 
+	secondqcheck = false
+	elseif QReady and GetDistance(Target) >= QRange then
+	secondqcheck = false
+	end
 	
-end
-
-function CastW()
-
-	if WReady and GetDistance(Target) <= WRange then 
+ 	if WReady and GetDistance(Target) <= WRange and not myHero.dead and myHero.mana >= MyMana(W) then 
 		if JannaMenu.ProdictionSettings.UsePacketsCast then
 		Packet("S_CAST", {spellId = _W, targetNetworkId = Target.networkID}):send()
 		else
@@ -713,81 +532,114 @@ function CastW()
 		end
 					
 	end
-end 
-
-
------------------------------------------------------------------------------------------------
-	--JannaMenu:addSubMenu("[Orbwalker]", "Orbwalk")
-	--iSOW:LoadToMenu(JannaMenu.Orbwalk)
-function orbwalkcheck()
-	if checkedMMASAC then return end
-	if not (starttick + 5000 < GetTickCount()) then return end
-	checkedMMASAC = true
-    if _G.MMA_Loaded then
-     	print(' >>Big Fat Jannas Assistant: MMA found. MMA support loaded.')
-		is_MMA = true
-	end	
-	if _G.AutoCarry then
-		print(' >>Big Fat Jannas Assistant: SAC found. SAC support loaded.')
-		is_SAC = true
-	end	
-	if is_MMA then
-		JannaMenu.Orbwalk:addSubMenu("Marksman's Mighty Assistant", "mma")
-		JannaMenu.Orbwalk.mma:addParam("mmastatus", "Use MMA Target Selector", SCRIPT_PARAM_ONOFF, false)			
-	end
-	if is_SAC then
-		JannaMenu.Orbwalk:addSubMenu("Sida's Auto Carry", "sac")
-		JannaMenu.Orbwalk.sac:addParam("sacstatus", "Use SAC Target Selector", SCRIPT_PARAM_ONOFF, false)
-	end
-	if not is_SAC then
-		JannaMenu.Orbwalk:addParam("line", "----------------------------------------------------", SCRIPT_PARAM_INFO, "")
-		JannaMenu.Orbwalk:addParam("line", "", SCRIPT_PARAM_INFO, "")
-		iSOW:LoadToMenu(JannaMenu.Orbwalk)
-	end
+ 
 end
+  -- << --  -- << --  -- << --  -- << -- [QSpam]  -- >> --  -- >> --  -- >> --  -- >> --
+  
+function QSpam()
 
-function getTarget()
-	if not checkedMMASAC then return end
-	if is_MMA and is_SAC then
-		if JannaMen.JannaMenu.Orbwalk.mma.mmastatus then
-			JannaMenu.Orbwalk.sac.sacstatus = false
-			JannaMenu.Orbwalk.standartts = false
-		elseif JannaMenu.Orbwalk.sac.sacstatus then
-			JannaMenu.Orbwalk.mma.mmastatus = false
-			JannaMenu.Orbwalk.standartts = false
-		elseif	JannaMenu.Orbwalk.standartts then
-			JannaMenu.Orbwalk.mma.mmastatus = false
-			JannaMenu.Orbwalk.sac.sacstatus = false
+ 	if QReady and not myHero.dead and GetDistance(Target) <= QRange and myHero.mana >= MyMana(Q) then
+	local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
+			
+		if qpos and qinfo.hitchance >= JannaMenu.ProdictionSettings.QHitchance then
+		secondqcheck = true
+			if JannaMenu.ProdictionSettings.UsePacketsCast then
+			Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+			else
+			CastSpell(_Q, qpos.x, qpos.z)
+			end
+		end 
+	end 
+	
+	if not QReady then 
+	secondqcheck = false
+	elseif QReady and GetDistance(Target) >= QRange then
+	secondqcheck = false
+	end
+ 
+end
+  
+  -- << --  -- << --  -- << --  -- << -- [Harass]  -- >> --  -- >> --  -- >> --  -- >> --
+function Harass()
+	
+ 	if WReady and GetDistance(Target) <= WRange and not myHero.dead and myHero.mana >= MyMana(W) and not mymanaislowerthen(JannaMenu.ManaSettings.HarassMana) then 
+		if JannaMenu.ProdictionSettings.UsePacketsCast then
+		Packet("S_CAST", {spellId = _W, targetNetworkId = Target.networkID}):send()
+		else
+		CastSpell(_W, Target)
 		end
-	end	
-	if not is_MMA and is_SAC then
-		if JannaMenu.Orbwalk.sac.sacstatus then
-			JannaMenu.Orbwalk.standartts = false
-		else
-			JannaMenu.Orbwalk.standartts = true
+
+	end
+ 
+end 
+ 
+ 
+ -- << --  -- << --  -- << --  -- << -- [KS]  -- >> --  -- >> --  -- >> --  -- >> --
+ function KS()
+	for i = 1, heroManager.iCount do
+	local enemy = heroManager:getHero(i)
+--	
+		if QReady and JannaMenu.KSOptions.KSwithQ and ValidTarget(enemy, QRange) and not enemy.dead and enemy.health < getDmg("Q",enemy,myHero) and myHero.mana >= MyMana(Q) and enemy.visible then
+		local qpos, qinfo = Prodiction.GetPrediction(enemy, QRange, QSpeed, QDelay, QWidth, myPlayer)
+
+		if qpos and qinfo.hitchance >= JannaMenu.ProdictionSettings.QHitchance then
+		secondqcheck = true
+			if JannaMenu.ProdictionSettings.UsePacketsCast then
+			Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+			else 
+			CastSpell(_Q, qpos.x, qpos.z)
+			end
+
 		end	
-	end
-	if is_MMA and not is_SAC then
-		if JannaMenu.Orbwalk.mma.mmastatus then
-			JannaMenu.Orbwalk.standartts = false
-		else
-			JannaMenu.Orbwalk.standartts = true
+
+		end
+		if not QReady then 
+		secondqcheck = false
+		elseif QReady and GetDistance(enemy) >= QRange then
+		secondqcheck = false
+		end
+--
+		if WReady and JannaMenu.KSOptions.KSwithW and ValidTarget(enemy, WRange) and not enemy.dead and enemy.health < getDmg("W",enemy,myHero) and myHero.mana >= MyMana(W) and enemy.visible then
+
+			if JannaMenu.ProdictionSettings.UsePacketsCast then
+			Packet("S_CAST", {spellId = _W, targetNetworkId = enemy.networkID}):send()
+			else
+			CastSpell(_W, enemy)
+			end
+
 		end	
+--	
+		if QReady and WReady and JannaMenu.KSOptions.KSwithQ and JannaMenu.KSOptions.KSwithW and ValidTarget(enemy, WRange) and not enemy.dead and enemy.health < getDmg("Q",enemy,myHero) + getDmg("W",enemy,myHero) and myHero.mana >= MyMana(WQ) and enemy.visible then
+		local qpos, qinfo = Prodiction.GetPrediction(enemy, QRange, QSpeed, QDelay, QWidth, myPlayer)
+
+		if qpos and qinfo.hitchance >= JannaMenu.ProdictionSettings.QHitchance then
+		secondqcheck = true
+			if JannaMenu.ProdictionSettings.UsePacketsCast then
+			Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+			Packet("S_CAST", {spellId = _W, targetNetworkId = enemy.networkID}):send()
+			else 
+			CastSpell(_Q, qpos.x, qpos.z)
+			CastSpell(_W, enemy)
+			end
+
+		end	
+		
+		
+
+		end
+		if not QReady then 
+		secondqcheck = false
+		elseif QReady and GetDistance(enemy) >= QRange then
+		secondqcheck = false
+		end
+--
+
 	end
-	if not is_MMA and not is_SAC then
-		JannaMenu.Orbwalk.standartts = true	
-	end	
-	if _G.MMA_Target and _G.MMA_Target.type == myHero.type then
-		return _G.MMA_Target 
-	end
-    if _G.AutoCarry and _G.AutoCarry.Crosshair and _G.AutoCarry.Attack_Crosshair and _G.AutoCarry.Attack_Crosshair.target and _G.AutoCarry.Attack_Crosshair.target.type == myHero.type then
-		return _G.AutoCarry.Attack_Crosshair.target		
-	end
-    return ts.target	
+
 end
 
------------------------------------------------------------------------------------------------
-
+ -- << --  -- << --  -- << --  -- << -- [Mana]  -- >> --  -- >> --  -- >> --  -- >> --
+ 
 function mymanaislowerthen(percent)
     if myHero.mana < (myHero.maxMana * ( percent / 100)) then
     return true
@@ -804,7 +656,7 @@ function myhpislowerthen(percent)
     end
 end
 
-function ManaCost(spell)
+function MyMana(spell)
 	if spell == Q then
 	return 75 + (15 * myHero:GetSpellData(_Q).level)
 	elseif spell == W then
@@ -818,12 +670,14 @@ function ManaCost(spell)
 	end 
 end			
 
+ -- << --  -- << --  -- << --  -- << -- [Draws]  -- >> --  -- >> --  -- >> --  -- >> --
+ 
 
 function OnDraw()
 
 	if JannaMenu.Draws.UselowfpsDraws then
 		if QReady and JannaMenu.Draws.DrawQRange and not myHero.dead then
-		DrawCircleQ(myHero.x, myHero.y, myHero.z, QRangeMin, ARGB(JannaMenu.Draws.QSettings.colorAA[1],JannaMenu.Draws.QSettings.colorAA[2],JannaMenu.Draws.QSettings.colorAA[3],JannaMenu.Draws.QSettings.colorAA[4]))
+		DrawCircleQ(myHero.x, myHero.y, myHero.z, QRange, ARGB(JannaMenu.Draws.QSettings.colorAA[1],JannaMenu.Draws.QSettings.colorAA[2],JannaMenu.Draws.QSettings.colorAA[3],JannaMenu.Draws.QSettings.colorAA[4]))
 		end	
 		if WReady and JannaMenu.Draws.DrawWRange and not myHero.dead then
 		DrawCircleW(myHero.x, myHero.y, myHero.z, WRange, ARGB(JannaMenu.Draws.WSettings.colorAA[1],JannaMenu.Draws.WSettings.colorAA[2],JannaMenu.Draws.WSettings.colorAA[3],JannaMenu.Draws.WSettings.colorAA[4]))
@@ -839,7 +693,7 @@ function OnDraw()
 	if not JannaMenu.Draws.UselowfpsDraws then
 	if QReady then 
 		if JannaMenu.Draws.DrawQRange and not myHero.dead then
-		DrawCircle(myHero.x, myHero.y, myHero.z, QRangeMin, 0xb9c3ed)
+		DrawCircle(myHero.x, myHero.y, myHero.z, QRange, 0xb9c3ed)
 		end	
 	end
 	if WReady then 
@@ -861,8 +715,6 @@ function OnDraw()
 	
 
 end 
-
-
 
 --Q Range Circle QUality
 function DrawCircleNextLvlQ(x, y, z, radius, width, color, chordlength)
@@ -969,3 +821,213 @@ function DrawCircleR(x, y, z, radius, color)
 		DrawCircleNextLvlW(x, y, z, radius, JannaMenu.Draws.RSettings.width, color, 75)	
 	end
 end 	
+ -- << --  -- << --  -- << --  -- << -- [Skin Hack]  -- >> --  -- >> --  -- >> --  -- >> --
+function GenModelPacket(champ, skinId)
+	p = CLoLPacket(0x97)
+	p:EncodeF(myHero.networkID)
+	p.pos = 1
+	t1 = p:Decode1()
+	t2 = p:Decode1()
+	t3 = p:Decode1()
+	t4 = p:Decode1()
+	p:Encode1(t1)
+	p:Encode1(t2)
+	p:Encode1(t3)
+	p:Encode1(bit32.band(t4,0xB))
+	p:Encode1(1)--hardcode 1 bitfield
+	p:Encode4(skinId)
+	for i = 1, #champ do
+		p:Encode1(string.byte(champ:sub(i,i)))
+	end
+	for i = #champ + 1, 64 do
+		p:Encode1(0)
+	end
+	p:Hide()
+	RecvPacket(p)
+end
+
+function SkinHack()
+if JannaMenu.skin ~= lastSkin and VIP_USER then
+	lastSkin = JannaMenu.skin
+	GenModelPacket("Janna", JannaMenu.skin)
+end
+end
+ -- << --  -- << --  -- << --  -- << -- [OrbWalker]  -- >> --  -- >> --  -- >> --  -- >> --
+ 
+function OrbWalk()
+	if JannaMenu.Orbwalk then
+	myTarget = ts.target
+	if myTarget ~= nil and GetDistance(myTarget) <= myTrueRange then
+		if timeToShoot() then
+			myHero:Attack(myTarget)
+		elseif heroCanMove() then
+			moveToCursor()
+		end
+	else		
+		moveToCursor() 
+	end
+	end
+end
+
+function heroCanMove()
+	return ( GetTickCount() + GetLatency() / 2 > lastAttack + lastWindUpTime + 20 )
+end 
+ 
+function timeToShoot()
+	return ( GetTickCount() + GetLatency() / 2 > lastAttack + lastAttackCD )
+end 
+ 
+function moveToCursor()
+	if GetDistance(mousePos) > 100 and GetDistance(mousePos) > 1 or lastAnimation == "Idle1" then
+		local moveToPos = myHero + (Vector(mousePos) - myHero):normalized() * 250
+		myHero:MoveTo(moveToPos.x, moveToPos.z)
+	end 
+end
+
+ -- << --  -- << --  -- << --  -- << -- [Tables]  -- >> --  -- >> --  -- >> --  -- >> --
+function get_tables()
+
+		
+	SpellsTOInterrupt = {}
+	SpellsDBInterrupt = 
+	{
+		-- Interrupter
+		{charName = "FiddleSticks", spellName = "Drain", endposcast = false, useult = "no",description = "W"},
+		{charName = "FiddleSticks", spellName = "Crowstorm", endposcast = false, useult = "yes",description = "R"},
+		{charName = "MissFortune", spellName = "MissFortuneBulletTime", endposcast = false, useult = "yes",description = "R"},
+		{charName = "Caitlyn", spellName = "CaitlynAceintheHole", endposcast = false, useult = "no",description = "R"},
+		{charName = "Katarina", spellName = "KatarinaR", endposcast = false, useult = "yes",description = "R"},
+		{charName = "Karthus", spellName = "FallenOne", endposcast = false, useult = "yes",description = "R"},
+		{charName = "Malzahar", spellName = "AlZaharNetherGrasp", endposcast = false, useult = "yes",description = "R"},
+		{charName = "Galio", spellName = "GalioIdolOfDurand", endposcast = false, useult = "yes",description = "R"},
+		{charName = "Lucian", spellName = "LucianR", endposcast = false, useult = "no",description = "R"},	
+		{charName = "Shen",  spellName = "ShenStandUnited", endposcast = false, useult = "no",description = "R"},
+		{charName = "Urgot",  spellName = "UrgotSwap2", endposcast = false, useult = "no",description = "R"},
+		{charName = "Pantheon",  spellName = "PantheonRJump", endposcast = false, useult = "no",description = "R"},
+		{charName = "Warwick",  spellName = "InfiniteDuress", endposcast = false, useult = "yes",description = "R"},
+		{charName = "Xerath",  spellName = "XerathLocusOfPower2", endposcast = false, useult = "yes",description = "R"},
+		{charName = "Velkoz",  spellName = "VelkozR", endposcast = false, useult = "no",description = "R"},
+		{charName = "Zac",  spellName = "ZacE", endposcast = false, useult = "no",description = "E"},
+		{charName = "Twitch",  spellName = "HideInShadows", endposcast = false, useult = "no",description = "Q"},
+		{charName = "Xerath",  spellName = "XerathArcanopulseChargeUp", endposcast = false, useult = "no",description = "Q"}
+
+		}
+		
+	SpellsTOAntigapclose = {}
+	SpellsDBAntigapclose = 
+	{
+		-- Antigapcloser
+		{charName = "Aatrox", spellName = "AatroxQ", endposcast = true, useult = "no",description = "Q"},
+		{charName = "Corki", spellName = "CarpetBomb", endposcast = false, useult = "no",description = "W"},
+		{charName = "Diana", spellName = "DianaTeleport", endposcast = false, useult = "no",description = "R"},
+		{charName = "LeeSin", spellName = "blindmonkqtwo", endposcast = false, useult = "no",description = "Q"},
+		{charName = "Poppy", spellName = "PoppyHeroicCharge", endposcast = false, useult = "no",description = "E"},
+		{charName = "Shaco",  spellName = "Deceive", endposcast = true, useult = "no",description = "Q"},
+		{charName = "JarvanIV", spellName = "JarvanIVDragonStrike", endposcast = false, useult = "no",description = "Q"},
+		{charName = "Fiora", spellName = "FioraQ", endposcast = true, useult = "no",description = "Q"},
+		{charName = "Leblanc", spellName = "LeblancSlide", endposcast = true, useult = "no",description = "W"},
+		{charName = "Leblanc", spellName = "leblacslidereturn", endposcast = true, useult = "no",description = "W"},
+		{charName = "Fizz", spellName = "FizzPiercingStrike", endposcast = true, useult = "no",description = "Q"},
+		{charName = "Amumu", spellName = "BandageToss", endposcast = false, useult = "no",description = "Q"},
+		{charName = "Gragas", spellName = "GragasE", endposcast = false, useult = "no",description = "E"},
+		{charName = "Irelia", spellName = "IreliaGatotsu", endposcast = false, useult = "no",description = "Q"},
+		{charName = "Alistar", spellName = "Headbutt", endposcast = false, useult = "no",description = "W"},
+		{charName = "Jax", spellName = "JaxLeapStrike", endposcast = false, useult = "no",description = "Q"},
+		{charName = "Khazix", spellName = "KhazixE", endposcast = false, useult = "no",description = "E"},
+		{charName = "Khazix", spellName = "khazixelong", endposcast = false, useult = "no",description = "E"},
+		{charName = "Braum", spellName = "BraumW", endposcast = true, useult = "no",description = "W"},
+		{charName = "Thresh", spellName = "threshqleap", endposcast = false, useult = "no",description = "Q 2"},
+		{charName = "Ahri", spellName = "AhriTumble", endposcast = true, useult = "no",description = "R"},
+		{charName = "Kassadin", spellName = "RiftWalk", endposcast = true, useult = "no",description = "R"},
+		{charName = "Tristana", spellName = "RocketJump", endposcast = false, useult = "no",description = "W"},
+		{charName = "Akali", spellName = "AkaliShadowDance", endposcast = true, useult = "no",description = "R"},
+		{charName = "Caitlyn", spellName = "CaitlynEntrapment", endposcast = false, useult = "no",description = "E"},
+		{charName = "Pantheon",  spellName = "PantheonW", endposcast = true, useult = "no",description = "W"},
+		{charName = "Quinn",  spellName = "QuinnE", endposcast = false, useult = "no",description = "E"},
+		{charName = "Renekton",  spellName = "RenektonSliceAndDice", endposcast = true, useult = "no",description = "E"},
+		{charName = "Sejuani",  spellName = "SejuaniArcticAssault", endposcast = false, useult = "no",description = "Q"},
+		{charName = "Shyvana",  spellName = "ShyvanaTransformCast", endposcast = false, useult = "no",description = "R"},
+		{charName = "Tryndamere",  spellName = "slashCast", endposcast = true, useult = "no",description = "E"},
+		{charName = "Vi",  spellName = "ViQ", endposcast = false, useult = "no",description = "Q"},
+		{charName = "XinZhao",  spellName = "XenZhaoSweep", endposcast = true, useult = "no",description = "E"},
+		{charName = "Yasuo",  spellName = "YasuoDashWrapper", endposcast = true, useult = "no",description = "E"},
+		{charName = "Leona", spellName = "LeonaZenithBlade", endposcast = false, useult = "no",description = "E"}
+
+		}
+		
+	SpellsToShild = {}
+	ShildSpellsDB = {
+
+		{charName = "Ashe", spellName = "Volley", description = "W", important = 1},
+		{charName = "Caitlyn", spellName = "CaitlynPiltoverPeacemaker", description = "Q", important = 1},
+		{charName = "Caitlyn", spellName = "CaitlynAceintheHole", description = "R", important = 3},
+		{charName = "Corki", spellName = "PhosphorusBomb", description = "Q", important = 1},
+		{charName = "Corki", spellName = "GGun", description = "E", important = 1},
+		{charName = "Corki", spellName = "MissileBarrage", description = "R", important = 3},
+		{charName = "Draven", spellName = "DravenSpinning", description = "Q", important = 1},
+		{charName = "Draven", spellName = "DravenDoubleShot", description = "E", important = 2},
+		{charName = "Draven", spellName = "DravenRCast", description = "R", important = 3},
+		{charName = "Ezreal", spellName = "EzrealMysticShot", description = "Q", important = 1},
+		{charName = "Ezreal", spellName = "EzrealTrueshotBarrage", description = "R", important = 3},
+		{charName = "Graves", spellName = "GravesClusterShot", description = "Q", important = 1},
+		{charName = "Graves", spellName = "GravesChargeShot", description = "R", important = 3},
+		{charName = "Jinx", spellName = "JinxW", description = "W", important = 2},
+		{charName = "Jinx", spellName = "JinxRWrapper", description = "R", important = 3},
+		{charName = "KogMaw", spellName = "KogMawLivingArtillery", description = "R", important = 3},
+		{charName = "Lucian", spellName = "LucianQ", description = "Q", important = 2},
+		{charName = "Lucian", spellName = "LucianW", description = "W", important = 1},
+		{charName = "Lucian", spellName = "LucianR", description = "R", important = 3},
+		{charName = "MissFortune", spellName = "MissFortuneRicochetShot", description = "Q", important = 2},
+		{charName = "MissFortune", spellName = "MissFortuneBulletTime", description = "R", important = 3},
+		{charName = "Quinn", spellName = "QuinnQ", description = "Q", important = 1},
+		{charName = "Quinn", spellName = "QuinnE", description = "E", important = 3},
+		{charName = "Sivir", spellName = "SivirQ", description = "Q", important = 2},
+	--	{charName = "Sivir", spellName = "SivirW", description = "W", important = 2},
+		{charName = "Tristana", spellName = "RapidFire", description = "Q", important = 1},
+		{charName = "Twitch", spellName = "Expunge", description = "E", important = 3},
+	--	{charName = "Twitch", spellName = "FullAutomatic", description = "R", important = 3}, -- new ult name ???
+		{charName = "Urgot", spellName = "UrgotHeatseekingMissile", description = "Q", important = 2},
+		{charName = "Urgot", spellName = "UrgotPlasmaGrenade", description = "E", important = 1},
+		{charName = "Varus", spellName = "VarusQ", description = "Q", important = 3},
+		{charName = "Varus", spellName = "VarusE", description = "E", important = 1},
+		{charName = "Vayne", spellName = "VayneTumble", description = "Q", important = 2},
+		{charName = "Vayne", spellName = "VayneCondemn", description = "E", important = 1},
+		{charName = "Vayne", spellName = "VayneInquisition", description = "R", important = 3},
+		{charName = "LeeSin", spellName = "BlindMonkRKick", description = "R", important = 3},
+		{charName = "Nasus", spellName = "NasusQ", description = "Q", important = 2},
+		{charName = "Nocturne", spellName = "NocturneParanoia", description = "R", important = 3},
+		{charName = "Shaco", spellName = "TwoShivPoison", description = "E", important = 2},
+		{charName = "Trundle", spellName = "TrundleTrollSmash", description = "Q", important = 2},
+		{charName = "Vi", spellName = "ViE", description = "E", important = 2},
+		{charName = "XinZhao", spellName = "XenZhaoComboTarget", description = "Q", important = 2},
+		{charName = "Khazix", spellName = "KhazixQ", description = "Q", important = 2},
+		{charName = "Khazix", spellName = "KhazixW", description = "W", important = 2},
+		{charName = "MasterYi", spellName = "AlphaStrike", description = "Q", important = 1},
+		{charName = "MasterYi", spellName = "WujuStyle", description = "E", important = 1},
+		{charName = "Talon", spellName = "TalonNoxianDiplomacy", description = "Q", important = 1},
+		{charName = "Talon", spellName = "TalonShadowAssault", description = "R", important = 3},
+		{charName = "Pantheon", spellName = "PantheonQ", description = "Q", important = 2}, -- mby wrong name
+		{charName = "Yasuo", spellName = "YasuoQW", description = "Q", important = 2}, 
+		{charName = "Zed", spellName = "ZedShuriken", description = "Q", important = 1}, -- mby wrong name
+		{charName = "Zed", spellName = "ZedPBAOEDummy", description = "E", important = 2}, -- mby wrong name
+		{charName = "Aatrox", spellName = "AatroxW", description = "W", important = 2},
+		{charName = "Darius", spellName = "DariusExecute", description = "R", important = 3},
+		{charName = "Gangplank", spellName = "Parley", description = "Q", important = 1},
+		{charName = "Garen", spellName = "GarenQ", description = "Q", important = 1},
+		{charName = "Garen", spellName = "GarenE", description = "E", important = 2},
+		{charName = "Jayce", spellName = "JayceToTheSkies", description = "Q", important = 2},
+		{charName = "Jayce", spellName = "jayceshockblast", description = "2 Q", important = 2},
+		{charName = "Renekton", spellName = "RenektonCleave", description = "Q", important = 2},
+		{charName = "Renekton", spellName = "RenektonPreExecute", description = "W", important = 2},
+		{charName = "Renekton", spellName = "RenektonSliceAndDice", description = "E", important = 2},
+		{charName = "Rengar", spellName = "RengarQ", description = "Q", important = 2},
+		{charName = "Rengar", spellName = "RengarE", description = "E", important = 1},
+		{charName = "Rengar", spellName = "RengarR", description = "R", important = 3},
+		{charName = "Riven", spellName = "RivenFengShuiEngine", description = "R", important = 3},
+		{charName = "Tryndamere", spellName = "UndyingRage", description = "R", important = 3},
+		{charName = "MonkeyKing", spellName = "MonkeyKingDoubleAttack", description = "Q", important = 1},
+		{charName = "MonkeyKing", spellName = "MonkeyKingNimbus", description = "E", important = 2},
+		{charName = "MonkeyKing", spellName = "MonkeyKingSpinToWin", description = "R", important = 3}
+
+	}
+end 
