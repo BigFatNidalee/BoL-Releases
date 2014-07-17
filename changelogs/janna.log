@@ -26,15 +26,15 @@
       switched q hitchance to 1 cause of currently prodiction bugs
 0.08 - 
       added Alistar W
-0.09 - 
+0.09 -
       rewritten main functions
       hope q bug fixed
       added q hitchance setup in menu
       ks q now with prodiction
       evadeee auto finder hook
       sow removed, cause we dont wanna lasthit in harass xD
+      has buid in orbwalker
       dont needs more vprediction
       added skin hack
       antigapcloser added endpos in q range check
       added info if no supported skills found
-      
