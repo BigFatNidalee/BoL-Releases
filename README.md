@@ -44,4 +44,4 @@ Low FPS Draws
 
 Prodiction: Hitchance, Packet Cast
 
-I reommend to use Prodiction 1.1a for max performance
+I recommend to use Prodiction 1.1a for max performance
