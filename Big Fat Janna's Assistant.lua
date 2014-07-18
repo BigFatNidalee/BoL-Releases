@@ -1,6 +1,6 @@
 if myHero.charName ~= "Janna" then return end
 	
-local version = "0.09"
+local version = "0.10"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Janna's Assistant.lua".."?rand="..math.random(1,10000)
@@ -27,6 +27,7 @@ end
 end
 
 local QRange, QSpeed, QDelay, QWidth = 1025, 910, 0, 200
+local QBuffRange = 1500
 local RRange = 700
 local WRange = 600
 local ERange = 800
@@ -38,7 +39,7 @@ local myTarget = nil
 local lastAttack, lastWindUpTime, lastAttackCD = 0, 0, 0
 -- Skinhack
 local lastSkin = 0
--- end pos draw
+
 
 function OnLoad()
 	
@@ -253,9 +254,9 @@ function OnTick()
 	RReady = (myHero:CanUseSpell(_R) == READY)
 	ArdentC = GetInventorySlotItem(3504)
 	ArdentCReady = (ArdentC ~= nil)
-	--KS
+
 	
-	if onHowlingGale == true and ValidTarget(Target, QRange) and not myHero.dead then
+	if onHowlingGale == true and ValidTarget(Target, QBuffRange) and not myHero.dead then
 		if JannaMenu.ProdictionSettings.UsePacketsCast then
 			Packet("S_CAST", {spellId = _Q}):send()
 		else
@@ -264,7 +265,7 @@ function OnTick()
 	end
 	
 
-	
+	--KS
 	KS()
 	if JannaMenu.evadee then
 	if _G.Evadeee_impossibleToEvade and EReady and myHero.mana >= MyMana(E) and not myHero.dead then
@@ -306,7 +307,6 @@ function OnProcessSpell(unit, spell)
 		end 
 	end
 --
-
 
 	-- Antigap
 		if #SpellsTOAntigapclose > 0 then
