@@ -1,6 +1,6 @@
 if myHero.charName ~= "Zyra" then return end
 	
-local version = "0.01"
+local version = "0.02"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Zyra.lua".."?rand="..math.random(1,10000)
@@ -32,17 +32,17 @@ end
 
 241.72
 903.50
-
+range = 800, width = 240, speed = 1400, delay = .5
                  [_Q] = { speed = math.huge, delay = 0.7, range = 800, minionCollisionWidth = 0},
          [_E] = { speed = 1150, delay = 0.16, range = 1100, minionCollisionWidth = 0}
-		 
+		 800, math.huge, 0.7, 215
 ]]--
 local QReady, WReady, EReady, RReady = false, false, false, false
 
 --local QRange, QSpeed, QDelay, QWidth = 800, math.huge, 0.7, 85
-local QRange, QSpeed, QDelay, QWidth = 800, math.huge, 0.7, 215
+local QRange, QSpeed, QDelay, QWidth = 800, math.huge, 0.5, 220
 local WRange, WSpeed, WDelay, WWidth = 825, math.huge, 0.2432, 10
-local ERange, ESpeed, EDelay, EWidth = 1100, 1150, 0.50, 50
+local ERange, ESpeed, EDelay, EWidth = 1000, 1150, 0.4, 50
 local ERangeCut = 1000
 local RRange, RSpeed, RDelay, RRadius = 700, math.huge, 0.500, 500
 local PRange, PSpeed, PDelay, PWidth = 1470, 1870, 0.500, 60
@@ -92,7 +92,10 @@ function OnLoad()
 	ZyraMenu.ProdictionSettings:addParam("info", "", SCRIPT_PARAM_INFO, "")
 	ZyraMenu.ProdictionSettings:addParam("info2", "HITCHANCE:", SCRIPT_PARAM_INFO, "")
 	ZyraMenu.ProdictionSettings:addParam("info3", "LOW = 1  NORMAL = 2  HIGH = 3", SCRIPT_PARAM_INFO, "")
-	
+	ZyraMenu:addSubMenu("[Draws]", "draws")
+	ZyraMenu.draws:addParam("DrawQ","Draw Q Range", SCRIPT_PARAM_ONOFF, true)
+	ZyraMenu.draws:addParam("DrawE","Draw E Range", SCRIPT_PARAM_ONOFF, true)
+
 	ZyraMenu:addParam("Orbwalk","Use Orbwalk", SCRIPT_PARAM_ONOFF, true)
 	ZyraMenu:addParam("SBTW","Combo Key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 	ZyraMenu:addParam("Harass1key","Harass Key", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
@@ -780,6 +783,15 @@ function ManaCost(spell)
 end		
 function OnDraw()
 	
+	if QReady then
+	if ZyraMenu.draws.DrawQ then
+	DrawCircle3D(myHero.x, myHero.y, myHero.z, QRange, 1, ARGB(60,23,190,23))
+	end
+	end
+	if EReady then
+	if ZyraMenu.draws.DrawE then
 	DrawCircle3D(myHero.x, myHero.y, myHero.z, ERangeCut, 1, ARGB(60,23,190,23))
+	end
+	end
 	
 end
