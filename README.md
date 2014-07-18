@@ -23,7 +23,8 @@ Shild Towers if enemys get tower aggro
 
 Always Double Q Toggle -> you can turn it on if wanna always double q manualy
 
-SOW
+Skin Hack by Shalzuth
+
 
 
 [Big Fat Corki ] (http://botoflegends.com/forum/topic/28814-reborn-plugin-free-big-fat-corki/)
