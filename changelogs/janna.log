@@ -36,7 +36,7 @@
       has build in orbwalker
       dont needs more vprediction
       added skin hack
-      antigapcloser added endpos in q range check
+      antigapcloser - added endpos in q range check
       added info if no supported skills found
 0.09 -   
       changed range for Always 2 Q Toggle from 1025 to 1500
