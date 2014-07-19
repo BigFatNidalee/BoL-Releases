@@ -45,3 +45,24 @@ Low FPS Draws
 Prodiction: Hitchance, Packet Cast
 
 I recommend to use Prodiction 1.1a for max performance
+
+[Big Fat Zyra ]
+============
+prodiction 1.0+. 
+includes:
+
+Combo: E, WQW
+
+Harass: WQW  with manamanager on Mixed/Laneclear mods
+
+KS: Q,E
+
+Skin Hack by Shalzuth
+
+Low FPS Draws
+
+Prodiction: Hitchance, Packet Cast
+
+I recommend to use Prodiction 1.1a for max performance
+
+its a Test version and designed to play zyra as support
