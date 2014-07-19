@@ -1,6 +1,6 @@
 if myHero.charName ~= "Zyra" then return end
 	
-local version = "0.04"
+local version = "0.05"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Dat Hipster Zyra.lua".."?rand="..math.random(1,10000)
@@ -41,7 +41,7 @@ range = 800, width = 240, speed = 1400, delay = .5
 local QReady, WReady, EReady, RReady = false, false, false, false
 
 --local QRange, QSpeed, QDelay, QWidth = 800, math.huge, 0.7, 85
-local QRange, QSpeed, QDelay, QWidth, QWidth2 = 800, 1400, 0.5, 100, 150
+local QRange, QSpeed, QDelay, QWidth, QWidth2 = 790, 1400, 0.5, 100, 150
 local WRange, WSpeed, WDelay, WWidth = 825, math.huge, 0.2432, 10
 local ERange, ESpeed, EDelay, EWidth = 1000, 1130, 0.23, 40
 local ERangeCut = 900
@@ -116,6 +116,7 @@ function OnLoad()
     ZyraMenu:addTS(ts)
 	
 	PrintChat("<font color='#c9d7ff'>Dat Hipster Zyra: </font><font color='#64f879'> "..version.." </font><font color='#c9d7ff'> loaded, happy elo boosting! </font>")
+
 	
 	
 
@@ -197,7 +198,7 @@ function Combo()
 	
 	if EReady and ZyraMenu.Combo.UseE and GetDistance(Target) <= ERange then
 
-			if GetDistance(Target) <= ERangeCut and myHero.mana >= ManaCost(E)  then
+			if GetDistance(Target) <= ERangeCut and myHero.mana >= MyMana(E)  then
 
 					local epos, einfo = Prodiction.GetLineAOEPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
 					if epos and einfo.hitchance >= ZyraMenu.ProdictionSettings.EHitchance then
@@ -213,7 +214,7 @@ function Combo()
 
 	
 	if QReady and ZyraMenu.Combo.UseQ then
-		if GetDistance(Target) <= QRange and myHero.mana >= ManaCost(Q) then
+		if GetDistance(Target) <= QRange and myHero.mana >= MyMana(Q) then
 			
 			local qpos, qinfo = Prodiction.GetCircularAOEPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
 			
@@ -507,7 +508,7 @@ function moveToCursor()
 	end 
 end
 
- -- << --  -- << --  -- << --  -- << -- [Ult]  -- >> --  -- >> --  -- >> --  -- >> --
+ -- << --  -- << --  -- << --  -- << -- [Ult credits to kain]  -- >> --  -- >> --  -- >> --  -- >> --
 
  function UltGroup(manual)
 	if not Target then return false end
@@ -683,7 +684,7 @@ function mymanaislowerthen(percent)
     end
 end
 
-function ManaCost(spell)
+function MyMana(spell)
 	if spell == Q then
 		return 70 + (5 * myHero:GetSpellData(_Q).level)
 	elseif spell == E then
@@ -699,7 +700,9 @@ function ManaCost(spell)
 	elseif spell == ER then
 		return 65 + (5 * myHero:GetSpellData(_E).level) + 80 + (20 * myHero:GetSpellData(_R).level)
 	end
-end		
+end
+
+
 function OnDraw()
 	
 	if QReady then
