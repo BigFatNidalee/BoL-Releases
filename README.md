@@ -46,7 +46,7 @@ Prodiction: Hitchance, Packet Cast
 
 I recommend to use Prodiction 1.1a for max performance
 
-[Big Fat Zyra ]
+[Dat Hipster Zyra ]
 ============
 prodiction 1.0+. 
 includes:
