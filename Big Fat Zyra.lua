@@ -1,6 +1,6 @@
 if myHero.charName ~= "Zyra" then return end
 	
-local version = "0.02"
+local version = "0.03"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Zyra.lua".."?rand="..math.random(1,10000)
@@ -36,22 +36,26 @@ range = 800, width = 240, speed = 1400, delay = .5
                  [_Q] = { speed = math.huge, delay = 0.7, range = 800, minionCollisionWidth = 0},
          [_E] = { speed = 1150, delay = 0.16, range = 1100, minionCollisionWidth = 0}
 		 800, math.huge, 0.7, 215
+		 1125, 935, 0.245
 ]]--
 local QReady, WReady, EReady, RReady = false, false, false, false
 
 --local QRange, QSpeed, QDelay, QWidth = 800, math.huge, 0.7, 85
-local QRange, QSpeed, QDelay, QWidth = 800, math.huge, 0.5, 220
+local QRange, QSpeed, QDelay, QWidth, QWidth2 = 800, 1400, 0.5, 100, 150
 local WRange, WSpeed, WDelay, WWidth = 825, math.huge, 0.2432, 10
-local ERange, ESpeed, EDelay, EWidth = 1000, 1150, 0.4, 50
-local ERangeCut = 1000
+local ERange, ESpeed, EDelay, EWidth = 1000, 1130, 0.23, 40
+local ERangeCut = 900
 local RRange, RSpeed, RDelay, RRadius = 700, math.huge, 0.500, 500
 local PRange, PSpeed, PDelay, PWidth = 1470, 1870, 0.500, 60
 local CastingQ = false
-local inQRange = false
 -- Orbwalk --
 local myTarget = nil
 local lastAttack, lastWindUpTime, lastAttackCD = 0, 0, 0
 
+local processes = {}
+local prodqposes = {}
+-- Skinhack
+local lastSkin = 0
 
 function OnLoad()
 
@@ -101,6 +105,12 @@ function OnLoad()
 	ZyraMenu:addParam("Harass1key","Harass Key", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
 	ZyraMenu:addParam("Harass2key","Harass 2 Key", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
 	
+	ZyraMenu:addParam("blank2", "", SCRIPT_PARAM_INFO, "")
+	ZyraMenu:addParam("skin", "Skin Hack by Shalzuth:", SCRIPT_PARAM_LIST, 1, { "Wildfire", "Haunted", "SKT T1", "No Skin" })
+	ZyraMenu:addParam("blank3", "", SCRIPT_PARAM_INFO, "")
+	ZyraMenu:addParam("info1", "Big Fat Zyra: Test v. "..version.."", SCRIPT_PARAM_INFO, "")
+	ZyraMenu:addParam("info2", "by Big Fat Nidalee", SCRIPT_PARAM_INFO, "")
+	
 	ts = TargetSelector(TARGET_LESS_CAST, 1400, true)
 	ts.name = "ZyraMenu"
     ZyraMenu:addTS(ts)
@@ -146,26 +156,49 @@ function OnTick()
 	if ZyraMenu.Ultimate.UseAutoUlt then
 	UltGroup()
 	end
-	if ValidTarget(Target) then
-		if GetDistance(Target) < QRange then
-		inQRange = true
-		elseif GetDistance(Target) > QRange then
-		inQRange = false
-		end
-	end
-
-
+	-- Skinhack
+	SkinHack()
 end 
+ -- << --  -- << --  -- << --  -- << -- [Skin Hack]  -- >> --  -- >> --  -- >> --  -- >> --
+function GenModelPacket(champ, skinId)
+	p = CLoLPacket(0x97)
+	p:EncodeF(myHero.networkID)
+	p.pos = 1
+	t1 = p:Decode1()
+	t2 = p:Decode1()
+	t3 = p:Decode1()
+	t4 = p:Decode1()
+	p:Encode1(t1)
+	p:Encode1(t2)
+	p:Encode1(t3)
+	p:Encode1(bit32.band(t4,0xB))
+	p:Encode1(1)--hardcode 1 bitfield
+	p:Encode4(skinId)
+	for i = 1, #champ do
+		p:Encode1(string.byte(champ:sub(i,i)))
+	end
+	for i = #champ + 1, 64 do
+		p:Encode1(0)
+	end
+	p:Hide()
+	RecvPacket(p)
+end
 
+function SkinHack()
+if ZyraMenu.skin ~= lastSkin and VIP_USER then
+	lastSkin = ZyraMenu.skin
+	GenModelPacket("Zyra", ZyraMenu.skin)
+end
+end
  -- << --  -- << --  -- << --  -- << -- [COMBO]  -- >> --  -- >> --  -- >> --  -- >> --
  
 function Combo()
 	if not Target then return end
 	
-	if not QReady and GetDistance(Target) <= QRange then
-		if EReady and ZyraMenu.Combo.UseE then
+	if EReady and ZyraMenu.Combo.UseE and GetDistance(Target) <= ERange then
+
 			if GetDistance(Target) <= ERangeCut and myHero.mana >= ManaCost(E)  then
-			--and not CastingQ == true	
+
 					local epos, einfo = Prodiction.GetLineAOEPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
 					if epos and einfo.hitchance >= ZyraMenu.ProdictionSettings.EHitchance then
 						if ZyraMenu.ProdictionSettings.UsePacketsCast then
@@ -177,23 +210,7 @@ function Combo()
 					end 
 			end
 		end
-	end
-	if inQRange == false and QReady then
-		if EReady and ZyraMenu.Combo.UseE then
-			if GetDistance(Target) <= ERangeCut and myHero.mana >= ManaCost(E)  then
-			--and not CastingQ == true	
-					local epos, einfo = Prodiction.GetLineAOEPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
-					if epos and einfo.hitchance >= ZyraMenu.ProdictionSettings.EHitchance then
-						if ZyraMenu.ProdictionSettings.UsePacketsCast then
-						Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-						else 
-						CastSpell(_E, epos.x, epos.z)
-						end	
 
-					end 
-			end
-		end
-	end
 	
 	if QReady and ZyraMenu.Combo.UseQ then
 		if GetDistance(Target) <= QRange and myHero.mana >= ManaCost(Q) then
@@ -239,10 +256,13 @@ function Harass1()
 	
 	if ZyraMenu.Harass.Harass1Mode == 1 then
 		if QReady and WReady and not mymanaislowerthen(ZyraMenu.Harass.ManaSliderHarass1) and GetDistance(Target) <= QRange then
-				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
+				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth2, myPlayer)
 			
 				if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
-				
+				prodqposes[1] = qpos.x
+				prodqposes[2] = qpos.z
+
+
 					if ZyraMenu.ProdictionSettings.UsePacketsCast then
 					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					else
@@ -259,6 +279,13 @@ function Harass1()
 					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					else
 					CastSpell(_W, qpos.x, qpos.z)
+					end
+					if processes[1] ~= nil then
+						if ZyraMenu.ProdictionSettings.UsePacketsCast then
+						Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
+						else
+						CastSpell(_W, processes[1], processes[3])
+						end
 					end
 
 				end
@@ -266,9 +293,11 @@ function Harass1()
 		end 
 	elseif ZyraMenu.Harass.Harass1Mode == 2 then
 		if QReady and WReady and not mymanaislowerthen(ZyraMenu.Harass.ManaSliderHarass1) and GetDistance(Target) <= QRange then
-				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
+				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth2, myPlayer)
 			
 				if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
+				prodqposes[1] = qpos.x
+				prodqposes[2] = qpos.z
 				
 					if ZyraMenu.ProdictionSettings.UsePacketsCast then
 					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
@@ -282,16 +311,18 @@ function Harass1()
 					CastSpell(_Q, qpos.x, qpos.z)
 					end
 				
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					else
-					CastSpell(_W, qpos.x, qpos.z)
+					if processes[1] ~= nil then
+						if ZyraMenu.ProdictionSettings.UsePacketsCast then
+						Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
+						else
+						CastSpell(_W, processes[1], processes[3])
+						end
 					end
 
 				end
 				
 		elseif QReady and not WReady and not mymanaislowerthen(ZyraMenu.Harass.ManaSliderHarass1) and GetDistance(Target) <= QRange then
-				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
+				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth2, myPlayer)
 				
 				if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
 
@@ -314,10 +345,11 @@ function Harass2()
 	
 	if ZyraMenu.Harass.Harass2Mode == 1 then
 		if QReady and WReady and not mymanaislowerthen(ZyraMenu.Harass.ManaSliderHarass2) and GetDistance(Target) <= QRange then
-				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
+				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth2, myPlayer)
 			
 				if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
-				
+				prodqposes[1] = qpos.x
+				prodqposes[2] = qpos.z
 					if ZyraMenu.ProdictionSettings.UsePacketsCast then
 					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					else
@@ -330,10 +362,12 @@ function Harass2()
 					CastSpell(_Q, qpos.x, qpos.z)
 					end
 				
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					else
-					CastSpell(_W, qpos.x, qpos.z)
+					if processes[1] ~= nil then
+						if ZyraMenu.ProdictionSettings.UsePacketsCast then
+						Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
+						else
+						CastSpell(_W, processes[1], processes[3])
+						end
 					end
 
 				end
@@ -341,10 +375,11 @@ function Harass2()
 		end 
 	elseif ZyraMenu.Harass.Harass2Mode == 2 then
 		if QReady and WReady and not mymanaislowerthen(ZyraMenu.Harass.ManaSliderHarass2) and GetDistance(Target) <= QRange then
-				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
+				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth2, myPlayer)
 			
 				if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
-				
+				prodqposes[1] = qpos.x
+				prodqposes[2] = qpos.z
 					if ZyraMenu.ProdictionSettings.UsePacketsCast then
 					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					else
@@ -357,16 +392,18 @@ function Harass2()
 					CastSpell(_Q, qpos.x, qpos.z)
 					end
 				
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					else
-					CastSpell(_W, qpos.x, qpos.z)
+					if processes[1] ~= nil then
+						if ZyraMenu.ProdictionSettings.UsePacketsCast then
+						Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
+						else
+						CastSpell(_W, processes[1], processes[3])
+						end
 					end
 
 				end
 				
 		elseif QReady and not WReady and not mymanaislowerthen(ZyraMenu.Harass.ManaSliderHarass2) and GetDistance(Target) <= QRange then
-				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
+				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth2, myPlayer)
 				
 				if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
 
@@ -727,14 +764,30 @@ end
 function OnProcessSpell(unit, spell)
 
 
-	if unit.isMe and spell.name == "ZyraQFissure" then
-CastingQ = true
-	if ZyraMenu.ProdictionSettings.UsePacketsCast then
-	Packet('S_CAST', {spellId = _W, toX = spell.endPos.x, toY = spell.endPos.z, fromX = spell.endPos.x, fromY = spell.endPos.z}):send(true)
-	else 
-	CastSpell(_W, spell.endPos.x, spell.endPos.z)
-	end	
-	end
+if unit.isMe and spell.name == "ZyraQFissure" then
+	CastingQ = true
+	processes[1] = spell.endPos.x
+	processes[2] = spell.endPos.y
+	processes[3] = spell.endPos.z
+	
+		if ZyraMenu.ProdictionSettings.UsePacketsCast then
+		Packet('S_CAST', {spellId = _W, toX = spell.endPos.x, toY = spell.endPos.z, fromX = spell.endPos.x, fromY = spell.endPos.z}):send(true)
+		else 
+		CastSpell(_W, spell.endPos.x, spell.endPos.z)
+		end
+
+	
+		if prodqposes[1] ~= nil then
+			if ZyraMenu.ProdictionSettings.UsePacketsCast then
+			Packet('S_CAST', {spellId = _W, toX = prodqposes[1], toY = prodqposes[2], fromX = prodqposes[1], fromY = prodqposes[2]}):send(true)
+			else 
+			CastSpell(_W, prodqposes[1], prodqposes[2])
+			end
+			
+		end
+		
+end
+
 	
 	if unit.isMe and not spell.name == "ZyraQFissure" then
 	CastingQ = false
@@ -785,12 +838,12 @@ function OnDraw()
 	
 	if QReady then
 	if ZyraMenu.draws.DrawQ then
-	DrawCircle3D(myHero.x, myHero.y, myHero.z, QRange, 1, ARGB(60,23,190,23))
+	DrawCircle3D(myHero.x, myHero.y, myHero.z, 740, 1, ARGB(60,23,190,23))
 	end
 	end
 	if EReady then
 	if ZyraMenu.draws.DrawE then
-	DrawCircle3D(myHero.x, myHero.y, myHero.z, ERangeCut, 1, ARGB(60,23,190,23))
+	DrawCircle3D(myHero.x, myHero.y, myHero.z, 820, 1, ARGB(60,23,190,23))
 	end
 	end
 	
