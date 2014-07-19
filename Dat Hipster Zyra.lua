@@ -1,15 +1,15 @@
 if myHero.charName ~= "Zyra" then return end
 	
-local version = "0.03"
+local version = "0.04"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
-local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Zyra.lua".."?rand="..math.random(1,10000)
-local UPDATE_FILE_PATH = SCRIPT_PATH.."Big Fat Zyra.lua"
+local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Dat Hipster Zyra.lua".."?rand="..math.random(1,10000)
+local UPDATE_FILE_PATH = SCRIPT_PATH.."Dat Hipster Zyra.lua"
 local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
 
-function AutoupdaterMsg(msg) print("<font color=\"#66cc00\">Big Fat Zyra:</font> <font color=\"#FFFFFF\">"..msg..".</font>") end
+function AutoupdaterMsg(msg) print("<font color=\"#66cc00\">Dat Hipster Zyra:</font> <font color=\"#FFFFFF\">"..msg..".</font>") end
 if AUTOUPDATE then
-local ServerData = GetWebResult(UPDATE_HOST, "/BigFatNidalee/BoL-Releases/master/versions/Big Fat Zyra.version")
+local ServerData = GetWebResult(UPDATE_HOST, "/BigFatNidalee/BoL-Releases/master/versions/Dat Hipster Zyra.version")
 if ServerData then
 ServerVersion = type(tonumber(ServerData)) == "number" and tonumber(ServerData) or nil
 if ServerVersion then
@@ -64,7 +64,7 @@ function OnLoad()
 	
 	myTrueRange = 575 + Myspace
 	
-	ZyraMenu = scriptConfig("Big Fat Zyra", "Big Fat Zyra")
+	ZyraMenu = scriptConfig("Dat Hipster Zyra", "Dat Hipster Zyra")
 	ZyraMenu:addSubMenu("[Combo]", "Combo")
 	ZyraMenu.Combo:addParam("UseQ","Use Q", SCRIPT_PARAM_ONOFF, true)
 	ZyraMenu.Combo:addParam("UseE","Use E", SCRIPT_PARAM_ONOFF, true)
@@ -83,7 +83,7 @@ function OnLoad()
 	ZyraMenu.KSOptions:addParam("KSwithQ","KS with Q", SCRIPT_PARAM_ONOFF, true)
 	ZyraMenu.KSOptions:addParam("KSwithE","KS with E", SCRIPT_PARAM_ONOFF, true)
 	ZyraMenu.KSOptions:addParam("Lachen","senden lachen waehrend KS", SCRIPT_PARAM_ONOFF, true)
-	
+
 	ZyraMenu:addSubMenu("[Ultimate]", "Ultimate")
 	ZyraMenu.Ultimate:addParam("UseAutoUlt","Use Auto Ult", SCRIPT_PARAM_ONOFF, true)
 	ZyraMenu.Ultimate:addParam("UltGroupMinimum", "Ult Enemy Team Min:", SCRIPT_PARAM_SLICE, 3, 2, 5, 0)
@@ -108,14 +108,14 @@ function OnLoad()
 	ZyraMenu:addParam("blank2", "", SCRIPT_PARAM_INFO, "")
 	ZyraMenu:addParam("skin", "Skin Hack by Shalzuth:", SCRIPT_PARAM_LIST, 1, { "Wildfire", "Haunted", "SKT T1", "No Skin" })
 	ZyraMenu:addParam("blank3", "", SCRIPT_PARAM_INFO, "")
-	ZyraMenu:addParam("info1", "Big Fat Zyra: Test v. "..version.."", SCRIPT_PARAM_INFO, "")
+	ZyraMenu:addParam("info1", "Dat Hipster Zyra: Test v. "..version.."", SCRIPT_PARAM_INFO, "")
 	ZyraMenu:addParam("info2", "by Big Fat Nidalee", SCRIPT_PARAM_INFO, "")
 	
 	ts = TargetSelector(TARGET_LESS_CAST, 1400, true)
 	ts.name = "ZyraMenu"
     ZyraMenu:addTS(ts)
 	
-	PrintChat("<font color='#c9d7ff'>BigFatNidalee's Zyra: </font><font color='#64f879'> "..version.." </font><font color='#c9d7ff'> loaded, happy elo boosting! </font>")
+	PrintChat("<font color='#c9d7ff'>Dat Hipster Zyra: </font><font color='#64f879'> "..version.." </font><font color='#c9d7ff'> loaded, happy elo boosting! </font>")
 	
 	
 
@@ -427,187 +427,53 @@ function KS()
 	for i = 1, heroManager.iCount do
 	local enemy = heroManager:getHero(i)
 --	
-	
-		if EReady and QReady and WReady and ZyraMenu.KSOptions.KSwithQ and ZyraMenu.KSOptions.KSwithE then
-		
-			if GetDistance(Target) <= QRange and myHero.mana >= ManaCost(QE) and not enemy.dead and enemy.health < getDmg("Q",enemy,myHero) + getDmg("E",enemy,myHero) then
-				local epos, einfo = Prodiction.GetLineAOEPrediction(Target, QRange, ESpeed, EDelay, EWidth, myPlayer)
-				local qpos, qinfo = Prodiction.GetCircularAOEPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
-				
-				if qpos and epos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance and einfo.hitchance >= ZyraMenu.ProdictionSettings.EHitchance then
-				
-					
+		if QReady and ZyraMenu.KSOptions.KSwithQ and ValidTarget(enemy, QRange) and not enemy.dead and enemy.health < getDmg("Q",enemy,myHero) and myHero.mana >= MyMana(Q) and enemy.visible then
+		local qpos, qinfo = Prodiction.GetPrediction(enemy, QRange, QSpeed, QDelay, QWidth, myPlayer)
+
+			if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
+				if WReady then
 					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					else 
-					CastSpell(_Q, qpos.x, qpos.z)
+					CastSpell(_W, qpos.x, qpos.z)
 					end
-					
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _W, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-					else 
-					CastSpell(_W, epos.x, epos.z)
-					end	
-					
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-					else 
-					CastSpell(_E, epos.x, epos.z)
-					end	
-						
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _W, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-					else 
-					CastSpell(_W, epos.x, epos.z)
-					end	
-					
-						
-			
-				end	
-	
-			elseif GetDistance(Target) >= QRange and GetDistance(Target) <= ERange and myHero.mana >= ManaCost(E) and not enemy.dead and enemy.health < getDmg("E",enemy,myHero) then
-			
-				local epos, einfo = Prodiction.GetLineAOEPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
-				if epos and einfo.hitchance >= ZyraMenu.ProdictionSettings.EHitchance then
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-					else 
-					CastSpell(_E, epos.x, epos.z)
-					end	
-
-				end	
-
-			end
-
-		elseif EReady and not QReady and WReady and ZyraMenu.KSOptions.KSwithE then
-		
-			if GetDistance(Target) <= WRange  and myHero.mana >= ManaCost(E) and not enemy.dead and enemy.health < getDmg("E",enemy,myHero) then
-				local epos, einfo = Prodiction.GetLineAOEPrediction(Target, WRange, ESpeed, EDelay, EWidth, myPlayer)
+				end
 				
-				if epos and einfo.hitchance >= ZyraMenu.ProdictionSettings.EHitchance then
-				
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _W, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-					else 
-					CastSpell(_W, epos.x, epos.z)
-					end				
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-					else 
-					CastSpell(_E, epos.x, epos.z)
-					end				
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _W, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-					else 
-					CastSpell(_W, epos.x, epos.z)
-					end		
+				if ZyraMenu.ProdictionSettings.UsePacketsCast then
+				Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+				else 
+				CastSpell(_Q, qpos.x, qpos.z)
+				end
+				if WReady then
+						if processes[1] ~= nil then
+							if ZyraMenu.ProdictionSettings.UsePacketsCast then
+							Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
+							else
+							CastSpell(_W, processes[1], processes[3])
+							end
+						end
+				end
+			end	
+		end
 
-				end	
+--
+		if EReady and ZyraMenu.KSOptions.KSwithE and ValidTarget(enemy, ERange) and not enemy.dead and enemy.health < getDmg("E",enemy,myHero) and myHero.mana >= MyMana(E) and enemy.visible then
+		local epos, einfo = Prodiction.GetPrediction(enemy, ERange, ESpeed, EDelay, EWidth, myPlayer)
 
-			elseif GetDistance(Target) >= WRange and GetDistance(Target) <= ERange and myHero.mana >= ManaCost(E) and not enemy.dead and enemy.health < getDmg("E",enemy,myHero) then
-				local epos, einfo = Prodiction.GetLineAOEPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
-				if epos and einfo.hitchance >= ZyraMenu.ProdictionSettings.EHitchance then
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-					else 
-					CastSpell(_E, epos.x, epos.z)
-					end	
-
-				end	
-
-			end 
-			
-		elseif EReady and QReady and not WReady and ZyraMenu.KSOptions.KSwithQ and ZyraMenu.KSOptions.KSwithE then
-		
-			if GetDistance(Target) <= QRange and myHero.mana >= ManaCost(QE) and not enemy.dead and enemy.health < getDmg("Q",enemy,myHero) + getDmg("E",enemy,myHero) then
-				local epos, einfo = Prodiction.GetLineAOEPrediction(Target, QRange, ESpeed, EDelay, EWidth, myPlayer)
-				local qpos, qinfo = Prodiction.GetCircularAOEPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
-				
-				if qpos and epos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance and einfo.hitchance >= ZyraMenu.ProdictionSettings.EHitchance then
-								
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-					else 
-					CastSpell(_E, epos.x, epos.z)
-					end	
-									
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					else 
-					CastSpell(_Q, qpos.x, qpos.z)
-					end
-
-				end	
-
-				
-			elseif GetDistance(Target) >= QRange and GetDistance(Target) <= ERange and myHero.mana >= ManaCost(E) and not enemy.dead and enemy.health < getDmg("E",enemy,myHero) then
-				local epos, einfo = Prodiction.GetLineAOEPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
-				if epos and einfo.hitchance >= ZyraMenu.ProdictionSettings.EHitchance then
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-					else 
-					CastSpell(_E, epos.x, epos.z)
-					end	
-
-				end	
-
-			end 
-		elseif EReady and not QReady and not WReady and myHero.mana >= ManaCost(E) and ZyraMenu.KSOptions.KSwithE and not enemy.dead and enemy.health < getDmg("E",enemy,myHero) then
-			local epos, einfo = Prodiction.GetLineAOEPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
 			if epos and einfo.hitchance >= ZyraMenu.ProdictionSettings.EHitchance then
 				if ZyraMenu.ProdictionSettings.UsePacketsCast then
 				Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
 				else 
 				CastSpell(_E, epos.x, epos.z)
-				end	
-
-			end	
-
-		
-		elseif not EReady and QReady and WReady and myHero.mana >= ManaCost(Q) and ZyraMenu.KSOptions.KSwithQ and not enemy.dead and enemy.health < getDmg("Q",enemy,myHero) then
-			local qpos, qinfo = Prodiction.GetCircularAOEPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
-			
-			if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
-							
-								
-				if ZyraMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-				else 
-				CastSpell(_W, qpos.x, qpos.z)
-				end		
-				
-				if ZyraMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-				else 
-				CastSpell(_Q, qpos.x, qpos.z)
 				end
-				
-				if ZyraMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-				else 
-				CastSpell(_W, qpos.x, qpos.z)
-				end	
-
-			end	
-
-		elseif not EReady and QReady and not WReady and myHero.mana >= ManaCost(Q) and ZyraMenu.KSOptions.KSwithQ and not enemy.dead and enemy.health < getDmg("Q",enemy,myHero) then
-			local qpos, qinfo = Prodiction.GetCircularAOEPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
-			
-			if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
-
-				if ZyraMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-				else 
-				CastSpell(_Q, qpos.x, qpos.z)
-				end
-				
 
 			end	
 
 		end
---
+--	
 
-end
+
+	end
 end
  -- << --  -- << --  -- << --  -- << -- [OrbWalker]  -- >> --  -- >> --  -- >> --  -- >> --
  
