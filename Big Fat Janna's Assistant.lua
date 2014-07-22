@@ -1,6 +1,6 @@
 if myHero.charName ~= "Janna" then return end
 	
-local version = "0.10"
+local version = "0.11"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Janna's Assistant.lua".."?rand="..math.random(1,10000)
@@ -31,6 +31,11 @@ local QBuffRange = 1500
 local RRange = 700
 local WRange = 600
 local ERange = 800
+
+local QRangeextra = 1500
+local buffer_objektov = {}
+local buffer_processov = {}
+local QReady = false
 --x2Q
 local onHowlingGale = false 
 local secondqcheck = false
@@ -100,6 +105,26 @@ function OnLoad()
 	JannaMenu:addSubMenu("[Antigapcloser]", "Antigapcloser")
 		JannaMenu.Antigapcloser:addParam("Antigapcloserdebug","Antigapcloser Debug", SCRIPT_PARAM_ONOFF, true)
 		JannaMenu.Antigapcloser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
+		
+		for i, enemy in ipairs(GetEnemyHeroes()) do
+			for _, champ in pairs(ObjectsDBAntigapclose) do
+				if enemy.charName == champ.charName then
+				table.insert(ObjectsTOAntigapclose, {charName = champ.charName, description = champ.description, spellName = champ.spellName, useult = champ.useult, endposcast = champ.endposcast, objectname = champ.objectname})
+				end
+			end
+		end
+		
+		
+		if #ObjectsTOAntigapclose > 0 then
+			for _, Antigapobjects in pairs(ObjectsTOAntigapclose) do
+
+					JannaMenu.Antigapcloser:addParam(Antigapobjects.spellName, ""..Antigapobjects.charName.. " | " ..Antigapobjects.description.. " - " ..Antigapobjects.spellName, SCRIPT_PARAM_ONOFF, true)	
+					JannaMenu.Antigapcloser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
+				
+			end
+		else	JannaMenu.Antigapcloser:addParam("404noo", "0 supported skills found =( ", SCRIPT_PARAM_INFO, "")	
+		end
+		
 		-- antigap
 		for i, enemy in ipairs(GetEnemyHeroes()) do
 			for _, champ in pairs(SpellsDBAntigapclose) do
@@ -127,7 +152,7 @@ function OnLoad()
 					JannaMenu.Antigapcloser:addParam("info", " ", SCRIPT_PARAM_INFO, "")
 				
 			end
-		else	JannaMenu.Antigapcloser:addParam("404", "0 supported skills found =( ", SCRIPT_PARAM_INFO, "")	
+		else	JannaMenu.Antigapcloser:addParam("404no", "0 supported skills found =( ", SCRIPT_PARAM_INFO, "")	
 		end
 		
 	JannaMenu:addSubMenu("[Boost Allies Dmg Output]", "BoostAlliesDmgOutput")
@@ -174,7 +199,7 @@ function OnLoad()
 		JannaMenu.ManaSettings:addParam("Prioritylvl3", "Mana Priority lvl 3",   SCRIPT_PARAM_SLICE, 10, 0, 100, 0)
 		JannaMenu.ManaSettings:addParam("info4", "", SCRIPT_PARAM_INFO, "")
 		JannaMenu.ManaSettings:addParam("info", "Harass:" , SCRIPT_PARAM_INFO, "")
-		JannaMenu.ManaSettings:addParam("HarassMana", "Min Mana",   SCRIPT_PARAM_SLICE, 55, 0, 100, 0)
+		JannaMenu.ManaSettings:addParam("HarassMana", "Min Mana",   SCRIPT_PARAM_SLICE, 20, 0, 100, 0)
 		
 	JannaMenu:addSubMenu("[Draws]", "Draws")
 		JannaMenu.Draws:addSubMenu("[Q Settings]", "QSettings")
@@ -210,8 +235,6 @@ function OnLoad()
 	JannaMenu:addParam("Orbwalk","Use Orbwalk", SCRIPT_PARAM_ONOFF, true)
 	if evade_found == true then
 	JannaMenu:addParam("evadee","Evadeee Intergration", SCRIPT_PARAM_ONOFF, true)
-	elseif evade_found == false then
-	JannaMenu:addParam("evadee","Evadeee Intergration", SCRIPT_PARAM_ONOFF, false)
 	end
 	JannaMenu:addParam("blank1", "", SCRIPT_PARAM_INFO, "")
 	JannaMenu:addParam("castq","Spam Q Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, 65)
@@ -264,12 +287,14 @@ function OnTick()
 		end
 	end
 	
-
+Antigapcloser()
 	--KS
 	KS()
+	if evade_found == true then
 	if JannaMenu.evadee then
 	if _G.Evadeee_impossibleToEvade and EReady and myHero.mana >= MyMana(E) and not myHero.dead then
 	CastSpell(_E)
+	end
 	end
 	end
 	--
@@ -293,6 +318,24 @@ function OnTick()
 	end
 
 
+end 
+
+function Antigapcloser()
+
+	
+	if buffer_objektov[4] ~= nil then
+
+		if JannaMenu.ProdictionSettings.UsePacketsCast then
+		Packet("S_CAST", {spellId = _Q, fromX =  buffer_objektov[1], fromY =  buffer_objektov[3], toX =  buffer_objektov[1], toY =  buffer_objektov[3]}):send()
+		else
+		CastSpell(_Q, buffer_objektov[1], buffer_objektov[3])
+		end
+	secondqcheck = true
+	end 
+
+	if buffer_objektov[4] == nil then
+	secondqcheck = false
+	end 
 end 
 
 function OnProcessSpell(unit, spell)
@@ -440,6 +483,59 @@ function OnProcessSpell(unit, spell)
 	end
 		
 end
+
+function OnCreateObj(object) 
+
+	if #ObjectsTOAntigapclose > 0 then
+		for _, Antigapobjects in pairs(ObjectsTOAntigapclose) do
+			
+			
+			if not myHero.dead then
+			if GetDistance(object) <= QRange and JannaMenu.Antigapcloser[Antigapobjects.spellName] then
+			
+				if object.name == Antigapobjects.objectname then	
+				buffer_objektov[1] = object.x
+				buffer_objektov[2] = object.y
+				buffer_objektov[3] = object.z
+				buffer_objektov[4] = object.name
+				
+				elseif not object.name == Antigapobjects.objectname then
+				buffer_objektov[1] = nil
+				buffer_objektov[2] = nil
+				buffer_objektov[3] = nil
+				buffer_objektov[4] = nil
+				end
+				
+			end
+			end
+		end
+	end
+
+end
+
+
+function OnDeleteObj(object)
+
+	if #ObjectsTOAntigapclose > 0 then
+		for _, Antigapobjects in pairs(ObjectsTOAntigapclose) do
+			
+			
+			if not myHero.dead then
+			if GetDistance(object) <= QRangeextra * 2  and JannaMenu.Antigapcloser[Antigapobjects.spellName] then
+			
+				if object.name == Antigapobjects.objectname then
+				buffer_objektov[1] = nil
+				buffer_objektov[2] = nil
+				buffer_objektov[3] = nil
+				buffer_objektov[4] = nil
+				end
+				
+			end
+			end
+		end
+	end
+	
+end 
 
 
 function OnGainBuff(unit, buff)
@@ -912,48 +1008,67 @@ function get_tables()
 		{charName = "Xerath",  spellName = "XerathArcanopulseChargeUp", endposcast = false, useult = "no",description = "Q"}
 
 		}
+
 		
+		
+		
+		
+	ObjectsTOAntigapclose = {}
+	ObjectsDBAntigapclose = 
+{
+		{charName = "Aatrox", spellName = "AatroxQ", useult = "no", description = "Q", objectname = "Aatrox_Base_Q_Cast.troy"},
+		{charName = "Corki", spellName = "CarpetBomb", useult = "no", description = "W", objectname = "corki_valkrie_speed.troy"},
+		{charName = "Diana", spellName = "DianaTeleport", useult = "no", description = "R", objectname = "Diana_Base_R_Cas.troy"},
+		{charName = "JarvanIV", spellName = "JarvanIVDragonStrike", useult = "no", description = "Q", objectname = "JarvanQuick_buf.troy"},
+		{charName = "Fiora", spellName = "FioraQ",useult = "no", description = "Q", objectname = "FioraQLunge_buf.troy"},
+		{charName = "Leblanc", spellName = "LeblancSlide",useult = "no", description = "W", objectname = "LeBlanc_Displacement_Yellow_mis.troy"},
+		{charName = "Leblanc", spellName = "LeblancSlideM",useult = "no", description = "WR", objectname = "LeBlanc_Displacement_mis.troy"},
+		{charName = "Amumu", spellName = "BandageToss", useult = "no", description = "Q", objectname = "Bandage_beam.troy"},
+		{charName = "Khazix", spellName = "KhazixE", useult = "no", description = "E", objectname = "Khazix_Base_E_Land.troy"},
+		{charName = "Khazix", spellName = "khazixelong", useult = "no", description = "E", objectname = "Khazix_Base_E_Land.troy"},
+		{charName = "Ahri", spellName = "AhriTumble",useult = "no", description = "R", objectname = "Ahri_Orb_cas.troy"},
+		{charName = "Kassadin", spellName = "RiftWalk",useult = "no", description = "R", objectname = "Kassadin_Base_R_vanish.troy"},
+		{charName = "Tristana", spellName = "RocketJump", useult = "no", description = "W", objectname = "tristana_rocketJump_cas.troy"},
+		{charName = "Akali", spellName = "AkaliShadowDance",useult = "no", description = "R", objectname = "akali_shadowDance_mis.troy"},
+		{charName = "Caitlyn", spellName = "CaitlynEntrapment", useult = "no", description = "E", objectname = "caitlyn_Base_entrapment_mis.troy"},
+		{charName = "Pantheon",  spellName = "PantheonW",useult = "no", description = "W", objectname = "Pantheon_Base_W_tar.troy"},
+		{charName = "Quinn",  spellName = "QuinnE", useult = "no", description = "E", objectname = "Quinn_Base_E_Tar.troy"},
+		{charName = "Tryndamere",  spellName = "slashCast",useult = "no", description = "E", objectname = "Slash.troy"},
+		{charName = "Vi",  spellName = "ViQ", useult = "no", description = "Q", objectname = "Vi_q_mis.troy"},
+		{charName = "Rengar",  spellName = "404", useult = "no", description = "Passive Jump", objectname = "Rengar_Base_P_Leap_Grass.troy"},
+		{charName = "Rengar",  spellName = "404", useult = "no", description = "Passive Jump", objectname = "Rengar_LeapSound.troy"},
+		{charName = "Renekton",  spellName = "RenektonSliceAndDice", useult = "no", description = "E", objectname = "RenektonSliceDice_buf.troy"},
+		{charName = "Sejuani",  spellName = "SejuaniArcticAssault", useult = "no", description = "Q", objectname = "Sejuani_Q_tar.troy"},
+		{charName = "Shyvana",  spellName = "ShyvanaTransformCast", useult = "no", description = "R", objectname = "shyvana_dragon_idle.troy"},
+		{charName = "Leona", spellName = "LeonaZenithBlade", useult = "no", description = "E", objectname = "Leona_ZenithBlade_mis.troy"}
+--
+		
+}
+
+
+
 	SpellsTOAntigapclose = {}
 	SpellsDBAntigapclose = 
 	{
 		-- Antigapcloser
-		{charName = "Aatrox", spellName = "AatroxQ", endposcast = true, useult = "no",description = "Q"},
-		{charName = "Corki", spellName = "CarpetBomb", endposcast = false, useult = "no",description = "W"},
-		{charName = "Diana", spellName = "DianaTeleport", endposcast = false, useult = "no",description = "R"},
 		{charName = "LeeSin", spellName = "blindmonkqtwo", endposcast = false, useult = "no",description = "Q"},
 		{charName = "Poppy", spellName = "PoppyHeroicCharge", endposcast = false, useult = "no",description = "E"},
 		{charName = "Shaco",  spellName = "Deceive", endposcast = true, useult = "no",description = "Q"},
-		{charName = "JarvanIV", spellName = "JarvanIVDragonStrike", endposcast = false, useult = "no",description = "Q"},
-		{charName = "Fiora", spellName = "FioraQ", endposcast = true, useult = "no",description = "Q"},
-		{charName = "Leblanc", spellName = "LeblancSlide", endposcast = true, useult = "no",description = "W"},
-		{charName = "Leblanc", spellName = "leblacslidereturn", endposcast = true, useult = "no",description = "W"},
 		{charName = "Fizz", spellName = "FizzPiercingStrike", endposcast = true, useult = "no",description = "Q"},
-		{charName = "Amumu", spellName = "BandageToss", endposcast = false, useult = "no",description = "Q"},
-		{charName = "Gragas", spellName = "GragasE", endposcast = false, useult = "no",description = "E"},
 		{charName = "Irelia", spellName = "IreliaGatotsu", endposcast = false, useult = "no",description = "Q"},
 		{charName = "Alistar", spellName = "Headbutt", endposcast = false, useult = "no",description = "W"},
 		{charName = "Jax", spellName = "JaxLeapStrike", endposcast = false, useult = "no",description = "Q"},
-		{charName = "Khazix", spellName = "KhazixE", endposcast = false, useult = "no",description = "E"},
-		{charName = "Khazix", spellName = "khazixelong", endposcast = false, useult = "no",description = "E"},
 		{charName = "Braum", spellName = "BraumW", endposcast = true, useult = "no",description = "W"},
 		{charName = "Thresh", spellName = "threshqleap", endposcast = false, useult = "no",description = "Q 2"},
-		{charName = "Ahri", spellName = "AhriTumble", endposcast = true, useult = "no",description = "R"},
-		{charName = "Kassadin", spellName = "RiftWalk", endposcast = true, useult = "no",description = "R"},
-		{charName = "Tristana", spellName = "RocketJump", endposcast = false, useult = "no",description = "W"},
-		{charName = "Akali", spellName = "AkaliShadowDance", endposcast = true, useult = "no",description = "R"},
 		{charName = "Caitlyn", spellName = "CaitlynEntrapment", endposcast = false, useult = "no",description = "E"},
-		{charName = "Pantheon",  spellName = "PantheonW", endposcast = true, useult = "no",description = "W"},
-		{charName = "Quinn",  spellName = "QuinnE", endposcast = false, useult = "no",description = "E"},
 		{charName = "Renekton",  spellName = "RenektonSliceAndDice", endposcast = true, useult = "no",description = "E"},
-		{charName = "Sejuani",  spellName = "SejuaniArcticAssault", endposcast = false, useult = "no",description = "Q"},
-		{charName = "Shyvana",  spellName = "ShyvanaTransformCast", endposcast = false, useult = "no",description = "R"},
-		{charName = "Tryndamere",  spellName = "slashCast", endposcast = true, useult = "no",description = "E"},
-		{charName = "Vi",  spellName = "ViQ", endposcast = false, useult = "no",description = "Q"},
 		{charName = "XinZhao",  spellName = "XenZhaoSweep", endposcast = true, useult = "no",description = "E"},
-		{charName = "Yasuo",  spellName = "YasuoDashWrapper", endposcast = true, useult = "no",description = "E"},
-		{charName = "Leona", spellName = "LeonaZenithBlade", endposcast = false, useult = "no",description = "E"}
+		{charName = "Yasuo",  spellName = "YasuoDashWrapper", endposcast = true, useult = "no",description = "E"}
 
 		}
+		
+		
+		
 		
 	SpellsToShild = {}
 	ShildSpellsDB = {
