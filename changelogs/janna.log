@@ -41,3 +41,15 @@
 0.09 -   
       changed range for Always 2 Q Toggle from 1025 to 1500
       its means if Always 2 Q Toggle on and enemy in 1500 range then if you cast manuel, 2 q will automaticly casted
+0.10 - 
+      some fixes
+0.11 -      
+      new methode for some antigapclosers, added rengar, shaco removed, 
+      no longer need vision for antigapclose vs:
+      Aatrox, Corki, Diana, JarvanIV, Fiora, Leblanc, Amumu, Khazix, Ahri, Kassadin, Tristana, Akali, Pantheon, Quinn, Tryndamere, Vi, Rengar, Renekton, Sejuani, Shyvana and Leona <3
+      
+To-Do:
+      add tristana w shild
+      fix antigap menu after added new methode
+      
+
