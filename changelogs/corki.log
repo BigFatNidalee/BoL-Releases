@@ -8,7 +8,7 @@
         now it should make other functions to pause while ks function runs
         removed all mana checks in combo mode cause it was only one solution that i found to fix by low mana not casting skills issue
         added option to turn on/off skin hack
-        removed targeting skills from autocarry target selector, now plugin has own target selector.
+        removed targeting skills from autocarry target selector, now plugin has own target selector for skills.
         
 to-do: Use Selector lib
     
