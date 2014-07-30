@@ -1,6 +1,6 @@
 if myHero.charName ~= "Corki" then return end
 
-local version = "0.19"
+local version = "0.20"
 
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
@@ -188,9 +188,9 @@ function Killsteal()
 		if QReady and AutoCarry.PluginMenu.KSOptions.KSwithQ and ValidTarget(enemy, QRange) and not enemy.dead and enemy.visible and enemy.health < getDmg("Q",enemy,myHero) and myHero.mana >= MyMana(Q) and ksqpos and ksqinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.QHitchance then
 		KSProcess = true
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
-			Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+			Packet('S_CAST', {spellId = _Q, toX = ksqpos.x, toY = ksqpos.z, fromX = ksqpos.x, fromY = ksqpos.z}):send(true)
 			else 
-			CastSpell(_Q, qpos.x, qpos.z)
+			CastSpell(_Q, ksqpos.x, ksqpos.z)
 			end
 			
 		else 
@@ -200,9 +200,9 @@ function Killsteal()
 		if RReady and AutoCarry.PluginMenu.KSOptions.KSwithR and ValidTarget(enemy, RRange) and not enemy.dead and enemy.visible and enemy.health < getDmg("R",enemy,myHero) and myHero.mana >= MyMana(R) and ksrpos and ksrinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.RHitchance and not coll:GetMinionCollision(ksrpos, myHero) then
 		KSProcess = true
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
-			Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
+			Packet('S_CAST', {spellId = _R, toX = ksrpos.x, toY = ksrpos.z, fromX = ksrpos.x, fromY = ksrpos.z}):send(true)
 			else 
-			CastSpell(_R, rpos.x, rpos.z)
+			CastSpell(_R, ksrpos.x, ksrpos.z)
 			end
 
 		else 
@@ -212,11 +212,11 @@ function Killsteal()
 		if QReady and RReady and AutoCarry.PluginMenu.KSOptions.KSwithQ and AutoCarry.PluginMenu.KSOptions.KSwithR and ValidTarget(enemy, QRange) and not enemy.dead and enemy.visible and enemy.health < getDmg("Q",enemy,myHero) + getDmg("R",enemy,myHero) and myHero.mana >= MyMana(QR) and ksrpos and ksrinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.RHitchance and not coll:GetMinionCollision(ksrpos, myHero) and ksqpos and ksqinfo.hitchance >= AutoCarry.PluginMenu.ProdictionSettings.QHitchance then
 		KSProcess = true
 			if AutoCarry.PluginMenu.ProdictionSettings.UsePacketsCast then
-			Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-			Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
+			Packet('S_CAST', {spellId = _Q, toX = ksqpos.x, toY = ksqpos.z, fromX = ksqpos.x, fromY = ksqpos.z}):send(true)
+			Packet('S_CAST', {spellId = _R, toX = ksrpos.x, toY = ksrpos.z, fromX = ksrpos.x, fromY = ksrpos.z}):send(true)
 			else 
-			CastSpell(_Q, qpos.x, qpos.z)
-			CastSpell(_R, rpos.x, rpos.z)
+			CastSpell(_Q, ksqpos.x, ksqpos.z)
+			CastSpell(_R, ksrpos.x, ksrpos.z)
 			end
 			
 		else 
