@@ -44,7 +44,27 @@ Low FPS Draws
 
 Prodiction: Hitchance, Packet Cast
 
-I recommend to use Prodiction 1.1a for max performance
+
+[Big Fat Graves ] (http://botoflegends.com/forum/topic/31046-reborn-plugin-free-big-fat-graves/)
+============
+
+Main Features:
+
+- Combo: W/Q
+
+- Harass: W/Q  with manamanager on Mixed/Laneclear mods
+
+- KS: W/Q/R/
+
+- Ult on hotkey
+
+- Skin Hack by Shalzuth
+
+- Low FPS Draws
+
+- Prodiction: Hitchance, Packet Cast
+
+
 
 [Dat Hipster Zyra ]
 ============
@@ -62,7 +82,5 @@ Skin Hack by Shalzuth
 Low FPS Draws
 
 Prodiction: Hitchance, Packet Cast
-
-I recommend to use Prodiction 1.1a for max performance
 
 its a Test version and designed to play zyra as support
