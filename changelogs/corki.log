@@ -10,7 +10,7 @@
         added option to turn on/off skin hack
         removed targeting skills from autocarry target selector, now plugin has own target selector for skills.
 0.20 - 
-        fixed ks pos, forgott it to change before. im sorry
+        fixed ks pos, forgott it to change after 0.19 update. im sorry
         
 to-do: Use Selector lib
     
