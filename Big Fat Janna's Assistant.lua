@@ -1,6 +1,6 @@
 if myHero.charName ~= "Janna" then return end
 	
-local version = "0.12"
+local version = "0.13"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Janna's Assistant.lua".."?rand="..math.random(1,10000)
@@ -235,6 +235,8 @@ function OnLoad()
 	if evade_found == true then
 	JannaMenu:addParam("evadee","Evadeee Intergration", SCRIPT_PARAM_ONOFF, true)
 	end
+	JannaMenu:addParam("blank11", "", SCRIPT_PARAM_INFO, "")
+	JannaMenu:addParam("resetbug","Reset Q bug cast", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
 	JannaMenu:addParam("blank1", "", SCRIPT_PARAM_INFO, "")
 	JannaMenu:addParam("castq","Spam Q Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, 65)
 	JannaMenu:addParam("Combo","Combo Key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
@@ -287,6 +289,11 @@ function OnTick()
 		end
 	end
 	
+	if JannaMenu.resetbug then
+	onHowlingGale = false 
+	secondqcheck = false
+	end 
+
 Antigapcloser()
 	--KS
 	KS()
