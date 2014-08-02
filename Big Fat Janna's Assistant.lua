@@ -1,6 +1,6 @@
 if myHero.charName ~= "Janna" then return end
 	
-local version = "0.11"
+local version = "0.12"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Janna's Assistant.lua".."?rand="..math.random(1,10000)
@@ -74,7 +74,6 @@ function OnLoad()
 		
 	JannaMenu:addSubMenu("[KS Options]", "KSOptions")
 		JannaMenu.KSOptions:addParam("KSwithW","KS with W", SCRIPT_PARAM_ONOFF, true)
-		JannaMenu.KSOptions:addParam("KSwithQ","KS with Q", SCRIPT_PARAM_ONOFF, true)
 	
 	JannaMenu:addSubMenu("[Interrupter]", "Int")
 		JannaMenu.Int:addParam("interrupterdebug","Interrupter Debug", SCRIPT_PARAM_ONOFF, true)
@@ -241,6 +240,7 @@ function OnLoad()
 	JannaMenu:addParam("Combo","Combo Key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 	JannaMenu:addParam("Harass","Harass Key", SCRIPT_PARAM_ONKEYDOWN, false, 88)
 	JannaMenu:addParam("blank2", "", SCRIPT_PARAM_INFO, "")
+	JannaMenu:addParam("SkinHack","Use Skin Hack", SCRIPT_PARAM_ONOFF, false)
 	JannaMenu:addParam("skin", "Skin Hack by Shalzuth:", SCRIPT_PARAM_LIST, 3, { "Tempest", "Hextech", "Frost Queen", "Victorious", "Forecast", "No Skin" })
 	JannaMenu:addParam("blank3", "", SCRIPT_PARAM_INFO, "")
 	JannaMenu:addParam("info1", "Big Fat Janna's Assistant v. "..version.."", SCRIPT_PARAM_INFO, "")
@@ -299,7 +299,9 @@ Antigapcloser()
 	end
 	--
 	-- Skinhack
+	if JannaMenu.SkinHack then
 	SkinHack()
+	end 
 	-- Orbwalk
 	if JannaMenu.Orbwalk and JannaMenu.Combo or JannaMenu.Harass then
 	OrbWalk()
@@ -674,27 +676,7 @@ end
  function KS()
 	for i = 1, heroManager.iCount do
 	local enemy = heroManager:getHero(i)
---	
-		if QReady and JannaMenu.KSOptions.KSwithQ and ValidTarget(enemy, QRange) and not enemy.dead and enemy.health < getDmg("Q",enemy,myHero) and myHero.mana >= MyMana(Q) and enemy.visible then
-		local qpos, qinfo = Prodiction.GetPrediction(enemy, QRange, QSpeed, QDelay, QWidth, myPlayer)
 
-		if qpos and qinfo.hitchance >= JannaMenu.ProdictionSettings.QHitchance then
-		secondqcheck = true
-			if JannaMenu.ProdictionSettings.UsePacketsCast then
-			Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-			else 
-			CastSpell(_Q, qpos.x, qpos.z)
-			end
-
-		end	
-
-		end
-		if not QReady then 
-		secondqcheck = false
-		elseif QReady and GetDistance(enemy) >= QRange then
-		secondqcheck = false
-		end
---
 		if WReady and JannaMenu.KSOptions.KSwithW and ValidTarget(enemy, WRange) and not enemy.dead and enemy.health < getDmg("W",enemy,myHero) and myHero.mana >= MyMana(W) and enemy.visible then
 
 			if JannaMenu.ProdictionSettings.UsePacketsCast then
@@ -704,31 +686,7 @@ end
 			end
 
 		end	
---	
-		if QReady and WReady and JannaMenu.KSOptions.KSwithQ and JannaMenu.KSOptions.KSwithW and ValidTarget(enemy, WRange) and not enemy.dead and enemy.health < getDmg("Q",enemy,myHero) + getDmg("W",enemy,myHero) and myHero.mana >= MyMana(WQ) and enemy.visible then
-		local qpos, qinfo = Prodiction.GetPrediction(enemy, QRange, QSpeed, QDelay, QWidth, myPlayer)
 
-		if qpos and qinfo.hitchance >= JannaMenu.ProdictionSettings.QHitchance then
-		secondqcheck = true
-			if JannaMenu.ProdictionSettings.UsePacketsCast then
-			Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-			Packet("S_CAST", {spellId = _W, targetNetworkId = enemy.networkID}):send()
-			else 
-			CastSpell(_Q, qpos.x, qpos.z)
-			CastSpell(_W, enemy)
-			end
-
-		end	
-		
-		
-
-		end
-		if not QReady then 
-		secondqcheck = false
-		elseif QReady and GetDistance(enemy) >= QRange then
-		secondqcheck = false
-		end
---
 
 	end
 
@@ -1099,6 +1057,7 @@ function get_tables()
 		{charName = "Sivir", spellName = "SivirQ", description = "Q", important = 2},
 	--	{charName = "Sivir", spellName = "SivirW", description = "W", important = 2},
 		{charName = "Tristana", spellName = "RapidFire", description = "Q", important = 1},
+		{charName = "Tristana", spellName = "RocketJump", description = "W", important = 3},
 		{charName = "Twitch", spellName = "Expunge", description = "E", important = 3},
 	--	{charName = "Twitch", spellName = "FullAutomatic", description = "R", important = 3}, -- new ult name ???
 		{charName = "Urgot", spellName = "UrgotHeatseekingMissile", description = "Q", important = 2},
