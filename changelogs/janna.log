@@ -47,10 +47,15 @@
       new methode for some antigapclosers, added rengar, shaco removed, 
       no longer need vision for antigapclose vs:
       Aatrox, Corki, Diana, JarvanIV, Fiora, Leblanc, Amumu, Khazix, Ahri, Kassadin, Tristana, Akali, Pantheon, Quinn, Tryndamere, Vi, Rengar, Renekton, Sejuani, Shyvana and Leona <3
+0.12 -
+      removed ks q, cause it sometimes randomly uses q without reason ='(
+      added option to turn on / off skinhack
+      added tristana w to shild
+      
+      
       
 To-Do:
       add tristana w shild
       fix antigap menu after added new methode
-      improve evadeee detecter
       find a way to block evadeee while ulting
 
