@@ -1,6 +1,6 @@
 0.01 - released
 0.02 - 
-      added Shild Towers if enemys get attacked (with item, mana and hp filter)
+      added shield Towers if enemys get attacked (with item, mana and hp filter)
       added advanced mana managment for boost ally dmg
       added sow
       removed ks with q - kinda buggy
@@ -50,7 +50,7 @@
 0.12 -
       removed ks q, cause it sometimes randomly uses q without reason ='(
       added option to turn on / off skinhack
-      added tristana w to shild
+      added tristana w to shield
       
       
       
