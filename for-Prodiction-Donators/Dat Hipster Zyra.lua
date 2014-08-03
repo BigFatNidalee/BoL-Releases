@@ -1,6 +1,6 @@
 if myHero.charName ~= "Zyra" then return end
 	
-local version = "0.09"
+local version = "0.10"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/for-Prodiction-Donators/Dat Hipster Zyra.lua".."?rand="..math.random(1,10000)
@@ -150,7 +150,7 @@ function OnTick()
 	end
 
 
-	if Target and ValidTarget(Target)then
+	if Target and ValidTarget(Target) and not PReady then
 		KS()
 		if ZyraMenu.ult4me then
 		ULT4ME()
@@ -169,6 +169,10 @@ function OnTick()
 		end
 		
 	end
+	
+	if Target and ValidTarget(Target) and PReady then
+	PassiveShot()
+	end 
 
 
 end 
@@ -234,6 +238,61 @@ function ULT4ME()
 	end	
 end
 
+ -- << --  -- << --  -- << --  -- << -- [Passive]  -- >> --  -- >> --  -- >> --  -- >> --
+ 
+function PassiveShot()
+	if not Target then return end
+	
+	for i = 1, heroManager.iCount do
+	local enemy = heroManager:getHero(i)
+
+		if PReady and ValidTarget(enemy, PRange) and not enemy.dead and enemy.health < getDmg("P",enemy,myHero) and enemy.visible then
+		local ppos, pinfo = Prodiction.GetPrediction(enemy, PRange, PSpeed, PDelay, PWidth, myPlayer)
+
+			if ppos and pinfo.hitchance >= 2 then
+
+				if ZyraMenu.ProdictionSettings.UsePacketsCast then
+				Packet('S_CAST', {spellId = _Q, toX = ppos.x, toY = ppos.z, fromX = ppos.x, fromY = ppos.z}):send(true)
+				Packet('S_CAST', {spellId = _W, toX = ppos.x, toY = ppos.z, fromX = ppos.x, fromY = ppos.z}):send(true)
+				Packet('S_CAST', {spellId = _E, toX = ppos.x, toY = ppos.z, fromX = ppos.x, fromY = ppos.z}):send(true)
+				Packet('S_CAST', {spellId = _R, toX = ppos.x, toY = ppos.z, fromX = ppos.x, fromY = ppos.z}):send(true)
+				else 
+				CastSpell(_Q, ppos.x, ppos.z)
+				CastSpell(_W, ppos.x, ppos.z)
+				CastSpell(_E, ppos.x, ppos.z)
+				CastSpell(_R, ppos.x, ppos.z)
+				end
+
+			end	
+
+		elseif PReady and ValidTarget(enemy, PRange) and not enemy.dead and enemy.health > getDmg("P",enemy,myHero) and enemy.visible then
+		if GetDistance(Target) <= PRange and not enemy.dead and enemy.visible then
+			local ppos, pinfo = Prodiction.GetPrediction(Target, PRange, PSpeed, PDelay, PWidth, myPlayer)
+
+				if ppos and pinfo.hitchance >= 2 then
+
+					if ZyraMenu.ProdictionSettings.UsePacketsCast then
+					Packet('S_CAST', {spellId = _Q, toX = ppos.x, toY = ppos.z, fromX = ppos.x, fromY = ppos.z}):send(true)
+					Packet('S_CAST', {spellId = _W, toX = ppos.x, toY = ppos.z, fromX = ppos.x, fromY = ppos.z}):send(true)
+					Packet('S_CAST', {spellId = _E, toX = ppos.x, toY = ppos.z, fromX = ppos.x, fromY = ppos.z}):send(true)
+					Packet('S_CAST', {spellId = _R, toX = ppos.x, toY = ppos.z, fromX = ppos.x, fromY = ppos.z}):send(true)
+					else 
+					CastSpell(_Q, ppos.x, ppos.z)
+					CastSpell(_W, ppos.x, ppos.z)
+					CastSpell(_E, ppos.x, ppos.z)
+					CastSpell(_R, ppos.x, ppos.z)
+					end
+
+				end	
+		end
+		end
+		
+--	
+
+
+	end
+
+end 
  -- << --  -- << --  -- << --  -- << -- [COMBO]  -- >> --  -- >> --  -- >> --  -- >> --
  
 function Combo()
