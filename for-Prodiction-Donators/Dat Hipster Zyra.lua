@@ -1,6 +1,6 @@
 if myHero.charName ~= "Zyra" then return end
 	
-local version = "0.07"
+local version = "0.08"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/for-Prodiction-Donators/Dat Hipster Zyra.lua".."?rand="..math.random(1,10000)
@@ -256,7 +256,7 @@ function Combo()
 						end	
 
 					end 
-			elseif GetDistance(Target) <= ERange and not GetDistance(Target) <= WRange and myHero.mana >= MyMana(E)  then
+			elseif GetDistance(Target) <= ERange and myHero.mana >= MyMana(E)  then
 					local epos, einfo = Prodiction.GetLineAOEPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
 					if epos and einfo.hitchance >= ZyraMenu.ProdictionSettings.EHitchance then
 						if ZyraMenu.ProdictionSettings.UsePacketsCast then
