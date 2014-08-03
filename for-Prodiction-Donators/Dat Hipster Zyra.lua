@@ -1,6 +1,6 @@
 if myHero.charName ~= "Zyra" then return end
 	
-local version = "0.08"
+local version = "0.09"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/for-Prodiction-Donators/Dat Hipster Zyra.lua".."?rand="..math.random(1,10000)
@@ -283,41 +283,49 @@ function Combo()
 			end
 	end
 
-	
-	if QReady and ZyraMenu.Combo.UseQ then
+	--
+	if QReady and not EReady and ZyraMenu.Combo.UseQ then
 		if GetDistance(Target) <= QRange and myHero.mana >= MyMana(Q) then
 			
 			local qpos, qinfo = Prodiction.GetCircularAOEPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
 			
 			if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
 							
-				if ZyraMenu.Combo.UseW then				
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					else 
-					CastSpell(_W, qpos.x, qpos.z)
-					end	
-				end	
-				
-				
+
 				if ZyraMenu.ProdictionSettings.UsePacketsCast then
+				Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 				Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+				Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 				else 
+				CastSpell(_W, qpos.x, qpos.z)
 				CastSpell(_Q, qpos.x, qpos.z)
+				CastSpell(_W, qpos.x, qpos.z)
 				end
 
-				if ZyraMenu.Combo.UseW then				
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					else 
-					CastSpell(_W, qpos.x, qpos.z)
-					end	
-				end	
+			end
+			
+		end
+	elseif QReady and EReady and ZyraMenu.Combo.UseQ then
+		if GetDistance(Target) <= QRange and myHero.mana >= MyMana(Q) then
+			
+			local qpos, qinfo = Prodiction.GetCircularAOEPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
+			
+			if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
+							
+
+				if ZyraMenu.ProdictionSettings.UsePacketsCast then
+				Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+				Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+				else 
+				CastSpell(_Q, qpos.x, qpos.z)
+				CastSpell(_W, qpos.x, qpos.z)
+				end
+
 			end
 			
 		end
 	end
-
+--
 	
 
 end	
@@ -337,19 +345,11 @@ function Harass1()
 
 					if ZyraMenu.ProdictionSettings.UsePacketsCast then
 					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					else
-					CastSpell(_W, qpos.x, qpos.z)
-					end
-				
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
 					Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					else
-					CastSpell(_Q, qpos.x, qpos.z)
-					end
-				
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
 					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					else
+					CastSpell(_W, qpos.x, qpos.z)
+					CastSpell(_Q, qpos.x, qpos.z)
 					CastSpell(_W, qpos.x, qpos.z)
 					end
 					if processes[1] ~= nil then
@@ -373,16 +373,13 @@ function Harass1()
 				
 					if ZyraMenu.ProdictionSettings.UsePacketsCast then
 					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+					Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					else
 					CastSpell(_W, qpos.x, qpos.z)
-					end
-				
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					else
 					CastSpell(_Q, qpos.x, qpos.z)
+					CastSpell(_W, qpos.x, qpos.z)
 					end
-				
 					if processes[1] ~= nil then
 						if ZyraMenu.ProdictionSettings.UsePacketsCast then
 						Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
@@ -424,16 +421,13 @@ function Harass2()
 				prodqposes[2] = qpos.z
 					if ZyraMenu.ProdictionSettings.UsePacketsCast then
 					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+					Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					else
 					CastSpell(_W, qpos.x, qpos.z)
-					end
-				
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					else
 					CastSpell(_Q, qpos.x, qpos.z)
+					CastSpell(_W, qpos.x, qpos.z)
 					end
-				
 					if processes[1] ~= nil then
 						if ZyraMenu.ProdictionSettings.UsePacketsCast then
 						Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
@@ -452,18 +446,16 @@ function Harass2()
 				if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
 				prodqposes[1] = qpos.x
 				prodqposes[2] = qpos.z
+				
 					if ZyraMenu.ProdictionSettings.UsePacketsCast then
+					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
+					Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					else
 					CastSpell(_W, qpos.x, qpos.z)
-					end
-				
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					else
 					CastSpell(_Q, qpos.x, qpos.z)
+					CastSpell(_W, qpos.x, qpos.z)
 					end
-				
 					if processes[1] ~= nil then
 						if ZyraMenu.ProdictionSettings.UsePacketsCast then
 						Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
