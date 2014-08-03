@@ -1,6 +1,6 @@
 if myHero.charName ~= "Zyra" then return end
 	
-local version = "0.06"
+local version = "0.07"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/for-Prodiction-Donators/Dat Hipster Zyra.lua".."?rand="..math.random(1,10000)
@@ -37,13 +37,15 @@ range = 800, width = 240, speed = 1400, delay = .5
          [_E] = { speed = 1150, delay = 0.16, range = 1100, minionCollisionWidth = 0}
 		 800, math.huge, 0.7, 215
 		 1125, 935, 0.245
+		 
+		 local ERange, ESpeed, EDelay, EWidth = 1000, 1040, 0.24, 70
 ]]--
 local QReady, WReady, EReady, RReady = false, false, false, false
 
 --local QRange, QSpeed, QDelay, QWidth = 800, math.huge, 0.7, 85
 local QRange, QSpeed, QDelay, QWidth, QWidth2 = 790, 1400, 0.5, 100, 150
 local WRange, WSpeed, WDelay, WWidth = 825, math.huge, 0.2432, 10
-local ERange, ESpeed, EDelay, EWidth = 1000, 1130, 0.23, 40
+local ERange, ESpeed, EDelay, EWidth = 1000, 1100, 0.23, 40
 local ERangeCut = 950
 local RRange, RSpeed, RDelay, RRadius = 700, math.huge, 0.500, 500
 local PRange, PSpeed, PDelay, PWidth = 1470, 1870, 0.500, 60
@@ -85,7 +87,7 @@ function OnLoad()
 
 	ZyraMenu:addSubMenu("[Ultimate]", "Ultimate")
 	ZyraMenu.Ultimate:addParam("UseAutoUlt","Use Auto Ult", SCRIPT_PARAM_ONOFF, true)
-	ZyraMenu.Ultimate:addParam("UltGroupMinimum", "Ult Enemy Team Min:", SCRIPT_PARAM_SLICE, 3, 2, 5, 0)
+	ZyraMenu.Ultimate:addParam("UltGroupMinimum", "Ult Enemy Team Min:", SCRIPT_PARAM_SLICE, 3, 1, 5, 0)
 	
 	ZyraMenu:addSubMenu("[Prodiction Settings]", "ProdictionSettings")
 	ZyraMenu.ProdictionSettings:addParam("UsePacketsCast","Use Packets Cast", SCRIPT_PARAM_ONOFF, true)
@@ -105,8 +107,9 @@ function OnLoad()
 	ZyraMenu:addParam("Harass1key","Harass Key", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
 	ZyraMenu:addParam("Harass2key","Harass 2 Key", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
 	ZyraMenu:addParam("ult4me","Ult 4 Me", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("Y"))
-	
+
 	ZyraMenu:addParam("blank2", "", SCRIPT_PARAM_INFO, "")
+	ZyraMenu:addParam("SkinHack","Use Skin Hack", SCRIPT_PARAM_ONOFF, false)
 	ZyraMenu:addParam("skin", "Skin Hack by Shalzuth:", SCRIPT_PARAM_LIST, 1, { "Wildfire", "Haunted", "SKT T1", "No Skin" })
 	ZyraMenu:addParam("blank3", "", SCRIPT_PARAM_INFO, "")
 	ZyraMenu:addParam("info1", "Dat Hipster Zyra: Test v. "..version.."", SCRIPT_PARAM_INFO, "")
@@ -135,7 +138,10 @@ function OnTick()
 	RReady = (myHero:CanUseSpell(_R) == READY)
 	PReady = (myHero:GetSpellData(_Q).name == myHero:GetSpellData(_W).name or myHero:GetSpellData(_W).name == myHero:GetSpellData(_E).name)
 	
+	-- Skinhack
+	if ZyraMenu.SkinHack then
 	SkinHack()
+	end
 
 	
 
@@ -233,9 +239,37 @@ end
 function Combo()
 	if not Target then return end
 	
-	if EReady and ZyraMenu.Combo.UseE and GetDistance(Target) <= ERange then
+	if EReady and WReady and ZyraMenu.Combo.UseE then
 
-			if GetDistance(Target) <= ERangeCut and myHero.mana >= MyMana(E)  then
+			if GetDistance(Target) <= WRange and myHero.mana >= MyMana(E)  then
+
+					local epos, einfo = Prodiction.GetLineAOEPrediction(Target, WRange, ESpeed, EDelay, EWidth, myPlayer)
+					if epos and einfo.hitchance >= ZyraMenu.ProdictionSettings.EHitchance then
+						if ZyraMenu.ProdictionSettings.UsePacketsCast then
+						Packet('S_CAST', {spellId = _W, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
+						Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
+						Packet('S_CAST', {spellId = _W, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
+						else 
+						CastSpell(_W, epos.x, epos.z)
+						CastSpell(_E, epos.x, epos.z)
+						CastSpell(_W, epos.x, epos.z)
+						end	
+
+					end 
+			elseif GetDistance(Target) <= ERange and not GetDistance(Target) <= WRange and myHero.mana >= MyMana(E)  then
+					local epos, einfo = Prodiction.GetLineAOEPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
+					if epos and einfo.hitchance >= ZyraMenu.ProdictionSettings.EHitchance then
+						if ZyraMenu.ProdictionSettings.UsePacketsCast then
+						Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
+						else 
+						CastSpell(_E, epos.x, epos.z)
+						end	
+
+					end 			
+			end
+	elseif EReady and not WReady and ZyraMenu.Combo.UseE then
+
+			if GetDistance(Target) <= ERange and myHero.mana >= MyMana(E)  then
 
 					local epos, einfo = Prodiction.GetLineAOEPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
 					if epos and einfo.hitchance >= ZyraMenu.ProdictionSettings.EHitchance then
@@ -247,7 +281,7 @@ function Combo()
 
 					end 
 			end
-		end
+	end
 
 	
 	if QReady and ZyraMenu.Combo.UseQ then
@@ -640,5 +674,6 @@ function OnDraw()
 
 	DrawCircle3D(mousePos.x, mousePos.y, mousePos.z, 150, 1, ARGB(80,202,214,235))
 	end
+	
 	
 end
