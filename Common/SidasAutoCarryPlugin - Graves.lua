@@ -1,6 +1,6 @@
 if myHero.charName ~= "Graves" then return end
 
-local version = "0.3"
+local version = "0.4"
 
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
@@ -29,7 +29,7 @@ end
 
 local AARange = 590
 local QReady, WReady, EReady, RReady = false, false, false, false
-local QRange, QSpeed, QDelay, QWidth = 850, 1950, 0.265, 70
+local QRange, QSpeed, QDelay, QWidth = 825, 1950, 0.265, 70
 local WRange, WSpeed, WDelay, WWidth = 925, 1650, 0.300, 250
 local RRange, RSpeed, RDelay, RWidth, RWidthCol = 1000, 2100, 0.219, 55, 100
 
@@ -73,7 +73,21 @@ function PluginOnLoad()
 	AutoCarry.PluginMenu.KSOptions:addParam("KSwithQ","KS with Q", SCRIPT_PARAM_ONOFF, true)
 	AutoCarry.PluginMenu.KSOptions:addParam("KSwithW","KS with W", SCRIPT_PARAM_ONOFF, true)
 	AutoCarry.PluginMenu.KSOptions:addParam("KSwithR","KS with R", SCRIPT_PARAM_ONOFF, true)
-
+	
+	AutoCarry.PluginMenu:addSubMenu("[Jungle Steal Experemental]", "JungleSteal")
+	
+	AutoCarry.PluginMenu.JungleSteal:addParam("JSKeyMode","JS: Key Mode", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("J"))
+	AutoCarry.PluginMenu.JungleSteal:addParam("JSToggleMode","JS: Toggle Mode", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("K"))
+	AutoCarry.PluginMenu.JungleSteal:addParam("JSFullAutoMode","fuck off keybinds, Full Auto Mode", SCRIPT_PARAM_ONOFF, true)
+	AutoCarry.PluginMenu.JungleSteal:addParam("infojungle", "try to steal with ult:", SCRIPT_PARAM_INFO, "")
+	AutoCarry.PluginMenu.JungleSteal:addParam("Nashor","Nashor", SCRIPT_PARAM_ONOFF, true)
+	AutoCarry.PluginMenu.JungleSteal:addParam("Drake","Drake", SCRIPT_PARAM_ONOFF, true)
+	
+	AutoCarry.PluginMenu.JungleSteal:addParam("infojungle2", "following settings will be saved after reload:", SCRIPT_PARAM_INFO, "")
+	AutoCarry.PluginMenu.JungleSteal:addParam("ShowKey","Show: Key Mode", SCRIPT_PARAM_ONOFF, false)
+	AutoCarry.PluginMenu.JungleSteal:addParam("ShowToggle","Show: Toggle Mode", SCRIPT_PARAM_ONOFF, false)
+	AutoCarry.PluginMenu.JungleSteal:addParam("ShowAuto","Show: Auto Mode", SCRIPT_PARAM_ONOFF, false)
+	
 	AutoCarry.PluginMenu:addSubMenu("[Draws]", "Draws")
 	AutoCarry.PluginMenu.Draws:addSubMenu("[AA Settings]", "AASettings")
 	AutoCarry.PluginMenu.Draws.AASettings:addParam("colorAA", "Circle Color", SCRIPT_PARAM_COLOR, {255, 0, 255, 0})
@@ -111,7 +125,16 @@ function PluginOnLoad()
 	AutoCarry.PluginMenu:addParam("info", "Big Fat Graves v. "..version.."", SCRIPT_PARAM_INFO, "")
 	AutoCarry.PluginMenu:addParam("info9", "by Big Fat Nidalee", SCRIPT_PARAM_INFO, "")
 	
-
+	if AutoCarry.PluginMenu.JungleSteal.ShowKey then
+	AutoCarry.PluginMenu.JungleSteal:permaShow("JSKeyMode")
+	end	
+	if AutoCarry.PluginMenu.JungleSteal.ShowToggle then
+	AutoCarry.PluginMenu.JungleSteal:permaShow("JSToggleMode")
+	end	
+	if AutoCarry.PluginMenu.JungleSteal.ShowAuto then
+	AutoCarry.PluginMenu.JungleSteal:permaShow("JSFullAutoMode")
+	end	
+	
 	if AutoCarry.Skills then IsSACReborn = true else IsSACReborn = false end
 
 	if IsSACReborn then
@@ -145,6 +168,13 @@ function PluginOnTick()
 		if AutoCarry.PluginMenu.Ult4me then ULT4ME() end 
 	end
 	
+	-- Start Jungle Snippet 
+    if not myHero.dead then
+        if Nashor ~= nil then checkMonster(Nashor) end
+        if Dragon ~= nil then checkMonster(Dragon) end
+    end
+	-- End Jungle Snippet
+	
 end 
 
  -- << --  -- << --  -- << --  -- << -- [Skin Hack]  -- >> --  -- >> --  -- >> --  -- >> --
@@ -177,6 +207,48 @@ if AutoCarry.PluginMenu.skin ~= lastSkin and VIP_USER then
 	lastSkin = AutoCarry.PluginMenu.skin
 	GenModelPacket("Graves", AutoCarry.PluginMenu.skin)
 end
+end
+
+ -- << --  -- << --  -- << --  -- << -- [Jungle Snippet credits to eXtragoZ]  -- >> --  -- >> --  -- >> --  -- >> --
+function checkMonster(object)
+
+    if object ~= nil and not object.dead and object.x ~= nil then
+        if GetDistance(object) < RRange then
+            if object.health <= getDmg("R", object, player) then
+				if RReady then
+					if AutoCarry.PluginMenu.JungleSteal.JSKeyMode or AutoCarry.PluginMenu.JungleSteal.JSToggleMode or AutoCarry.PluginMenu.JungleSteal.JSFullAutoMode then
+					CastSpell(_R, object.x, object.z)
+					end 
+				end
+            end
+        end
+    end
+	
+end
+	
+	
+function PluginOnCreateObj(obj) 
+
+    if obj ~= nil and obj.type == "obj_AI_Minion" and obj.name ~= nil then
+        if obj.name == "Worm12.1.1" and AutoCarry.PluginMenu.JungleSteal.Nashor then 
+		Nashor = obj
+        elseif obj.name == "Dragon6.1.1" and AutoCarry.PluginMenu.JungleSteal.Drake then 
+		Dragon = obj 
+		end
+    end
+
+end
+     
+function PluginOnDeleteObj(obj)
+
+    if obj ~= nil and obj.name ~= nil then
+        if obj.name == "Worm12.1.1" and AutoCarry.PluginMenu.JungleSteal.Nashor then
+		Nashor = nil
+        elseif obj.name == "Dragon6.1.1" and AutoCarry.PluginMenu.JungleSteal.Drake then
+		Dragon = nil
+		end
+    end
+
 end
  -- << --  -- << --  -- << --  -- << -- [Ult]  -- >> --  -- >> --  -- >> --  -- >> --
  
