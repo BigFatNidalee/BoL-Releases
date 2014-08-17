@@ -12,9 +12,10 @@
 0.20 - 
         fixed ks pos, forgott it to change after 0.19 update. im sorry
         
-to-do: Use Selector lib
 
 0.21 - 
         rolled back to old ks and reborn target system cause of fps issues.
         improved range in target cause didnt know how to do it before ='(
+0.22 -
+      connected with http://bol.b00st.eu
         
