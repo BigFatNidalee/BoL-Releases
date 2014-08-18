@@ -65,3 +65,23 @@ Main Features:
 - Prodiction: Hitchance, Packet Cast
 
 
+[Big Fat Zyra ] (http://botoflegends.com/forum/topic/32889-script-sow-free-big-fat-zyra/)
+============
+
+Main Features:
+
+- Combo: Q/W/E
+
+- Harass: Q with waiting for W or dont (has manamanager)
+
+- Q Farm
+
+- KS: Q/E/Passive
+
+- Ult on hotkey / or if got x amount of enemys
+
+- Antigapcloser
+
+- Low FPS Draws
+
+- Prodiction: Hitchance, Packet Cast
