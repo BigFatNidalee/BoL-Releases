@@ -1,6 +1,6 @@
 if myHero.charName ~= "Zyra" then return end
 
-local version = "1.1"
+local version = "1.2"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Zyra.lua".."?rand="..math.random(1,10000)
@@ -33,10 +33,13 @@ local WRange, WSpeed, WDelay, WWidth = 840, math.huge, 0.2432, 10
 local ERange, ESpeed, EDelay, EWidth = 1000, 1100, 0.23, 40
 local RRange, RSpeed, RDelay, RRadius = 700, math.huge, 0.500, 500
 local PRange, PSpeed, PDelay, PWidth = 1470, 1870, 0.500, 60
-local CastingQ = false
-local processes = {}
-local prodqposes = {}
 
+local Seed1 = false
+local Seed2 = false
+local seedtime = {}
+local processes = {}
+local qcasting = false
+local farming = false
 
 --[MMA & SAC Information]--
 local starttick = 0
@@ -49,11 +52,10 @@ local itsme = false
 
 
 --- BoL Script Status Connector --- 
-local ScriptKey = "UHKGOJGHGJO" -- Your script auth key
-local ScriptVersion = "" -- Leave blank if version url is not registred
+local ScriptKey = "VILHPKHIHKP" -- replace by auth key for each script
 
 -- Thanks to Bilbao for his socket help & encryption
-assert(load(Base64Decode("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"), nil, "bt", _ENV))()
+assert(load(Base64Decode("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"), nil, "bt", _ENV))() BolBoost( ScriptKey, "" )
 -----------------------------------
 
 
@@ -225,6 +227,42 @@ function OnTick()
 	enemyMinions = {}
 	enemyMinions = minionManager(MINION_ENEMY, QRange, myHero, MINION_SORT_HEALTH_ASC)
 	
+	---qww
+	RealCD = (MyBaseCD(W) - (MyBaseCD(W) / 100 * math.abs(myHero.cdr*100)))
+
+	if Seed1 == false and Seed2 == false then 
+	W2Ready = true
+	else 
+	W2Ready = false
+	end 
+	
+	if Seed1 == true then
+		Seed1 = true
+		if os.clock() >= count_start_1+RealCD then
+		
+		Seed1 = false
+
+		end 
+	end
+	if Seed2 == true then
+		Seed2 = true
+			if os.clock() >= seedtime[1] +RealCD + RealCD then
+			
+			Seed2 = false
+
+			end
+
+	end
+	if count_start_3 ~= nil then 
+		if Seed2 == false and qcasting == true and os.clock() >= count_start_3 + 0.5 then
+
+		Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
+		qcasting = false
+
+		end
+	end 
+	----
+	
 		if Target and ValidTarget(Target) and not PReady then
 		
 			KS()
@@ -263,36 +301,26 @@ function OnTick()
 	if ZyraMenu.QFarm2key and not PReady then
 	Farm2()
 	end 
+	if not ZyraMenu.QFarm1key then
+	farming = false
+	end 
+	if not ZyraMenu.QFarm2key then
+	farming = false
+	end 
+
 	
 end 
 
 function OnProcessSpell(unit, spell)
 
-	if unit.isMe and spell.name == "ZyraQFissure" then
-		CastingQ = true
+	if unit.isMe and spell.name == "ZyraQFissure" and farming == false then
+	qcasting = true
 		processes[1] = spell.endPos.x
 		processes[2] = spell.endPos.y
 		processes[3] = spell.endPos.z
 		
-			if ZyraMenu.ProdictionSettings.UsePacketsCast then
-			Packet('S_CAST', {spellId = _W, toX = spell.endPos.x, toY = spell.endPos.z, fromX = spell.endPos.x, fromY = spell.endPos.z}):send(true)
-			else 
-			CastSpell(_W, spell.endPos.x, spell.endPos.z)
-			end
-
-		
-			if prodqposes[1] ~= nil then
-				if ZyraMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _W, toX = prodqposes[1], toY = prodqposes[2], fromX = prodqposes[1], fromY = prodqposes[2]}):send(true)
-				else 
-				CastSpell(_W, prodqposes[1], prodqposes[2])
-				end
-				
-			end
-			
-	end
-	if unit.isMe and not spell.name == "ZyraQFissure" then
-	CastingQ = false
+	count_start_3 = os.clock()
+	Packet('S_CAST', {spellId = _W, toX = spell.endPos.x, toY = spell.endPos.z, fromX = spell.endPos.x, fromY = spell.endPos.z}):send(true)
 	end
 	
 	-- Antigap
@@ -328,7 +356,26 @@ function OnProcessSpell(unit, spell)
 	--
 		
 end 
+--qww
+function MyBaseCD(cdr)
+	if cdr == W then
+	return 18 - (myHero:GetSpellData(_W).level)
+	end 
+end	
 
+function OnGainBuff(unit, buff)
+    
+        if Seed1 == false and buff.name == "ZyraSeed" and unit.team == myHero.team then
+		count_start_1 = os.clock()
+		seedtime[1] = count_start_1
+        Seed1 = true
+        elseif Seed1 == true and buff.name == "ZyraSeed" and unit.team == myHero.team then
+		count_start_2 = os.clock()
+        Seed2 = true
+        end
+  
+end
+---
 -- << --  -- << --  -- << --  -- << -- [SOW]  -- >> --  -- >> --  -- >> --  -- >> --
 
 function orbwalkcheck()
@@ -407,12 +454,14 @@ function Farm1()
 		if ValidTarget(minion) then
 		
 			if QReady and not minion.dead and GetDistance(minion) <= QRange and minion.health < getDmg("Q",minion,myHero) and myHero.mana >= MyMana(Q) and not mymanaislowerthen(ZyraMenu.Farm.ManaSliderFarm1) then
-
+			farming = true
 				if ZyraMenu.ProdictionSettings.UsePacketsCast then
 					Packet('S_CAST', {spellId = _Q, toX = minion.x, toY = minion.z, fromX = minion.x, fromY = minion.z}):send(true)
 					else 
 					CastSpell(_Q, minion.x, minion.z)
-				end						
+				end	
+			else
+			farming = false
 			end	
 			
 		end
@@ -425,13 +474,15 @@ function Farm2()
 		if ValidTarget(minion) then
 		
 			if QReady and not minion.dead and GetDistance(minion) <= QRange and minion.health < getDmg("Q",minion,myHero) and myHero.mana >= MyMana(Q) and not mymanaislowerthen(ZyraMenu.Farm.ManaSliderFarm2) then
-
+			farming = true
 				if ZyraMenu.ProdictionSettings.UsePacketsCast then
 					Packet('S_CAST', {spellId = _Q, toX = minion.x, toY = minion.z, fromX = minion.x, fromY = minion.z}):send(true)
 					else 
 					CastSpell(_Q, minion.x, minion.z)
 				end						
-			end	
+			else
+			farming = false
+			end		
 			
 		end
 end 
@@ -496,13 +547,9 @@ function Combo()
 							
 
 				if ZyraMenu.ProdictionSettings.UsePacketsCast then
-				Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 				Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-				Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 				else 
-				CastSpell(_W, qpos.x, qpos.z)
 				CastSpell(_Q, qpos.x, qpos.z)
-				CastSpell(_W, qpos.x, qpos.z)
 				end
 
 			end
@@ -518,10 +565,8 @@ function Combo()
 
 				if ZyraMenu.ProdictionSettings.UsePacketsCast then
 				Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-				Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 				else 
 				CastSpell(_Q, qpos.x, qpos.z)
-				CastSpell(_W, qpos.x, qpos.z)
 				end
 
 			end
@@ -542,26 +587,14 @@ function Harass1()
 				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth2, myPlayer)
 			
 				if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
-				prodqposes[1] = qpos.x
-				prodqposes[2] = qpos.z
 
 
 					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					else
-					CastSpell(_W, qpos.x, qpos.z)
 					CastSpell(_Q, qpos.x, qpos.z)
-					CastSpell(_W, qpos.x, qpos.z)
 					end
-					if processes[1] ~= nil then
-						if ZyraMenu.ProdictionSettings.UsePacketsCast then
-						Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
-						else
-						CastSpell(_W, processes[1], processes[3])
-						end
-					end
+
 
 				end
 			
@@ -571,25 +604,13 @@ function Harass1()
 				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth2, myPlayer)
 			
 				if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
-				prodqposes[1] = qpos.x
-				prodqposes[2] = qpos.z
-				
+
 					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					else
-					CastSpell(_W, qpos.x, qpos.z)
 					CastSpell(_Q, qpos.x, qpos.z)
-					CastSpell(_W, qpos.x, qpos.z)
 					end
-					if processes[1] ~= nil then
-						if ZyraMenu.ProdictionSettings.UsePacketsCast then
-						Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
-						else
-						CastSpell(_W, processes[1], processes[3])
-						end
-					end
+
 
 				end
 				
@@ -620,23 +641,11 @@ function Harass2()
 				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth2, myPlayer)
 			
 				if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
-				prodqposes[1] = qpos.x
-				prodqposes[2] = qpos.z
+
 					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					else
-					CastSpell(_W, qpos.x, qpos.z)
 					CastSpell(_Q, qpos.x, qpos.z)
-					CastSpell(_W, qpos.x, qpos.z)
-					end
-					if processes[1] ~= nil then
-						if ZyraMenu.ProdictionSettings.UsePacketsCast then
-						Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
-						else
-						CastSpell(_W, processes[1], processes[3])
-						end
 					end
 
 				end
@@ -647,24 +656,12 @@ function Harass2()
 				local qpos, qinfo = Prodiction.GetPrediction(Target, QRange, QSpeed, QDelay, QWidth2, myPlayer)
 			
 				if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
-				prodqposes[1] = qpos.x
-				prodqposes[2] = qpos.z
+
 				
 					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 					else
-					CastSpell(_W, qpos.x, qpos.z)
 					CastSpell(_Q, qpos.x, qpos.z)
-					CastSpell(_W, qpos.x, qpos.z)
-					end
-					if processes[1] ~= nil then
-						if ZyraMenu.ProdictionSettings.UsePacketsCast then
-						Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
-						else
-						CastSpell(_W, processes[1], processes[3])
-						end
 					end
 
 				end
@@ -698,28 +695,13 @@ function KS()
 		local qpos, qinfo = Prodiction.GetPrediction(enemy, QRange, QSpeed, QDelay, QWidth, myPlayer)
 
 			if qpos and qinfo.hitchance >= ZyraMenu.ProdictionSettings.QHitchance then
-				if WReady then
-					if ZyraMenu.ProdictionSettings.UsePacketsCast then
-					Packet('S_CAST', {spellId = _W, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-					else 
-					CastSpell(_W, qpos.x, qpos.z)
-					end
-				end
 				
 				if ZyraMenu.ProdictionSettings.UsePacketsCast then
 				Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
 				else 
 				CastSpell(_Q, qpos.x, qpos.z)
 				end
-				if WReady then
-						if processes[1] ~= nil then
-							if ZyraMenu.ProdictionSettings.UsePacketsCast then
-							Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
-							else
-							CastSpell(_W, processes[1], processes[3])
-							end
-						end
-				end
+
 			end	
 		end
 
