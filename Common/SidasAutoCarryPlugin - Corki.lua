@@ -1,6 +1,6 @@
 if myHero.charName ~= "Corki" then return end
 
-local version = "0.23"
+local version = "0.24"
 
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
@@ -114,12 +114,8 @@ function PluginOnLoad()
 	AutoCarry.PluginMenu:addParam("info9", "by Big Fat Nidalee", SCRIPT_PARAM_INFO, "")
 
 
-	if AutoCarry.Skills then IsSACReborn = true else IsSACReborn = false end
-
-	if IsSACReborn then
 	AutoCarry.Skills:DisableAll()
-	AutoCarry.Plugins:RegisterBonusLastHitDamage(PassiveFarm)
-	end
+
 	
 	PrintChat("<font color='#c9d7ff'>Big Fat Corki: </font><font color='#64f879'> v. "..version.." </font><font color='#c9d7ff'> loaded, happy elo boosting! </font>")
 
@@ -252,11 +248,7 @@ function KS()
 
 end
 
- -- << --  -- << --  -- << --  -- << -- [Passive]  -- >> --  -- >> --  -- >> --  -- >> --
 
-function PassiveFarm(minion)
-	return getDmg("P", minion, myHero)
-end
  -- << --  -- << --  -- << --  -- << -- [COMBO]  -- >> --  -- >> --  -- >> --  -- >> --
 
 function Combo()
