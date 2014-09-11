@@ -1,6 +1,6 @@
 if myHero.charName ~= "Corki" then return end
 
-local version = "0.24"
+local version = "0.25"
 
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
@@ -117,7 +117,7 @@ function PluginOnLoad()
 	AutoCarry.Skills:DisableAll()
 
 	
-	PrintChat("<font color='#c9d7ff'>Big Fat Corki: </font><font color='#64f879'> v. "..version.." </font><font color='#c9d7ff'> loaded, happy elo boosting! </font>")
+	PrintChat("<font color='#64f879'>Please visit: Big FAT Corki - BoL Topic for New Update!!! </font>")
 
 end 
 
