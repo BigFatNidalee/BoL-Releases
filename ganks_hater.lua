@@ -24,7 +24,6 @@ else
 AutoupdaterMsg("Error downloading version info")
 end
 end
-
 local lastsoundplayed = 0
 local soundplayed = false
 local gameoverplayed = false
