@@ -42,8 +42,10 @@
       improved pause while ks
       hope fixed fps drops
       improved new harass mode
-      
-      
-      
-      
-        
+0.28 -
+      some fixes for harass.
+      now script is loading up to 2 times faster!
+      again opensource
+      clean code
+      added hooks for sac and mma target selector
+      added possible kills announcer
