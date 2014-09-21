@@ -50,3 +50,6 @@
       clean code
       added hooks for sac and mma target selector
       added possible kills announcer
+0.29 -
+      added passive to ks calculation
+      added VPrediction
