@@ -1,5 +1,5 @@
 if myHero.charName ~= "Corki" then return end
-local version = "0.29"
+local version = "0.30"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Corki.lua".."?rand="..math.random(1,10000)
@@ -48,10 +48,12 @@ local is_SAC = false
 local mma_menu_loaded = false
 local sac_menu_loaded = false
 local dmg = {}
+local bigone = false
 function OnLoad()
 	require "Collision"
 	require "Prodiction"
 	require "VPrediction"
+	BigOneColl = Collision(RRange, RSpeed, RDelay, RWidth)
 	VP = VPrediction()
 	corki_harass_tables()	
 	AddTickCallback(function() if corki_Menu.Draws.DrawAARange and corki_Menu.Draws.UselowfpsDraws and corki_draws_aa_menu_loaded == false then corki_draws_aa_menu() end end)
@@ -111,7 +113,7 @@ function OnDraw()
 end 
 	function corki_Menu()
 		corki_Menu = scriptConfig("Big Fat Corki", "Big Fat Corki")		
-		corki_Menu:addSubMenu("[Prediction Settings]", "PredictionSettings")
+		corki_Menu:addSubMenu("[Prediction Options]", "PredictionSettings")
 			corki_Menu.PredictionSettings:addSubMenu("[Prodiction Settings]", "ProdictionSettings")
 				corki_Menu.PredictionSettings.ProdictionSettings:addParam("info0", "Combo", SCRIPT_PARAM_INFO, "")
 				corki_Menu.PredictionSettings.ProdictionSettings:addParam("QHitCOM", "Q Hitchance", SCRIPT_PARAM_SLICE, 2, 1, 3, 0)
@@ -136,6 +138,15 @@ end
 				corki_Menu.PredictionSettings.VPredictionSettings:addParam("info2", "LOW = 1  HIGH = 2  only if Target CC'ed/slowed = 3", SCRIPT_PARAM_INFO, "")	
 			corki_Menu.PredictionSettings:addParam("UsePacketsCast","Use Packets Cast", SCRIPT_PARAM_ONOFF, true)
 			corki_Menu.PredictionSettings:addParam("mode", "Current Prediction:", SCRIPT_PARAM_LIST, 1, {"Prodiction ", "VPrediction"})
+		corki_Menu:addSubMenu("[Big One Options]", "Ult")
+			corki_Menu.Ult:addParam("ignore","Ignore 1 minion before target", SCRIPT_PARAM_ONOFF, true)
+			corki_Menu.Ult:addParam("blank", "", SCRIPT_PARAM_INFO, "")
+			corki_Menu.Ult:addParam("info", "between minion and target", SCRIPT_PARAM_INFO, "")
+			corki_Menu.Ult:addParam("distance", "max distance:",   SCRIPT_PARAM_SLICE, 170, 0, 250, 0)
+			corki_Menu.Ult:addParam("blank2", "", SCRIPT_PARAM_INFO, "")
+			corki_Menu.Ult:addParam("info2", "allow only in this modes:", SCRIPT_PARAM_INFO, "")
+			corki_Menu.Ult:addParam("Combo","Combo", SCRIPT_PARAM_ONOFF, true)
+			corki_Menu.Ult:addParam("Harass","Harass", SCRIPT_PARAM_ONOFF, true)	
 		corki_Menu:addSubMenu("[Combo]", "Combo")
 			corki_Menu.Combo:addParam("UseQ","Use Q", SCRIPT_PARAM_ONOFF, true)
 			corki_Menu.Combo:addParam("UseE","Use E", SCRIPT_PARAM_ONOFF, true)
@@ -434,6 +445,22 @@ function KS()
 		end
 	end
 end 
+function OnGainBuff(unit, buff)
+    if unit == nil or buff == nil then return end
+    if unit.isMe and buff then
+		if buff.name == "mbcheck2" then
+		bigone = true
+		end
+	end
+end 
+function OnLoseBuff(unit, buff)
+    if unit == nil or buff == nil then return end
+    if unit.isMe and buff then
+		if buff.name == "mbcheck2" then
+		bigone = false
+		end
+	end
+end
 function Combo()
 	if not Target then return end
 	if corki_Menu.Combo.UseQ and QReady and GetDistance(Target) <= QRange then
@@ -458,28 +485,13 @@ function Combo()
         end
 	end 
 	end 
-	if corki_Menu.Combo.UseE and EReady and GetDistance(Target) <= ERange then
-	if corki_Menu.PredictionSettings.mode == 1 then
-		local epos, einfo = Prodiction.GetPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
-		if epos and einfo.hitchance >= 1 then
-			if corki_Menu.PredictionSettings.UsePacketsCast then
-			Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-			else 
-			CastSpell(_E, epos.x, epos.z)
-			end
+	if corki_Menu.Combo.UseE and EReady and GetDistance(Target) <= ERange and isFacing(myHero, Target, ERange) then
+		if corki_Menu.PredictionSettings.UsePacketsCast then
+		Packet('S_CAST', {spellId = _E, toX = Target.x, toY = Target.z, fromX = Target.x, fromY = Target.z}):send(true)
+		else 
+		CastSpell(_E, Target.x, Target.z)
 		end	
 	end
-	if corki_Menu.PredictionSettings.mode == 2 then
-		local epos, HitChance = VP:GetLineCastPosition(Target, EDelay, EWidth, ERange, ESpeed, myHero, false)
-		if epos and HitChance >= 1 then
-			if corki_Menu.PredictionSettings.UsePacketsCast then
-			Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-			else 
-			CastSpell(_E, epos.x, epos.z)
-			end
-		end	
-	end 
-	end 
 	if corki_Menu.Combo.UseR and RReady and GetDistance(Target) <= RRange then
 	if corki_Menu.PredictionSettings.mode == 1 then
 		local rpos, rinfo = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
@@ -491,6 +503,19 @@ function Combo()
 			CastSpell(_R, rpos.x, rpos.z)
 			end
 		end
+		if corki_Menu.Ult.ignore and corki_Menu.Ult.Combo and bigone == true then
+			local rposbig, rinfobig = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
+			local collBoolean, collTable = BigOneColl:GetMinionCollision(myHero, rposbig)
+			if #collTable == 1 and GetDistance(collTable[1], Target) <= corki_Menu.Ult.distance then 
+				if rposbig and rinfobig.hitchance >= corki_Menu.PredictionSettings.ProdictionSettings.RHitCOM then
+					if corki_Menu.PredictionSettings.UsePacketsCast then
+					Packet('S_CAST', {spellId = _R, toX = rposbig.x, toY = rposbig.z, fromX = rposbig.x, fromY = rposbig.z}):send(true)
+					else 
+					CastSpell(_R, rposbig.x, rposbig.z)
+					end
+				end
+			end 
+		end 
 	end
 	if corki_Menu.PredictionSettings.mode == 2 then
 	local rpos, HitChance = VP:GetLineCastPosition(Target, RDelay, RWidthCol, RRange, RSpeed, myHero, true)
@@ -500,7 +525,20 @@ function Combo()
 			else 
 			CastSpell(_R, rpos.x, rpos.z)
 			end
-		end
+		end	
+		if corki_Menu.Ult.ignore and corki_Menu.Ult.Combo and bigone == true then
+			local rposbig, rinfobig = VP:GetLineCastPosition(Target, RDelay, RWidth, RRange, RSpeed, myHero, false)
+			local collBoolean, collTable = BigOneColl:GetMinionCollision(myHero, rposbig)
+			if #collTable == 1 and GetDistance(collTable[1], Target) <= corki_Menu.Ult.distance then 
+				if rposbig and rinfobig >= corki_Menu.PredictionSettings.VPredictionSettings.RHitCOM then
+					if corki_Menu.PredictionSettings.UsePacketsCast then
+					Packet('S_CAST', {spellId = _R, toX = rposbig.x, toY = rposbig.z, fromX = rposbig.x, fromY = rposbig.z}):send(true)
+					else 
+					CastSpell(_R, rposbig.x, rposbig.z)
+					end
+				end
+			end 
+		end 	
 	end 
 	end 
 end 
@@ -559,41 +597,39 @@ if not Target then return end
 						end
 					end
 					end 
-					if corki_Menu.Harass.HarassUseE and EReady and GetDistance(enemy) <= ERange then
-					if corki_Menu.PredictionSettings.mode == 1 then
-						local epos, einfo = Prodiction.GetPrediction(enemy, ERange, ESpeed, EDelay, EWidth, myPlayer)
-						if epos and einfo.hitchance >= 1 then
-							if corki_Menu.PredictionSettings.UsePacketsCast then
-							Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-							else 
-							CastSpell(_E, epos.x, epos.z)
-							end
-						end
-					end
-					if corki_Menu.PredictionSettings.mode == 2 then
-						local epos, HitChance = VP:GetLineCastPosition(enemy, EDelay, EWidth, ERange, ESpeed, myHero, false)
-						if epos and HitChance >= 1 then
-							if corki_Menu.PredictionSettings.UsePacketsCast then
-							Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-							else 
-							CastSpell(_E, epos.x, epos.z)
-							end
+					if corki_Menu.Harass.HarassUseE and EReady and GetDistance(enemy) <= ERange and isFacing(myHero, enemy, ERange) then
+						if corki_Menu.PredictionSettings.UsePacketsCast then
+						Packet('S_CAST', {spellId = _E, toX = enemy.x, toY = enemy.z, fromX = enemy.x, fromY = enemy.z}):send(true)
+						else 
+						CastSpell(_E, enemy.x, enemy.z)
 						end	
 					end
-					end  
 					if corki_Menu.Harass.HarassUseR and RReady and GetDistance(enemy) <= RRange then
-					if corki_Menu.PredictionSettings.mode == 1 then
-						local rpos, rinfo = Prodiction.GetPrediction(enemy, RRange, RSpeed, RDelay, RWidth, myPlayer)
-						local coll = Collision(RRange, RSpeed, RDelay, RWidthCol)
-						if rpos and rinfo.hitchance >= corki_Menu.PredictionSettings.ProdictionSettings.RHitHAR and not coll:GetMinionCollision(rpos, myHero) then
-							if corki_Menu.PredictionSettings.UsePacketsCast then
-							Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
-							else 
-							CastSpell(_R, rpos.x, rpos.z)
+						if corki_Menu.PredictionSettings.mode == 1 then
+							local rpos, rinfo = Prodiction.GetPrediction(enemy, RRange, RSpeed, RDelay, RWidth, myPlayer)
+							local coll = Collision(RRange, RSpeed, RDelay, RWidthCol)
+							if rpos and rinfo.hitchance >= corki_Menu.PredictionSettings.ProdictionSettings.RHitHAR and not coll:GetMinionCollision(rpos, myHero) then
+								if corki_Menu.PredictionSettings.UsePacketsCast then
+								Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
+								else 
+								CastSpell(_R, rpos.x, rpos.z)
+								end
 							end
-						end	
-					end
-					if corki_Menu.PredictionSettings.mode == 2 then
+							if corki_Menu.Ult.ignore and corki_Menu.Ult.Harass and bigone == true then
+								local rposbig, rinfobig = Prodiction.GetPrediction(enemy, RRange, RSpeed, RDelay, RWidth, myPlayer)
+								local collBoolean, collTable = BigOneColl:GetMinionCollision(myHero, rposbig)
+								if #collTable == 1 and GetDistance(collTable[1], enemy) <= corki_Menu.Ult.distance then 
+									if rposbig and rinfobig.hitchance >= corki_Menu.PredictionSettings.ProdictionSettings.RHitHAR then
+										if corki_Menu.PredictionSettings.UsePacketsCast then
+										Packet('S_CAST', {spellId = _R, toX = rposbig.x, toY = rposbig.z, fromX = rposbig.x, fromY = rposbig.z}):send(true)
+										else 
+										CastSpell(_R, rposbig.x, rposbig.z)
+										end
+									end
+								end 
+							end 
+						end
+						if corki_Menu.PredictionSettings.mode == 2 then
 						local rpos, HitChance = VP:GetLineCastPosition(enemy, RDelay, RWidthCol, RRange, RSpeed, myHero, true)
 							if rpos and HitChance >= corki_Menu.PredictionSettings.VPredictionSettings.RHitHAR then
 								if corki_Menu.PredictionSettings.UsePacketsCast then
@@ -601,12 +637,24 @@ if not Target then return end
 								else 
 								CastSpell(_R, rpos.x, rpos.z)
 								end
-							end
-					end
+							end	
+							if corki_Menu.Ult.ignore and corki_Menu.Ult.Harass and bigone == true then
+								local rposbig, rinfobig = VP:GetLineCastPosition(enemy, RDelay, RWidth, RRange, RSpeed, myHero, false)
+								local collBoolean, collTable = BigOneColl:GetMinionCollision(myHero, rposbig)
+								if #collTable == 1 and GetDistance(collTable[1], enemy) <= corki_Menu.Ult.distance then 
+									if rposbig and rinfobig >= corki_Menu.PredictionSettings.VPredictionSettings.RHitHAR then
+										if corki_Menu.PredictionSettings.UsePacketsCast then
+										Packet('S_CAST', {spellId = _R, toX = rposbig.x, toY = rposbig.z, fromX = rposbig.x, fromY = rposbig.z}):send(true)
+										else 
+										CastSpell(_R, rposbig.x, rposbig.z)
+										end
+									end
+								end 
+							end 	
+						end 
 					end 
 				end
-				if corki_Menu.Harass.whitelistexception then
-				if GetDistance(enemy) >= whitelistrange or enemy.dead or not enemy.visible then
+				if GetDistance(enemy) >= whitelistrange or enemy.dead or not enemy.visible or not corki_Menu.Harass.UseWhiteList then
 					if corki_Menu.Harass.HarassUseQ and QReady and GetDistance(Target) <= QRange then
 					if corki_Menu.PredictionSettings.mode == 1 then
 						local qpos, qinfo = Prodiction.GetCircularAOEPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
@@ -629,125 +677,68 @@ if not Target then return end
 						end
 					end
 					end 
-					if corki_Menu.Harass.HarassUseE and EReady and GetDistance(Target) <= ERange then
-					if corki_Menu.PredictionSettings.mode == 1 then
-						local epos, einfo = Prodiction.GetPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
-						if epos and einfo.hitchance >= 1 then
-							if corki_Menu.PredictionSettings.UsePacketsCast then
-							Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-							else 
-							CastSpell(_E, epos.x, epos.z)
-							end
+					if corki_Menu.Harass.HarassUseE and EReady and GetDistance(Target) <= ERange and isFacing(myHero, Target, ERange) then
+						if corki_Menu.PredictionSettings.UsePacketsCast then
+						Packet('S_CAST', {spellId = _E, toX = Target.x, toY = Target.z, fromX = Target.x, fromY = Target.z}):send(true)
+						else 
+						CastSpell(_E, Target.x, Target.z)
 						end	
-					end
-					if corki_Menu.PredictionSettings.mode == 2 then
-						local epos, HitChance = VP:GetLineCastPosition(Target, EDelay, EWidth, ERange, ESpeed, myHero, false)
-						if epos and HitChance >= 1 then
-							if corki_Menu.PredictionSettings.UsePacketsCast then
-							Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-							else 
-							CastSpell(_E, epos.x, epos.z)
-							end
-						end	
-					end
-					end  
+					end 
 					if corki_Menu.Harass.HarassUseR and RReady and GetDistance(Target) <= RRange then
-					if corki_Menu.PredictionSettings.mode == 1 then
-						local rpos, rinfo = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
-						local coll = Collision(RRange, RSpeed, RDelay, RWidthCol)
-						if rpos and rinfo.hitchance >= corki_Menu.PredictionSettings.ProdictionSettings.RHitHAR and not coll:GetMinionCollision(rpos, myHero) then
-							if corki_Menu.PredictionSettings.UsePacketsCast then
-							Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
-							else 
-							CastSpell(_R, rpos.x, rpos.z)
-							end
-						end	
-					end
-					if corki_Menu.PredictionSettings.mode == 2 then
-							local rpos, HitChance = VP:GetLineCastPosition(Target, RDelay, RWidthCol, RRange, RSpeed, myHero, true)
-							if rpos and HitChance >= corki_Menu.PredictionSettings.VPredictionSettings.RHitHAR then
+						if corki_Menu.PredictionSettings.mode == 1 then
+							local rpos, rinfo = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
+							local coll = Collision(RRange, RSpeed, RDelay, RWidthCol)
+							if rpos and rinfo.hitchance >= corki_Menu.PredictionSettings.ProdictionSettings.RHitHAR and not coll:GetMinionCollision(rpos, myHero) then
 								if corki_Menu.PredictionSettings.UsePacketsCast then
 								Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
 								else 
 								CastSpell(_R, rpos.x, rpos.z)
 								end
 							end
-					end
+							if corki_Menu.Ult.ignore and corki_Menu.Ult.Harass and bigone == true then
+								local rposbig, rinfobig = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
+								local collBoolean, collTable = BigOneColl:GetMinionCollision(myHero, rposbig)
+								if #collTable == 1 and GetDistance(collTable[1], Target) <= corki_Menu.Ult.distance then 
+									if rposbig and rinfobig.hitchance >= corki_Menu.PredictionSettings.ProdictionSettings.RHitHAR then
+										if corki_Menu.PredictionSettings.UsePacketsCast then
+										Packet('S_CAST', {spellId = _R, toX = rposbig.x, toY = rposbig.z, fromX = rposbig.x, fromY = rposbig.z}):send(true)
+										else 
+										CastSpell(_R, rposbig.x, rposbig.z)
+										end
+									end
+								end 
+							end 
+						end
+						if corki_Menu.PredictionSettings.mode == 2 then
+						local rpos, HitChance = VP:GetLineCastPosition(Target, RDelay, RWidthCol, RRange, RSpeed, myHero, true)
+							if rpos and HitChance >= corki_Menu.PredictionSettings.VPredictionSettings.RHitHAR then
+								if corki_Menu.PredictionSettings.UsePacketsCast then
+								Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
+								else 
+								CastSpell(_R, rpos.x, rpos.z)
+								end
+							end	
+							if corki_Menu.Ult.ignore and corki_Menu.Ult.Harass and bigone == true then
+								local rposbig, rinfobig = VP:GetLineCastPosition(Target, RDelay, RWidth, RRange, RSpeed, myHero, false)
+								local collBoolean, collTable = BigOneColl:GetMinionCollision(myHero, rposbig)
+								if #collTable == 1 and GetDistance(collTable[1], Target) <= corki_Menu.Ult.distance then 
+									if rposbig and rinfobig >= corki_Menu.PredictionSettings.VPredictionSettings.RHitHAR then
+										if corki_Menu.PredictionSettings.UsePacketsCast then
+										Packet('S_CAST', {spellId = _R, toX = rposbig.x, toY = rposbig.z, fromX = rposbig.x, fromY = rposbig.z}):send(true)
+										else 
+										CastSpell(_R, rposbig.x, rposbig.z)
+										end
+									end
+								end 
+							end 	
+						end 
 					end 				
 				end 
 				end 
 				end 
 			end 
-		end 
-		if not corki_Menu.Harass.UseWhiteList then
-					if corki_Menu.Harass.HarassUseQ and QReady and GetDistance(Target) <= QRange then
-					if corki_Menu.PredictionSettings.mode == 1 then
-						local qpos, qinfo = Prodiction.GetCircularAOEPrediction(Target, QRange, QSpeed, QDelay, QWidth, myPlayer)
-						if qpos and qinfo.hitchance >= corki_Menu.PredictionSettings.ProdictionSettings.QHitHAR then
-							if corki_Menu.PredictionSettings.UsePacketsCast then
-							Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-							else 
-							CastSpell(_Q, qpos.x, qpos.z)
-							end
-						end
-					end
-					if corki_Menu.PredictionSettings.mode == 2 then
-						local qpos, HitChance = VP:GetCircularCastPosition(Target, QDelay, QWidth, QRange, QSpeed, myHero, false)
-						if qpos and HitChance >= corki_Menu.PredictionSettings.VPredictionSettings.QHitHAR then
-							if corki_Menu.PredictionSettings.UsePacketsCast then
-							Packet('S_CAST', {spellId = _Q, toX = qpos.x, toY = qpos.z, fromX = qpos.x, fromY = qpos.z}):send(true)
-							else 
-							CastSpell(_Q, qpos.x, qpos.z)
-							end
-						end
-					end
-					end 
-					if corki_Menu.Harass.HarassUseE and EReady and GetDistance(Target) <= ERange then
-					if corki_Menu.PredictionSettings.mode == 1 then
-						local epos, einfo = Prodiction.GetPrediction(Target, ERange, ESpeed, EDelay, EWidth, myPlayer)
-						if epos and einfo.hitchance >= 1 then
-							if corki_Menu.PredictionSettings.UsePacketsCast then
-							Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-							else 
-							CastSpell(_E, epos.x, epos.z)
-							end
-						end
-					end
-					if corki_Menu.PredictionSettings.mode == 2 then
-						local epos, HitChance = VP:GetLineCastPosition(Target, EDelay, EWidth, ERange, ESpeed, myHero, false)
-						if epos and HitChance >= 1 then
-							if corki_Menu.PredictionSettings.UsePacketsCast then
-							Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
-							else 
-							CastSpell(_E, epos.x, epos.z)
-							end
-						end	
-					end
-					end 
-					if corki_Menu.Harass.HarassUseR and RReady and GetDistance(Target) <= RRange then
-					if corki_Menu.PredictionSettings.mode == 1 then
-						local rpos, rinfo = Prodiction.GetPrediction(Target, RRange, RSpeed, RDelay, RWidth, myPlayer)
-						local coll = Collision(RRange, RSpeed, RDelay, RWidthCol)
-						if rpos and rinfo.hitchance >= corki_Menu.PredictionSettings.ProdictionSettings.RHitHAR and not coll:GetMinionCollision(rpos, myHero) then
-							if corki_Menu.PredictionSettings.UsePacketsCast then
-							Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
-							else 
-							CastSpell(_R, rpos.x, rpos.z)
-							end
-						end	
-					end
-					if corki_Menu.PredictionSettings.mode == 2 then
-							local rpos, HitChance = VP:GetLineCastPosition(Target, RDelay, RWidthCol, RRange, RSpeed, myHero, true)
-							if rpos and HitChance >= corki_Menu.PredictionSettings.VPredictionSettings.RHitHAR then
-								if corki_Menu.PredictionSettings.UsePacketsCast then
-								Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
-								else 
-								CastSpell(_R, rpos.x, rpos.z)
-								end
-							end
-					end
-					end 				
-		end 
+		
+	
 	end 
 end 
 	function corki_draw_AA()
@@ -941,4 +932,11 @@ function corki_harass_tables()
 	whitelisted["Urgot"] = true
 	whitelisted["Varus"] = true
 	whitelisted["Vayne"] = true
+end
+function isFacing(source, target, lineLength)
+   local sourceVector = Vector(source.visionPos.x, source.visionPos.z)
+   local sourcePos = Vector(source.x, source.z)
+   sourceVector = (sourceVector-sourcePos):normalized()
+   sourceVector = sourcePos + (sourceVector*(GetDistance(target, source)))
+   return GetDistanceSqr(target, {x = sourceVector.x, z = sourceVector.y}) <= (lineLength and lineLength^2 or 90000)
 end
