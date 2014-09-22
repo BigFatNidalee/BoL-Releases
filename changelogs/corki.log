@@ -54,3 +54,9 @@
       added passive to ks calculation
       added VPrediction
       changed some default values
+0.30 -
+      added facedirection check for e
+      we dont really need prod or vpred for e, so i removed it
+      added avoide 1 minion before target if big one on start
+      harass code now compact
+      renamed some submenus
