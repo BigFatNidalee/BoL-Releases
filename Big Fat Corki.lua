@@ -1,5 +1,5 @@
 if myHero.charName ~= "Corki" then return end
-local version = "0.30"
+local version = "0.31"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Corki.lua".."?rand="..math.random(1,10000)
@@ -27,7 +27,7 @@ local loading_text = false
 local AARange = 615
 local QRange, QSpeed, QDelay, QWidth = 825, 1500, 0.350, 250
 local WRange = 800
-local ERange, ESpeed, EDelay, EWidth = 610, 902, 0.5, 100
+local ERange, ESpeed, EDelay, EWidth = 710, 902, 0.5, 100
 local RRange, RSpeed, RDelay, RWidth, RWidthCol = 1220, 2000, 0.200, 40, 60
 local QReady, WReady, EReady, RReady = false, false, false, false
 local lastSkin = 0
@@ -919,6 +919,7 @@ function corki_harass_tables()
 	whitelisted["Ashe"] = true
 	whitelisted["Caitlyn"] = true
 	whitelisted["Corki"] = true
+	whitelisted["Draven"] = true
 	whitelisted["Ezreal"] = true
 	whitelisted["Graves"] = true
 	whitelisted["Jinx"] = true
