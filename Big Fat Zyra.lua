@@ -1,6 +1,6 @@
 if myHero.charName ~= "Zyra" then return end
 
-local version = "1.2"
+local version = "1.3"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Zyra.lua".."?rand="..math.random(1,10000)
@@ -30,7 +30,8 @@ local QReady, WReady, EReady, RReady = false, false, false, false
 local AARange = 640
 local QRange, QSpeed, QDelay, QWidth, QWidth2 = 800, 1400, 0.5, 100, 150
 local WRange, WSpeed, WDelay, WWidth = 840, math.huge, 0.2432, 10
-local ERange, ESpeed, EDelay, EWidth = 1000, 1100, 0.23, 40
+--local ERange, ESpeed, EDelay, EWidth = 1000, 1100, 0.23, 40
+local ERange, ESpeed, EDelay, EWidth = 1000, 1400, 0.5, 40
 local RRange, RSpeed, RDelay, RRadius = 700, math.huge, 0.500, 500
 local PRange, PSpeed, PDelay, PWidth = 1470, 1870, 0.500, 60
 
@@ -79,9 +80,9 @@ function OnLoad()
 	ZyraMenu:addSubMenu("[Prodiction Settings]", "ProdictionSettings")
 	ZyraMenu.ProdictionSettings:addParam("UsePacketsCast","Use Packets Cast", SCRIPT_PARAM_ONOFF, true)
 	ZyraMenu.ProdictionSettings:addParam("blank", "", SCRIPT_PARAM_INFO, "")
-	ZyraMenu.ProdictionSettings:addParam("QHitchance", "Q Hitchance", SCRIPT_PARAM_SLICE, 1, 1, 3, 0)
+	ZyraMenu.ProdictionSettings:addParam("QHitchance", "Q Hitchance", SCRIPT_PARAM_SLICE, 2, 1, 3, 0)
 	ZyraMenu.ProdictionSettings:addParam("EHitchance", "E Hitchance", SCRIPT_PARAM_SLICE, 2, 1, 3, 0)
-	ZyraMenu.ProdictionSettings:addParam("RHitchance", "R Hitchance", SCRIPT_PARAM_SLICE, 1, 1, 3, 0)
+	ZyraMenu.ProdictionSettings:addParam("RHitchance", "R Hitchance", SCRIPT_PARAM_SLICE, 2, 1, 3, 0)
 	ZyraMenu.ProdictionSettings:addParam("PHitchance", "Passive Hitchance", SCRIPT_PARAM_SLICE, 2, 1, 3, 0)
 	ZyraMenu.ProdictionSettings:addParam("blank", "", SCRIPT_PARAM_INFO, "")
 	ZyraMenu.ProdictionSettings:addParam("info1", "HITCHANCE:", SCRIPT_PARAM_INFO, "")
@@ -254,11 +255,9 @@ function OnTick()
 
 	end
 	if count_start_3 ~= nil then 
-		if Seed2 == false and qcasting == true and os.clock() >= count_start_3 + 0.5 then
-
+		if Seed2 == false and qcasting == true and os.clock() >= count_start_3 + 0.5 and os.clock() <= count_start_3 + 2.0  and GetDistance(processes[4]) <= WRange then
 		Packet('S_CAST', {spellId = _W, toX = processes[1], toY = processes[3], fromX = processes[1], fromY = processes[3]}):send(true)
 		qcasting = false
-
 		end
 	end 
 	----
@@ -318,9 +317,12 @@ function OnProcessSpell(unit, spell)
 		processes[1] = spell.endPos.x
 		processes[2] = spell.endPos.y
 		processes[3] = spell.endPos.z
+		processes[4] = spell.endPos
 		
 	count_start_3 = os.clock()
+	if GetDistance(spell.endPos) <= WRange then
 	Packet('S_CAST', {spellId = _W, toX = spell.endPos.x, toY = spell.endPos.z, fromX = spell.endPos.x, fromY = spell.endPos.z}):send(true)
+	end 
 	end
 	
 	-- Antigap
@@ -363,8 +365,7 @@ function MyBaseCD(cdr)
 	end 
 end	
 
-function OnGainBuff(unit, buff)
-    
+function OnGainBuff(unit, buff)   
         if Seed1 == false and buff.name == "ZyraSeed" and unit.team == myHero.team then
 		count_start_1 = os.clock()
 		seedtime[1] = count_start_1
@@ -373,7 +374,6 @@ function OnGainBuff(unit, buff)
 		count_start_2 = os.clock()
         Seed2 = true
         end
-  
 end
 ---
 -- << --  -- << --  -- << --  -- << -- [SOW]  -- >> --  -- >> --  -- >> --  -- >> --
@@ -575,7 +575,6 @@ function Combo()
 	end
 --
 	
-
 end	
 
 -- << --  -- << --  -- << --  -- << -- [Harass]  -- >> --  -- >> --  -- >> --  -- >> --
