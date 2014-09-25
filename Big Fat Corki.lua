@@ -1,5 +1,5 @@
 if myHero.charName ~= "Corki" then return end
-local version = "0.31"
+local version = "0.32"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Corki.lua".."?rand="..math.random(1,10000)
@@ -192,7 +192,7 @@ end
 		corki_Menu.TargetSelector:addParam("corki", "Use Standart Target Selector", SCRIPT_PARAM_ONOFF, true)		
 		corki_Menu:addParam("blank", "", SCRIPT_PARAM_INFO, "")
 		corki_Menu:addParam("SkinHack","Use Skin Hack", SCRIPT_PARAM_ONOFF, false)
-		corki_Menu:addParam("skin", "Skin Hack by Shalzuth:", SCRIPT_PARAM_LIST, 5, { "UFO", "Ice Toboggan", "Red Baron", "Hot Rod", "Urfrider", "Dragonwing", "No Skin" })
+		corki_Menu:addParam("skin", "Skin Hack by Shalzuth:", SCRIPT_PARAM_LIST, 5, { "UFO", "Ice Toboggan", "Red Baron", "Hot Rod", "Urfrider", "Dragonwing", "Fnatic", "No Skin" })
 		corki_Menu:addParam("blank", "", SCRIPT_PARAM_INFO, "")
 		corki_Menu:addParam("about1", "Big Fat Corki v. "..version.."", SCRIPT_PARAM_INFO, "")
 		corki_Menu:addParam("about2", "by Big Fat Nidalee", SCRIPT_PARAM_INFO, "")
