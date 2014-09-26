@@ -117,7 +117,7 @@ function PluginOnLoad()
 	AutoCarry.Skills:DisableAll()
 
 	
-	PrintChat("<font color='#64f879'>Please visit: Big FAT Corki - BoL Topic for New Update!!! </font>")
+	PrintChat("<font color='#64f879'>v.25 loaded, btw there is v.33 out</font>")
 
 end 
 
