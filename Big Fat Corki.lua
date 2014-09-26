@@ -1,5 +1,5 @@
 if myHero.charName ~= "Corki" then return end
-local version = "0.32"
+local version = "0.33"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Corki.lua".."?rand="..math.random(1,10000)
@@ -27,7 +27,7 @@ local loading_text = false
 local AARange = 615
 local QRange, QSpeed, QDelay, QWidth = 825, 1500, 0.350, 250
 local WRange = 800
-local ERange, ESpeed, EDelay, EWidth = 710, 902, 0.5, 100
+local ERange, ESpeed, EDelay, EWidth = 660, 902, 0.5, 100
 local RRange, RSpeed, RDelay, RWidth, RWidthCol = 1220, 2000, 0.200, 40, 60
 local QReady, WReady, EReady, RReady = false, false, false, false
 local lastSkin = 0
@@ -196,6 +196,7 @@ end
 		corki_Menu:addParam("blank", "", SCRIPT_PARAM_INFO, "")
 		corki_Menu:addParam("about1", "Big Fat Corki v. "..version.."", SCRIPT_PARAM_INFO, "")
 		corki_Menu:addParam("about2", "by Big Fat Nidalee", SCRIPT_PARAM_INFO, "")
+		corki_Menu:addParam("about3", "P.S.: evolved into Big Fat Corki xD", SCRIPT_PARAM_INFO, "")
 		ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, RRange, ts_dmg)
 		ts.name = "Target "
 		corki_Menu.TargetSelector:addTS(ts)
