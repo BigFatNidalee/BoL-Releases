@@ -95,7 +95,7 @@ function OnTick()
 	if corki_Menu.KSOptions.enabled then
 		KS()
 	end 
-	if not possibleks1 == true or not possibleks2 == true or not possibleks3 == true or not possibleks4 == true then
+	if not possibleks1 == true and not possibleks2 == true and not possibleks3 == true and not possibleks4 == true then
 		if Target and corki_Menu.KeyBindings.Combo then 
 		Combo() 
 		end	
