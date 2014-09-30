@@ -73,4 +73,5 @@
         fixed bug "if use whitelist turned off - dont casts anything"
         some r finetunes
         ks activation finetune
-
+0.35 -
+        fixed q values, i hope
