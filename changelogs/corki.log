@@ -68,4 +68,8 @@
 0.33 -
         cuted off e range a bit
         changed autor name :p
+0.34 -
+        should cast a bit faster
+        fixed bug "if use whitelist turned off - dont casts anything"
+        some r finetunes
 
