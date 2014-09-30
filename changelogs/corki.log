@@ -74,4 +74,4 @@
         some r finetunes
         ks activation finetune
 0.35 -
-        fixed q values, i hope
+        now should better cast q
