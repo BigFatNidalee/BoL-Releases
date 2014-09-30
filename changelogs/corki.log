@@ -75,3 +75,5 @@
         ks activation finetune
 0.35 -
         now should better cast q
+0.36 -
+       ups calculated delay in v 35 twice, fixed
