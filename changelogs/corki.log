@@ -72,4 +72,5 @@
         should cast a bit faster
         fixed bug "if use whitelist turned off - dont casts anything"
         some r finetunes
+        ks activation finetune
 
