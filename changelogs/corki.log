@@ -77,3 +77,6 @@
         now should better cast q
 0.36 -
        ups calculated delay in v 35 twice, fixed
+0.37 -
+        edited default settings: turned off packet cast 
+        switched back to old q values
