@@ -1,5 +1,5 @@
 if myHero.charName ~= "Corki" then return end
-local version = "0.36"
+local version = "0.37"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Corki.lua".."?rand="..math.random(1,10000)
@@ -25,7 +25,8 @@ end
 end
 local loading_text = false 
 local AARange = 615
-local QRange, QSpeed, QDelay, QWidth = 825, 1500, 0.480, 250
+--local QRange, QSpeed, QDelay, QWidth = 825, 1524, 0.462, 250
+local QRange, QSpeed, QDelay, QWidth = 825, 1500, 0.350, 250
 local WRange = 800
 local ERange, ESpeed, EDelay, EWidth = 660, 902, 0.5, 100
 local RRange, RSpeed, RDelay, RWidth, RWidthCol = 1225, 2000, 0.165, 40, 60
@@ -141,7 +142,7 @@ end
 				corki_Menu.PredictionSettings.VPredictionSettings:addParam("blank2", "", SCRIPT_PARAM_INFO, "")
 				corki_Menu.PredictionSettings.VPredictionSettings:addParam("info1", "HITCHANCE:", SCRIPT_PARAM_INFO, "")
 				corki_Menu.PredictionSettings.VPredictionSettings:addParam("info2", "LOW = 1  HIGH = 2  only if Target CC'ed/slowed = 3", SCRIPT_PARAM_INFO, "")	
-			corki_Menu.PredictionSettings:addParam("UsePacketsCast","Use Packets Cast", SCRIPT_PARAM_ONOFF, true)
+			corki_Menu.PredictionSettings:addParam("UsePacketsCast","Use Packets Cast", SCRIPT_PARAM_ONOFF, false)
 			corki_Menu.PredictionSettings:addParam("mode", "Current Prediction:", SCRIPT_PARAM_LIST, 1, {"Prodiction ", "VPrediction"})
 		corki_Menu:addSubMenu("[Big One Options]", "Ult")
 			corki_Menu.Ult:addParam("ignore","Ignore 1 minion before target", SCRIPT_PARAM_ONOFF, true)
