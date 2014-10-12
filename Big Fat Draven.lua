@@ -1,6 +1,6 @@
 if myHero.charName ~= "Draven" then return end
 
-local version = "0.02"
+local version = "0.03"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Draven.lua".."?rand="..math.random(1,10000)
@@ -341,7 +341,9 @@ function OnTick()
 	ks()
 	if not myHero.dead then
 		if Menu.Combo or Menu.Harass1 or Menu.Harass2 then
+		if not Menu.disable then
 		catchaxes()
+		end 
 		end
 		if Menu.Combo then 
 		combo()
@@ -519,9 +521,13 @@ function Menu()
 		Menu:addParam("Harass1","Harass 1", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
 		Menu:addParam("Harass2","Harass 2", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
 		
+		Menu:addParam("disable"," Toggle: Disable Catching Axes", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("Y"))
+		
 		Menu:addParam("blank", "", SCRIPT_PARAM_INFO, "")
 		Menu:addParam("about1", ""..scriptname.." v. "..version.."", SCRIPT_PARAM_INFO, "")
 		Menu:addParam("about2", "by "..autor.."", SCRIPT_PARAM_INFO, "")
+
+		Menu:permaShow("disable")
 
 end 
 
@@ -597,21 +603,7 @@ function OnProcessSpell(unit, spell)
 	
 		
 end
---[[
-function OnTowerFocus(tower, unit) 
 
-    if unit.isMe then
-	axesonhold = true
-    end
-
-end
-
-function OnTowerIdle(tower) 
-
-	axesonhold = false
-
-end
-]]--
 	function Welcome()
 		if loading_text == false and os.clock() >= loading_text_start_delay+1 then
 		PrintFloatText(myHero, 11, ""..scriptname..": v. "..version.." loaded!")
