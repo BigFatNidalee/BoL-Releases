@@ -1,6 +1,6 @@
 if myHero.charName ~= "Draven" then return end
 
-local version = "0.03"
+local version = "0.04"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Draven.lua".."?rand="..math.random(1,10000)
@@ -108,6 +108,12 @@ function OnCreateObj(object)
 			
 			end 
 
+		end 
+		
+		if object.name:find("ReticleCatchSuccess.troy") then
+		if not Manaislowerthen(Menu.ManaSlider) and WReady and Menu.Combo then
+		CastSpell(_W)
+		end 
 		end 
 			
         
@@ -418,7 +424,7 @@ function combo()
 			if EReady and ValidTarget(enemy, ERangeCut) then
 
 				local pos, info = Prodiction.GetPrediction(enemy, ERange, ESpeed, EDelay, EWidth, myPlayer)		
-					if pos and info.hitchance >= 2 then
+					if pos and info.hitchance >= 3 then
 					--Packet('S_CAST', {spellId = _E, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
 					CastSpell(_E, pos.x, pos.z)
 					end
@@ -516,7 +522,7 @@ function Menu()
 			--Menu.Draws:addParam("KillAnnouncer","Kill Announcer", SCRIPT_PARAM_ONOFF, true)
 			Menu.Draws:addParam("AxeStatus","Axes Status", SCRIPT_PARAM_ONOFF, true)
 
-
+		Menu:addParam("ManaSlider", "Auto W in Combo (mana till % ):",   SCRIPT_PARAM_SLICE, 30, 0, 100, 0)
 		Menu:addParam("Combo","Combo", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 		Menu:addParam("Harass1","Harass 1", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
 		Menu:addParam("Harass2","Harass 2", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
@@ -743,3 +749,12 @@ function get_tables()
 		
 		
 end 
+
+
+function Manaislowerthen(percent)
+    if myHero.mana < (myHero.maxMana * ( percent / 100)) then
+        return true
+    else
+        return false
+    end
+end
