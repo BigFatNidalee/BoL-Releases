@@ -80,3 +80,5 @@
 0.37 -
         edited default settings: turned off packet cast 
         switched back to old q values
+0.38 -
+        added option to switch q values in game
