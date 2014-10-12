@@ -1,6 +1,6 @@
 if myHero.charName ~= "Draven" then return end
 
-local version = "0.04"
+local version = "0.05"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Draven.lua".."?rand="..math.random(1,10000)
@@ -30,7 +30,9 @@ end
 local qcatchpositions = {}
 local inrange = false
 local aablock = false
-local axesonhold = false
+local axesonholdtw = false
+local axesonholdks = false
+
 local possibleks = false
 
 local loading_text = false 
@@ -269,7 +271,7 @@ end
 
 function catchaxes()
 
-if axesonhold == false then
+if axesonholdks == false and axesonholdtw == false then
 		
 		if qcatchpositions[1] ~= nil then 
 			if GetDistance(myHero, qcatchpositions[4]) <= catchrange then
@@ -313,7 +315,7 @@ if axesonhold == false then
 end 
 	
 	
-	if myHero.dead or axesonhold == true then 
+	if myHero.dead or axesonholdtw == true or axesonholdks == true then 
 			qcatchpositions[1] = nil
 			qcatchpositions[2] = nil
 			qcatchpositions[3] = nil
@@ -363,10 +365,10 @@ function ks()
 	local enemy = GetEnemyHeroes()[i]
 		if not enemy.dead and enemy.visible and ValidTarget(enemy) and enemy ~= nil and not myHero.dead then
 		
-			if ValidTarget(enemy, 1100) and enemy.health < 200 then
-			axesonhold = true
+			if ValidTarget(enemy, 1400) and enemy.health < getDmg("E",enemy,myHero) + getDmg("AD",enemy,myHero) + getDmg("Q",enemy,myHero) then
+			axesonholdks = true
 			else
-			axesonhold = false
+			axesonholdks = false
 			end 		
 			
 			
@@ -376,6 +378,7 @@ function ks()
 					if pos and info.hitchance >= 2 then
 					--Packet('S_CAST', {spellId = _E, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
 					CastSpell(_E, pos.x, pos.z)
+					myHero:Attack(enemy)
 					end
 
 			end 
@@ -383,7 +386,7 @@ function ks()
 			if RReady and Menu.KSOptions.KSwithR and ValidTarget(enemy, RRangeCut) and enemy.health < getDmg("R",enemy,myHero) then
 
 				local pos, info = Prodiction.GetPrediction(enemy, RRange, RSpeed, RDelay, RWidth, myPlayer)		
-					if pos and info.hitchance >= 2 then
+					if pos and info.hitchance >= 3 then
 					--Packet('S_CAST', {spellId = _R, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
 					CastSpell(_R, pos.x, pos.z)
 					end
@@ -391,15 +394,16 @@ function ks()
 			end 	
 			
 			if RReady and EReady and Menu.KSOptions.KSwithR and Menu.KSOptions.KSwithE and ValidTarget(enemy, ERangeCut) and enemy.health < getDmg("R",enemy,myHero) + getDmg("E",enemy,myHero) -10 then
-
+			
 				local rpos, rinfo = Prodiction.GetPrediction(enemy, RRange, RSpeed, RDelay, RWidth, myPlayer)
 				local epos, einfo = Prodiction.GetPrediction(enemy, ERange, ESpeed, EDelay, EWidth, myPlayer)	
 				
-					if rpos and epos and rinfo.hitchance >= 2 and einfo.hitchance >= 2 then
+					if rpos and epos and rinfo.hitchance >= 3 and einfo.hitchance >= 2 then
 					--Packet('S_CAST', {spellId = _E, toX = epos.x, toY = epos.z, fromX = epos.x, fromY = epos.z}):send(true)
 					--Packet('S_CAST', {spellId = _R, toX = rpos.x, toY = rpos.z, fromX = rpos.x, fromY = rpos.z}):send(true)
 					CastSpell(_E, epos.x, epos.z)
 					CastSpell(_R, rpos.x, rpos.z)
+					myHero:Attack(enemy)
 					end
 
 			end 
@@ -408,8 +412,7 @@ function ks()
 			myHero:Attack(enemy)
 			end	
 			
-		else
-		axesonhold = false
+
 		end 
 	end 
 end 
@@ -600,9 +603,9 @@ function OnProcessSpell(unit, spell)
         if (spell.name:find("ChaosTurret") and myHero.team == TEAM_BLUE) or (spell.name:find("OrderTurret") and myHero.team == TEAM_RED) then
 
                 if GetDistance(spell.endPos, myHero)<80 then
-				axesonhold = true
+				axesonholdtw = true
 				else 
-				axesonhold = false
+				axesonholdtw = false
 				end
 
 		end
@@ -621,9 +624,10 @@ function OnDraw()
 	if not myHero.dead then 
 	if Menu.Draws.AxeStatus then
 		if Menu.Combo or Menu.Harass1 or Menu.Harass2 then
-			if axesonhold == true then 
+			if axesonholdks == true or axesonholdtw == true then 
 			DrawText3D(tostring("catch axes: blocked"), myHero.x, myHero.y, myHero.z, 16, ARGB(255, 255, 0, 0), true)
-			elseif axesonhold == false then 
+			end
+			if axesonholdtw == false and axesonholdks == false then 
 			DrawText3D(tostring("catch axes: active"), myHero.x, myHero.y, myHero.z, 16, ARGB(255, 255, 255, 0), true)
 			end 
 		end
@@ -643,13 +647,13 @@ end
 function OnSendPacket(p)
 	if qcatchpositions[1] ~= nil then 
 	
-		if inrange == true and axesonhold == false then
+		if inrange == true and axesonholdtw == false and axesonholdks == false then
 		  if p.header == S_MOVE and p:get("type") == 2 then
 		  p:block() 
 		  end
 		end 
 		
-		if aablock == true and inrange == false and axesonhold == false then
+		if aablock == true and inrange == false and axesonholdtw == false and axesonholdks == false then
 			if p.header == S_MOVE and p:get("type") == 3 then
 			 p:block() 
 			end
