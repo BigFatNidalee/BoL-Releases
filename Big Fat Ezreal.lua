@@ -1,6 +1,6 @@
 if myHero.charName ~= "Ezreal" then return end
 
-local version = "0.01"
+local version = "0.02"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Ezreal.lua".."?rand="..math.random(1,10000)
@@ -35,10 +35,10 @@ local QReady, WReady, EReady, RReady = false, false, false, false
 local QRange, QSpeed, QDelay, QWidth, QWidthCol = 1200, 2025, 0.240, 50, 60
 local WRange, WSpeed, WDelay, WWidth = 1050, 1600, 0, 60
 local ERange = 475
-local RRange, RSpeed, RDelay, WWidth = 25000, 2000, 0.980, 120
+local RRange, RSpeed, RDelay, RWidth = 25000, 2000, 0.980, 120
 
 --
-local QRangeCut, WRangeCut = 1100, 950
+local QRangeCut, WRangeCut = 1080, 925
 --
 --
 local QHitPRO = 2
@@ -254,14 +254,14 @@ function ks()
 				if Menu.PredictionSettings.mode == 1 then
 				QHitPRO = 2
 				WHitPRO = 2
-				CastQProd(enemy)
 				CastWProd(enemy)
+				CastQProd(enemy)
 				end	
 				if Menu.PredictionSettings.mode == 2 then
 				QHitVPRE = 2
 				WHitVPRE = 2
-				CastQVPred(enemy)
 				CastWVPred(enemy)
+				CastQVPred(enemy)
 				end
 			else 
 			possibleks2 = false
@@ -564,7 +564,14 @@ function OnSendPacket(packet)
     if (Menu.KeyBindings.WE2Mouse and myHero:CanUseSpell(_W) == READY and myHero:GetSpellData(_E).mana + myHero:GetSpellData(_W).mana <= myHero.mana) then
     local p = Packet(packet)
 		if (p:get('name') == 'S_CAST' and p:get('sourceNetworkId') == myHero.networkID and p:get('spellId') == _E) then
-		Packet("S_CAST", {spellId = _W, toX = p:get('toX'), toY = p:get('toY')}):send()
+		
+		
+			if Menu.PredictionSettings.UsePacketsCast then
+			Packet("S_CAST", {spellId = _W, toX = p:get('toX'), toY = p:get('toY')}):send()
+			else 
+			CastSpell(_W, p:get('toX'), p:get('toY'))
+			end
+		
 		end
     end
 end
