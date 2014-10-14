@@ -140,7 +140,7 @@ end
 			Menu.PredictionSettings:addParam("mode", "Current Prediction:", SCRIPT_PARAM_LIST, 1, {"Prodiction ", "VPrediction"})
 		Menu:addSubMenu("[Combo]", "Combo")
 			Menu.Combo:addParam("UseQ","Use Q", SCRIPT_PARAM_ONOFF, true)
-			Menu.Combo:addParam("UseW","Use W", SCRIPT_PARAM_ONOFF, true)
+			Menu.Combo:addParam("UseW","Use W", SCRIPT_PARAM_ONOFF, false)
 		Menu:addSubMenu("[Harass]", "Harass")
 			Menu.Harass:addParam("HarassUseQ","Use Q", SCRIPT_PARAM_ONOFF, true)
 			Menu.Harass:addParam("HarassUseW","Use W", SCRIPT_PARAM_ONOFF, false)
