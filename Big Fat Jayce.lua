@@ -1,5 +1,5 @@
 if myHero.charName ~= "Jayce" then return end
-local version = "0.02"
+local version = "0.03"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Jayce.lua".."?rand="..math.random(1,10000)
@@ -150,7 +150,7 @@ function OnTick()
 	
 	if not EReady then qcast = false end 
 
-	if os.clock() >= qcaststart+1 then
+	if os.clock() >= qcaststart+1 or myHero.dead then
 	currentqpos[1] = nil
 	currentqpos[2] = nil
 	qcast = false
