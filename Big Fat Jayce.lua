@@ -1,5 +1,5 @@
 if myHero.charName ~= "Jayce" then return end
-local version = "0.01"
+local version = "0.02"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Jayce.lua".."?rand="..math.random(1,10000)
@@ -151,6 +151,8 @@ function OnTick()
 	if not EReady then qcast = false end 
 
 	if os.clock() >= qcaststart+1 then
+	currentqpos[1] = nil
+	currentqpos[2] = nil
 	qcast = false
 	end 
 	
@@ -185,13 +187,13 @@ function OnTick()
 		end
 		
 			if qcast == true  and currentqpos[1] ~= nil and E1 and EReady then 
-			local MaxEndPosition = myHero + (-1 * (Vector(myHero.x - currentqpos[1], 0, myHero.z - currentqpos[2]):normalized()*350))
+			local MyEpos = myHero + (-1 * (Vector(myHero.x - currentqpos[1], 0, myHero.z - currentqpos[2]):normalized()*350))
 			
 			
 				if Menu.PredictionSettings.Packets then
-				Packet('S_CAST', {spellId = _E, toX = MaxEndPosition.x, toY = MaxEndPosition.z, fromX = MaxEndPosition.x, fromY = MaxEndPosition.z}):send(true)
+				Packet('S_CAST', {spellId = _E, toX = MyEpos.x, toY = MyEpos.z, fromX = MyEpos.x, fromY = MyEpos.z}):send(true)
 				else 
-				CastSpell(_E, MaxEndPosition.x, MaxEndPosition.z)
+				CastSpell(_E, MyEpos.x, MyEpos.z)
 				end
 				
 			end 
