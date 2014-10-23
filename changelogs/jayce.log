@@ -1,3 +1,13 @@
 - 0.01 release
 - 0.02 some orbwalk block fixes
 - 0.03 same here
+- 0.04 new methode for qe movement block, 
+       added qe to mouse
+       added different combos in meele
+       added autoswap on/off
+       changed qe long values, should be better
+       imroved target selector, will add soon option to grab ts from orbwalker
+       added recycle function, i hope it makes sure that you dont stuck in some qe move block or antigapclose function
+       clean and better readeble code
+       i hope i listed all changes
+       
