@@ -1,5 +1,5 @@
 if myHero.charName ~= "Jayce" then return end
-local version = "0.04"
+local version = "0.05"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Jayce.lua".."?rand="..math.random(1,10000)
@@ -115,6 +115,7 @@ function OnLoad()
 
 			Menu:addSubMenu("[Harass]", "Harass")
 			Menu.Harass:addParam("ManaSliderHarass", "Use mana in Harass till (%)",   SCRIPT_PARAM_SLICE, 40, 0, 100, 0)
+			Menu.Harass:addParam("UseW","Use W", SCRIPT_PARAM_ONOFF, true)
 
 			Menu:addParam("blank1", "", SCRIPT_PARAM_INFO, "")
 			Menu:addParam("Combo","Combo", SCRIPT_PARAM_ONKEYDOWN, false, 32)
@@ -361,7 +362,20 @@ function OnTick()
 					--cast Q aka Short
 					end
 				end
+				
+				if WReady and W1 and Menu.Harass.UseW then
+					if GetDistance(Target) <= AARange + 10 then
+						if Menu.PredictionSettings.Packets then
+						Packet("S_CAST", {spellId = _W, targetNetworkId = Target.networkID}):send()
+						else
+						CastSpell(_W,Target)
+						end
+					-- some logic then cast w
+					end 
+				end 
+				
 			end 
+			
 		end
 		end
 	
