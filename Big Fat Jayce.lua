@@ -1,5 +1,5 @@
 if myHero.charName ~= "Jayce" then return end
-local version = "0.03"
+local version = "0.04"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Jayce.lua".."?rand="..math.random(1,10000)
@@ -26,12 +26,12 @@ end
 
 
 local QReady, WReady, EReady, RReady = false, false, false, false
-local QRange, QSpeed, QDelay, QWidth = 1150, 1460, 0.200, 70
-local QRange2, QSpeed2, QDelay2, QWidth2 = 1750, 1910, 0.200, 70
+--Ranged:
+local QRangeS, QSpeedS, QDelayS, QWidthS = 1150, 1460, 0.200, 70
+local QRangeL, QSpeedL, QDelayL, QWidthL = 1750, 2300, 0.200, 70
+--Meele:
+local QRange2, WRange2, ERange2 = 600, 285, 240
 
-local ERange = 600
-local qcaststart = 0
-local qcast = false
 
 local AARange = 560
 
@@ -39,17 +39,23 @@ local TSRange = 1800
 local autor = "Big Fat Corki"
 local scriptname = "Big Fat Jayce"
 local currentgapclose = {}
-local currentqpos = {}
+
 local currentgapclosestarttime = 0
-local currentqpostime = 0
+
 local loading_text = false 
 local QHitPRO = 2
 local QHitVPRE = 2
 
+local EQBlock = false
+local currentqpos = {}
+local currentqpostime = 0
+
 function OnLoad()
+
 	require "Prodiction"
 	require "Collision"
 	require "VPrediction"
+	
 	VP = VPrediction()
 	get_tables()
 			Menu = scriptConfig(scriptname, scriptname)
@@ -103,16 +109,20 @@ function OnLoad()
 				else	Menu.Antigapcloser:addParam("404no", "0 supported skills found =( ", SCRIPT_PARAM_INFO, "")	
 				end		
 			----------
+			Menu:addSubMenu("[Combo]", "ComboMenu")
+			Menu.ComboMenu:addParam("autoswap","Auto Swap", SCRIPT_PARAM_ONOFF, true)
+			Menu.ComboMenu:addParam("mcombo", "Current Meele Combo Priority:", SCRIPT_PARAM_LIST, 2, {"QWE", "EQW"})			
+
 			Menu:addSubMenu("[Harass]", "Harass")
 			Menu.Harass:addParam("ManaSliderHarass", "Use mana in Harass till (%)",   SCRIPT_PARAM_SLICE, 40, 0, 100, 0)
 
 			Menu:addParam("blank1", "", SCRIPT_PARAM_INFO, "")
 			Menu:addParam("Combo","Combo", SCRIPT_PARAM_ONKEYDOWN, false, 32)
+			Menu:addParam("EQ2Mouse","EQ to Mouse", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("S"))
 			Menu:addParam("Harass1","Harass 1", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
 			Menu:addParam("Harass2","Harass 2", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
 			
-			
-
+			Menu:addParam("blank", "", SCRIPT_PARAM_INFO, "")
 			Menu:addParam("about1", ""..scriptname.." v. "..version.."", SCRIPT_PARAM_INFO, "")
 			Menu:addParam("about2", "by "..autor.."", SCRIPT_PARAM_INFO, "")
 			ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, TSRange, DAMAGE_PHYSICAL)
@@ -126,8 +136,11 @@ end
 
 
 function OnTick()
+
 	ts:update()
 	Target = ts.target
+	jaycetslogic()
+	
 	QReady = (myHero:CanUseSpell(_Q) == READY)
 	WReady = (myHero:CanUseSpell(_W) == READY)
 	EReady = (myHero:CanUseSpell(_E) == READY)
@@ -145,78 +158,389 @@ function OnTick()
 	SwitchTo2 = (myHero:GetSpellData(_R).name) == "jaycestancegth"
 	SwitchTo1 = (myHero:GetSpellData(_R).name) == "JayceStanceHtG"
 	
-	
 	Welcome()
-	
-	if not EReady then qcast = false end 
-
-	if os.clock() >= qcaststart+1 or myHero.dead then
-	currentqpos[1] = nil
-	currentqpos[2] = nil
-	qcast = false
-	end 
-	
 	AntigapcloserNextLvL()
-
+	
+	korzina()
+	castQErangedAddE()
 
 	if ValidTarget(Target) then
 
-		if Menu.Combo then 
-		
-
-			Q1ShortLong()
-			
-			if WReady and GetDistance(Target) <= AARange and W1 then
-			CastSpell(_W,myHero)
-			end 
-						
-			if GetDistance(Target) <= 500 then
-			
-				if SwitchTo2 then
-					if RReady then
-					CastSpell(_R,myHero)					
-					end
-				end 	
-			
-			end
-			
-			if SwitchTo1 and GetDistance(Target) <= 600 then
-			blizhnijboj()
-			end 
-
-		end
-		
-			if qcast == true  and currentqpos[1] ~= nil and E1 and EReady then 
-			local MyEpos = myHero + (-1 * (Vector(myHero.x - currentqpos[1], 0, myHero.z - currentqpos[2]):normalized()*350))
-			
-			
-				if Menu.PredictionSettings.Packets then
-				Packet('S_CAST', {spellId = _E, toX = MyEpos.x, toY = MyEpos.z, fromX = MyEpos.x, fromY = MyEpos.z}):send(true)
-				else 
-				CastSpell(_E, MyEpos.x, MyEpos.z)
+		if Menu.Combo then
+			--ranged
+			if SwitchTo2 then
+				if QReady and Q1 and EReady and E1 then
+					if GetDistance(Target) <= QRangeL then
+						if Menu.PredictionSettings.mode == 1 then
+						local QHitPRO = Menu.PredictionSettings.ProdictionSettings.QHitCOM
+						castQEranged(Target)
+						end
+						if Menu.PredictionSettings.mode == 2 then
+						local QHitVPRE = Menu.PredictionSettings.VPredictionSettings.QHitCOM
+						castQErangedVpred(Target)
+						end
+					--cast QE aka Long
+					end 
 				end
-				
+				if QReady and Q1 and not EReady then
+					if GetDistance(Target) <= QRangeS then
+						if Menu.PredictionSettings.mode == 1 then
+						local QHitPRO = Menu.PredictionSettings.ProdictionSettings.QHitCOM
+						castQranged(Target)
+						end
+						if Menu.PredictionSettings.mode == 2 then
+						local QHitVPRE = Menu.PredictionSettings.VPredictionSettings.QHitCOM
+						castQrangedVpred(Target)
+						end
+					--cast Q aka Short
+					end
+				end
+				if WReady and W1 then
+					if GetDistance(Target) <= AARange + 50 then
+						if Menu.PredictionSettings.Packets then
+						Packet("S_CAST", {spellId = _W, targetNetworkId = Target.networkID}):send()
+						else
+						CastSpell(_W,Target)
+						end
+					-- some logic then cast w
+					end 
+				end 
+				if Menu.ComboMenu.autoswap then
+					if not QReady and not WReady and not EReady and RReady then
+					
+						if Menu.ComboMenu.mcombo == 1 then
+							if GetDistance(Target) <= QRange2 then
+								if Menu.PredictionSettings.Packets then
+								Packet("S_CAST", {spellId = _R, targetNetworkId = myHero.networkID}):send()
+								else
+								CastSpell(_R,myHero)
+								end
+							--r
+							end 
+						end
+						
+						if Menu.ComboMenu.mcombo == 2 then
+							if GetDistance(Target) <= 450 then
+								if Menu.PredictionSettings.Packets then
+								Packet("S_CAST", {spellId = _R, targetNetworkId = myHero.networkID}):send()
+								else
+								CastSpell(_R,myHero)
+								end
+							--r
+							end 
+						end
+							
+						
+					-- check all stuff then swap
+					end 
+				end 
 			end 
-		
-		if Menu.Harass1 or Menu.Harass2 then 
-			if not Manaislowerthen(Menu.Harass.ManaSliderHarass) then
-			Q1ShortLong()
-			end
+			--				
+			-- meele
+			if SwitchTo1 then
+				if Menu.ComboMenu.mcombo == 1 then
+				--QWE
+					if QReady and Q2 then
+						if GetDistance(Target) <= QRange2 then
+							if Menu.PredictionSettings.Packets then
+							Packet("S_CAST", {spellId = _Q, targetNetworkId = Target.networkID}):send()
+							else
+							CastSpell(_Q,Target)
+							end
+						end 
+					--cast q
+					end 
+					if WReady and W2 then
+						if GetDistance(Target) <= WRange2 then
+							if Menu.PredictionSettings.Packets then
+							Packet("S_CAST", {spellId = _W, targetNetworkId = myHero.networkID}):send()
+							else
+							CastSpell(_W,myHero)
+							end
+						end 
+					--cast w
+					end 
+					if EReady and E2 then
+						if GetDistance(Target) <= ERange2 then
+							if Menu.PredictionSettings.Packets then
+							Packet("S_CAST", {spellId = _E, targetNetworkId = Target.networkID}):send()
+							else
+							CastSpell(_E,Target)
+							end
+						end 
+					--cast e
+					end 
+					
+					if Menu.ComboMenu.autoswap then
+						if not QReady and not WReady and not EReady and RReady then
+							if Menu.PredictionSettings.Packets then
+							Packet("S_CAST", {spellId = _R, targetNetworkId = myHero.networkID}):send()
+							else
+							CastSpell(_R,myHero)
+							end
+						end 
+					-- check all stuff then swap
+					end 			
+				end 
+				if Menu.ComboMenu.mcombo == 2 then
+				--EQW
+					if EReady and E2 then
+						if GetDistance(Target) <= ERange2 then
+							if Menu.PredictionSettings.Packets then
+							Packet("S_CAST", {spellId = _E, targetNetworkId = Target.networkID}):send()
+							else
+							CastSpell(_E,Target)
+							end
+						end 
+					--cast e
+					end 
+					if QReady and Q2 then
+						if GetDistance(Target) <= QRange2 then
+							if Menu.PredictionSettings.Packets then
+							Packet("S_CAST", {spellId = _Q, targetNetworkId = Target.networkID}):send()
+							else
+							CastSpell(_Q,Target)
+							end
+						end 
+					--cast q
+					end 
+					if WReady and W2 then
+						if GetDistance(Target) <= WRange2 then
+							if Menu.PredictionSettings.Packets then
+							Packet("S_CAST", {spellId = _W, targetNetworkId = myHero.networkID}):send()
+							else
+							CastSpell(_W,myHero)
+							end
+						end 
+					--cast w
+					end 
+					
+					if Menu.ComboMenu.autoswap then
+						if not QReady and not WReady and not EReady and RReady then
+							if Menu.PredictionSettings.Packets then
+							Packet("S_CAST", {spellId = _R, targetNetworkId = myHero.networkID}):send()
+							else
+							CastSpell(_R,myHero)
+							end
+						end 
+					-- check all stuff then swap
+					end 				
+				end 
+			end 
+			--
 		end
 		
+
+		if Menu.Harass1 or Menu.Harass2 then 
+		if not Manaislowerthen(Menu.Harass.ManaSliderHarass) then
+			--ranged
+			if SwitchTo2 then
+				if QReady and Q1 and EReady and E1 then
+					if GetDistance(Target) <= QRangeL then
+						if Menu.PredictionSettings.mode == 1 then
+						local QHitPRO = Menu.PredictionSettings.ProdictionSettings.QHitHAR
+						castQEranged(Target)
+						end
+						if Menu.PredictionSettings.mode == 2 then
+						local QHitVPRE = Menu.PredictionSettings.VPredictionSettings.QHitHAR
+						castQErangedVpred(Target)
+						end
+					--cast QE aka Long
+					end 
+				end
+				if QReady and Q1 and not EReady then
+					if GetDistance(Target) <= QRangeS then
+						if Menu.PredictionSettings.mode == 1 then
+						local QHitPRO = Menu.PredictionSettings.ProdictionSettings.QHitHAR
+						castQranged(Target)
+						end
+						if Menu.PredictionSettings.mode == 2 then
+						local QHitVPRE = Menu.PredictionSettings.VPredictionSettings.QHitHAR
+						castQrangedVpred(Target)
+						end
+					--cast Q aka Short
+					end
+				end
+			end 
+		end
+		end
+	
+	end 
+	
+		if Menu.EQ2Mouse then 
+			--ranged
+			if SwitchTo2 then
+				if QReady and Q1 and EReady and E1 then
+				castQErangedToMouse()
+				--cast QE aka Long to mouse
+				end
+			end 
+		end 
+	
+
+end 
+
+function OnSendPacket(p)
+	if EQBlock == true then
+		if p.header == Packet.headers.S_MOVE then
+		p:Block() 
+		end 
+		
+		if os.clock() >= currentqpostime+0.5 then
+		EQBlock = false 
+		currentqpostime = 0
+		end 
+	end 
+end
+
+
+
+function korzina()
+
+	if myHero.dead then
+	currentgapclose[1] = nil
+	
+	EQBlock = false 
+	currentqpos[1] = nil
+	currentqpos[2] = nil
+	currentqpostime = 0
+	end 
+	
 	if os.clock() >= currentqpostime+1 then
 		currentqpos[1] = nil
 		currentqpos[2] = nil
-
+		EQBlock = false
 	end 
-		if _G.AutoCarry ~= nil and os.clock() >= currentqpostime+0.5 then
-		_G.AutoCarry.MyHero:MovementEnabled(true)
-		end
 	
+	if os.clock() >= currentqpostime+0.5 then
+		EQBlock = false
+		currentqpostime = 0
+	end 
+	
+	if not EReady and E1 then
+		EQBlock = false
+		currentqpostime = 0
+	end 
+	
+end 
+
+function jaycetslogic()
+	if SwitchTo2 then
+		if QReady and Q1 and EReady and E1 then
+		TSRange = QRangeL
+		end
+		
+		if QReady and Q1 and not EReady then
+		TSRange = QRangeS
+		end
+	end
+	if SwitchTo1 then
+		TSRange = 900
+	end
+end 
+
+
+function castQEranged(unit)
+	local pos, info = Prodiction.GetPrediction(unit, QRangeL, QSpeedL, QDelayL, QWidthL, myPlayer)	
+	local coll = Collision(QRangeL, QSpeedL, QDelayL, QWidthL)	
+
+		if pos and info.hitchance >= QHitPRO and not coll:GetMinionCollision(pos, myHero) then
+		currentqpos[1] = pos.x
+		currentqpos[2] = pos.z
+		currentqpostime = os.clock()
+		EQBlock = true		
+		
+			if Menu.PredictionSettings.Packets then
+			Packet('S_CAST', {spellId = _Q, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
+			else 
+			CastSpell(_Q, pos.x, pos.z)
+			end
+			
+		end
+end 
+
+function castQErangedVpred(unit)
+	local pos, info = VP:GetLineCastPosition(unit, QDelayL, QWidthL, QRangeL, QSpeedL, myHero, true)		
+		if pos and info >= QHitVPRE then
+		currentqpos[1] = pos.x
+		currentqpos[2] = pos.z
+		currentqpostime = os.clock()
+		EQBlock = true	
+		
+			if Menu.PredictionSettings.Packets then
+			Packet('S_CAST', {spellId = _Q, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
+			else 
+			CastSpell(_Q, pos.x, pos.z)
+			end
+			
+			
+		end
+end 
+
+
+function castQErangedAddE()
+
+	if currentqpos[1] ~= nil and E1 and EReady then 
+		local MyEpos = myHero + (-1 * (Vector(myHero.x - currentqpos[1], 0, myHero.z - currentqpos[2]):normalized()*350))
+			
+		if Menu.PredictionSettings.Packets then
+		Packet('S_CAST', {spellId = _E, toX = MyEpos.x, toY = MyEpos.z, fromX = MyEpos.x, fromY = MyEpos.z}):send(true)
+		else 
+		CastSpell(_E, MyEpos.x, MyEpos.z)
+		end
+		
 	end 
 	
 
 end 
+
+function castQErangedToMouse()
+	local MyEpos = myHero + (-1 * (Vector(myHero.x - mousePos.x, 0, myHero.z - mousePos.z):normalized()*350))
+		currentqpostime = os.clock()
+		EQBlock = true		
+	if Menu.PredictionSettings.Packets then
+	Packet('S_CAST', {spellId = _Q, toX = mousePos.x, toY = mousePos.z, fromX = mousePos.x, fromY = mousePos.z}):send(true)
+	Packet('S_CAST', {spellId = _E, toX = MyEpos.x, toY = MyEpos.z, fromX = MyEpos.x, fromY = MyEpos.z}):send(true)
+	else 
+	CastSpell(_Q, mousePos.x, mousePos.z)
+	CastSpell(_E, MyEpos.x, MyEpos.z)
+	end
+		
+end 
+
+function castQranged(unit)
+	local pos, info = Prodiction.GetPrediction(unit, QRangeS, QSpeedS, QDelayS, QWidthS, myPlayer)	
+	local coll = Collision(QRangeS, QSpeedS, QDelayS, QWidthS)	
+
+		if pos and info.hitchance >= QHitPRO and not coll:GetMinionCollision(pos, myHero) then
+		
+			if Menu.PredictionSettings.Packets then
+			Packet('S_CAST', {spellId = _Q, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
+			else 
+			CastSpell(_Q, pos.x, pos.z)
+			end
+			
+		end
+end 
+
+
+function castQrangedVpred(unit)
+	local pos, info = VP:GetLineCastPosition(unit, QDelayS, QWidthS, QRangeS, QSpeedS, myHero, true)		
+		if pos and info >= QHitVPRE then
+		
+			if Menu.PredictionSettings.Packets then
+			Packet('S_CAST', {spellId = _Q, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
+			else 
+			CastSpell(_Q, pos.x, pos.z)
+			end
+			
+			
+		end
+end 
+
+
+
+
 
 
 function Welcome()
@@ -225,190 +549,7 @@ function Welcome()
 		loading_text = true
 		end 
 end 
-
-function blizhnijboj()
-			
-				if EReady and E2 and GetDistance(Target) <= 305 then
-				
-				
-					if Menu.PredictionSettings.Packets then
-					Packet("S_CAST", {spellId = _E, targetNetworkId = Target.networkID}):send()
-					else 
-					CastSpell(_E,Target)
-					end
-					
-					
-				end 
-				
-				if QReady and Q2 and GetDistance(Target) <= 600 then
-					if Menu.PredictionSettings.Packets then
-					Packet("S_CAST", {spellId = _Q, targetNetworkId = Target.networkID}):send()
-					else 
-					CastSpell(_Q,Target)
-					end
-				end 
-				
-				if WReady and W2 and GetDistance(Target) <= 280 then
-				CastSpell(_W,myHero)
-				end 
-
-			
-			if not QReady and not WReady and not EReady and RReady and SwitchTo1 then
-			CastSpell(_R,myHero)
-			end
-			
-			
-end 
-
-function Q1ShortLong()
-		if GetDistance(Target) <= QRange2 and QReady and Q1 and EReady then
-			
-
-		
-			if Menu.PredictionSettings.mode == 1 then
-				if Menu.Harass1 or Menu.Harass2 then 
-					local QHitPRO = Menu.PredictionSettings.ProdictionSettings.QHitHAR
-					CastQ1LongPROD(Target)
-				end
-				if Menu.Combo then 
-					local QHitPRO = Menu.PredictionSettings.ProdictionSettings.QHitCOM
-					CastQ1LongPROD(Target)
-				end
-			end
-			if Menu.PredictionSettings.mode == 2 then
-				if Menu.Harass1 or Menu.Harass2 then 
-					local QHitVPRE = Menu.PredictionSettings.VPredictionSettings.QHitHAR
-					CastQ1LongVPRED(Target)
-				end
-				if Menu.Combo then 
-					local QHitVPRE = Menu.PredictionSettings.VPredictionSettings.QHitCOM
-					CastQ1LongVPRED(Target)
-				end
-				
-			end
-		
-		
-		end	
-		if GetDistance(Target) <= QRange and QReady and Q1 and not EReady then
-			if Menu.PredictionSettings.mode == 1 then
-				if Menu.Harass1 or Menu.Harass2 then 
-					local QHitPRO = Menu.PredictionSettings.ProdictionSettings.QHitHAR
-					CastQ1ShortPROD(Target)
-				end
-				if Menu.Combo then 
-					local QHitPRO = Menu.PredictionSettings.ProdictionSettings.QHitCOM
-					CastQ1ShortPROD(Target)
-				end
-			end
-			if Menu.PredictionSettings.mode == 2 then
-				if Menu.Harass1 or Menu.Harass2 then 
-					local QHitVPRE = Menu.PredictionSettings.VPredictionSettings.QHitHAR
-					CastQ1ShortVPRED(Target)
-				end
-				if Menu.Combo then 
-					local QHitVPRE = Menu.PredictionSettings.VPredictionSettings.QHitCOM
-					CastQ1ShortVPRED(Target)
-				end
-			end
-		end
-end 
-
-function CastQ1LongPROD(unit)
-
-	local pos, info = Prodiction.GetPrediction(unit, QRange2, QSpeed2, QDelay2, QWidth2, myPlayer)	
-	local coll = Collision(QRange2, QSpeed2, QDelay2, QWidth2)	
-
-		if pos and info.hitchance >= QHitPRO and not coll:GetMinionCollision(pos, myHero) then
-		currentqpos[1] = pos.x
-		currentqpos[2] = pos.z
-		currentqpostime = os.clock()	
-		
-			if Menu.PredictionSettings.Packets then
-				if _G.AutoCarry ~= nil then 
-				_G.AutoCarry.MyHero:MovementEnabled(false)
-				Packet('S_CAST', {spellId = _Q, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
-				else
-				Packet('S_CAST', {spellId = _Q, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
-				end
-			else 
-				if _G.AutoCarry ~= nil then 
-				_G.AutoCarry.MyHero:MovementEnabled(false)
-				CastSpell(_Q, pos.x, pos.z)
-				else
-				CastSpell(_Q, pos.x, pos.z)
-				end
-			end
-			
-		end
-
-end 
-
-function CastQ1LongVPRED(unit)
-
-	local pos, info = VP:GetLineCastPosition(unit, QDelay2, QWidth2, QRange2, QSpeed2, myHero, true)		
-		if pos and info >= QHitVPRE then
-		currentqpos[1] = pos.x
-		currentqpos[2] = pos.z
-		currentqpostime = os.clock()
-		
-			if Menu.PredictionSettings.Packets then
-				if _G.AutoCarry ~= nil then 
-				_G.AutoCarry.MyHero:MovementEnabled(false)
-				Packet('S_CAST', {spellId = _Q, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
-				else
-				Packet('S_CAST', {spellId = _Q, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
-				end
-			else 
-				if _G.AutoCarry ~= nil then 
-				_G.AutoCarry.MyHero:MovementEnabled(false)
-				CastSpell(_Q, pos.x, pos.z)
-				else
-				CastSpell(_Q, pos.x, pos.z)
-				end
-			end
-			
-			
-		end
-
-end 
-	
-				
-function CastQ1ShortPROD(unit)
-
-	local pos, info = Prodiction.GetPrediction(unit, QRange, QSpeed, QDelay, QWidth, myPlayer)	
-	local coll = Collision(QRange, QSpeed, QDelay, QWidth)	
-		if pos and info.hitchance >= QHitPRO and not coll:GetMinionCollision(pos, myHero) then
-		
-		
-			if Menu.PredictionSettings.Packets then
-			Packet('S_CAST', {spellId = _Q, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
-			else 
-			CastSpell(_Q, pos.x, pos.z)
-			end
-		end
-
-end 
-
-function CastQ1ShortVPRED(unit)
-	local pos, info = VP:GetLineCastPosition(unit, QDelay, QWidth, QRange, QSpeed, myHero, true)		
-		if pos and info >= QHitVPRE then
-			if Menu.PredictionSettings.Packets then
-			Packet('S_CAST', {spellId = _Q, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
-			else 
-			CastSpell(_Q, pos.x, pos.z)
-			end
-		end
-end
-
-
 function OnProcessSpell(unit, spell)
-
-
-	if spell.name == "jayceshockblast" then 
-	qcaststart = os.clock()
-	qcast = true
-	end 
-	
 	-- Antigap
 		if #SpellsTOAntigapclose > 0 then
 			for _, Antigap in pairs(SpellsTOAntigapclose) do
@@ -424,9 +565,7 @@ function OnProcessSpell(unit, spell)
 
 			end
 		end
-
 end 
-
 function Manaislowerthen(percent)
     if myHero.mana < (myHero.maxMana * ( percent / 100)) then
         return true
@@ -434,9 +573,6 @@ function Manaislowerthen(percent)
         return false
     end
 end
-
-
-
 function AntigapcloserNextLvL()
 	for i = 1, #GetEnemyHeroes() do
 	local enemy = GetEnemyHeroes()[i]
@@ -472,7 +608,6 @@ function AntigapcloserNextLvL()
 	end
 	
 end 
-
 function get_tables()
 
 	SpellsTOAntigapclose = {}
