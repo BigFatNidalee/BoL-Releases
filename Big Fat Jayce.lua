@@ -1,5 +1,5 @@
 if myHero.charName ~= "Jayce" then return end
-local version = "0.05"
+local version = "0.06"
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Jayce.lua".."?rand="..math.random(1,10000)
@@ -199,9 +199,9 @@ function OnTick()
 				if WReady and W1 then
 					if GetDistance(Target) <= AARange + 50 then
 						if Menu.PredictionSettings.Packets then
-						Packet("S_CAST", {spellId = _W, targetNetworkId = Target.networkID}):send()
+						Packet("S_CAST", {spellId = _W, targetNetworkId = myHero.networkID}):send()
 						else
-						CastSpell(_W,Target)
+						CastSpell(_W,myHero)
 						end
 					-- some logic then cast w
 					end 
@@ -366,9 +366,9 @@ function OnTick()
 				if WReady and W1 and Menu.Harass.UseW then
 					if GetDistance(Target) <= AARange + 10 then
 						if Menu.PredictionSettings.Packets then
-						Packet("S_CAST", {spellId = _W, targetNetworkId = Target.networkID}):send()
+						Packet("S_CAST", {spellId = _W, targetNetworkId = myHero.networkID}):send()
 						else
-						CastSpell(_W,Target)
+						CastSpell(_W,myHero)
 						end
 					-- some logic then cast w
 					end 
