@@ -22,4 +22,8 @@
        some fixes in antigap db
        changed some default settings in menu
        other changes cant more remember :O
+- 0.09 some fixes in combo logic and control of combo in menu
+       removed mma support, cause it looks like dont work :( (since i dont have mma i cant test it)
+       now if mma detected using standart target selector instead of mma
+       
        
