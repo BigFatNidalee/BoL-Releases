@@ -33,4 +33,5 @@ version 0.10:
 	- added Emergency E to nearest Target (see in key binds)
 	- fixed bug where jayce sometimes doesnt use w in ranged form while combo
 	- added cool, fat and big ASCII Title :O
-
+version 0.11:
+	- q values fixes
