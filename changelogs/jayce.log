@@ -30,7 +30,7 @@ version 0.10:
 	- fixed cast time (i hope xD)
 	- removed grab targets from orbwalker, cause making all slower
 	- added ignite in ks function
-       - added Emergency E to nearest Target (see in key binds)
+	- added Emergency E to nearest Target (see in key binds)
 	- fixed bug where jayce sometimes doesnt use w in ranged form while combo
 	- added cool, fat and big ASCII Title :O
 
