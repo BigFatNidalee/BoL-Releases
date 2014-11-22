@@ -1,4 +1,4 @@
-local version = "0.1"
+local version = "0.2"
 
 local AUTOUPDATE = true
 local UPDATE_HOST = "raw.github.com"
@@ -24,6 +24,7 @@ else
 AutoupdaterMsg("Error downloading version info")
 end
 end
+
 local lastsoundplayed = 0
 local soundplayed = false
 local gameoverplayed = false
@@ -32,7 +33,7 @@ local wayPointManager = WayPointManager()
 
 local val = false
 local nextTick = 0
-local delay = 1500 
+local delay = 1500
 
 function OnLoad()
 
@@ -47,13 +48,13 @@ function OnLoad()
 	Ganks = scriptConfig("Ganks Hater", "Ganks Hater")
 	
 	Ganks:addSubMenu("[Sounds]", "Sounds")
-		Ganks.Sounds:addParam("welcome","welcome", SCRIPT_PARAM_ONOFF, true)
-		Ganks.Sounds:addParam("voiceonoff","voice on/off", SCRIPT_PARAM_ONOFF, true)
-		Ganks.Sounds:addParam("danger","danger", SCRIPT_PARAM_ONOFF, true)
-		Ganks.Sounds:addParam("shutdown","shutdown", SCRIPT_PARAM_ONOFF, true)
+		Ganks.Sounds:addParam("welcome","welcome", SCRIPT_PARAM_ONOFF, false)
+		Ganks.Sounds:addParam("voiceonoff","voice on/off", SCRIPT_PARAM_ONOFF, false)
+		Ganks.Sounds:addParam("danger","danger", SCRIPT_PARAM_ONOFF, false)
+		Ganks.Sounds:addParam("shutdown","shutdown", SCRIPT_PARAM_ONOFF, false)
 	
 	Ganks:addParam("announcer","Announcer", SCRIPT_PARAM_ONOFF, true)
-	Ganks:addParam("voice","Voice", SCRIPT_PARAM_ONOFF, true)
+	Ganks:addParam("voice","Voice", SCRIPT_PARAM_ONOFF, false)
 	Ganks:addSubMenu("[Warning List]", "WarningList")
 	for _, enemy in ipairs(GetEnemyHeroes()) do
 
@@ -90,6 +91,7 @@ end
 	
 	
 function OnTick()
+
 
 	for _, enemy in ipairs(GetEnemyHeroes()) do
 
@@ -154,7 +156,9 @@ function OnTick()
 	end 
 	
 end 
-	
+
+
+
 function OnDraw()
 
 	if overtime == false then
@@ -171,16 +175,20 @@ function OnDraw()
 			if Ganks.DrawWaypoints then
 			wayPointManager:DrawWayPoints(enemy)
 			end 
-				if GetTickCount() > nextTick + delay then
-				PrintFloatText(myHero, 1, "Danger !")
-				nextTick = GetTickCount()
-				end 	
+
+
+			DrawText3D(tostring("Danger !"), myHero.x, myHero.y, myHero.z, 25, ARGB(255, 255, 255, 0), true)
+
 			end 
 			
 		end 
 		end 
 		
 	end 
+	
+
+
+	
 
 	
 end
