@@ -40,5 +40,7 @@ version 0.12:
 version 0.13:
 	-fixed cd tracker logic.
 	-added some kind of GTFO option.
-						
+version 0.14:
+	-ks improvements.
+	-added ks announcer.	
 					
