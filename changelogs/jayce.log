@@ -43,4 +43,5 @@ version 0.13:
 version 0.14:
 	-ks improvements.
 	-added ks announcer.	
-					
+version 0.15:					
+	- fixed announcer bug
