@@ -45,3 +45,5 @@ version 0.14:
 	-added ks announcer.	
 version 0.15:					
 	- fixed announcer bug
+version 0.16:					
+	- improved meele combo, removed leona from antigapclosers
