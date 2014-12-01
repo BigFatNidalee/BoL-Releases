@@ -49,3 +49,6 @@ version 0.16:
 	- improved meele combo, removed leona from antigapclosers
 version 0.17: 
 	- added Jungle escapes inside jungle camps
+version 0.18: 
+	- added extra button for jungle escapes
+	- added extra mana slider for w in harass
