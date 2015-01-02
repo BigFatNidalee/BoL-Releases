@@ -1,28 +1,12 @@
-local version = "2.531"
-local TESTVERSION = false
-local AUTOUPDATE = false
-local UPDATE_HOST = "raw.github.com"
-local UPDATE_PATH = "/Hellsing/BoL/master/common/VPrediction.lua".."?rand="..math.random(1,10000)
-local UPDATE_FILE_PATH = LIB_PATH.."vPrediction.lua"
-local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
-
-local function AutoupdaterMsg(msg) print("<font color=\"#6699ff\"><b>VPrediction:</b></font> <font color=\"#FFFFFF\">"..msg..".</font>") end
-if AUTOUPDATE then
-	local ServerData = GetWebResult(UPDATE_HOST, "/Hellsing/BoL/master/version/VPrediction.version")
-	if ServerData then
-		ServerVersion = type(tonumber(ServerData)) == "number" and tonumber(ServerData) or nil
-		if ServerVersion then
-			if tonumber(version) < ServerVersion then
-				AutoupdaterMsg("New version available"..ServerVersion)
-				AutoupdaterMsg("Updating, please don't press F9")
-				DelayAction(function() DownloadFile(UPDATE_URL, UPDATE_FILE_PATH, function () AutoupdaterMsg("Successfully updated. ("..version.." => "..ServerVersion.."), press F9 twice to load the updated version.") end) end, 3)
-			else
-				AutoupdaterMsg("You have got the latest version ("..ServerVersion..")")
-			end
-		end
-	else
-		AutoupdaterMsg("Error downloading version info")
-	end
+function OnLoad()
+    ScriptUpdate(1.31,
+        '/Ralphlol/BoLGit/master/VPrediction.version',
+        '/Ralphlol/BoLGit/master/VPrediction.lua',
+        LIB_PATH .. 'VPrediction.lua',
+        '<font color=\"#6699ff\"><b>VPrediction TEMP FIX:</b></font> <font color=\"#FFFFFF\">You have got the latest version</font>',
+        '<font color=\"#6699ff\"><b>VPrediction TEMP FIX:</b></font> <font color=\"#FFFFFF\">New version available, updating...</font>',
+        '<font color=\"#6699ff\"><b>VPrediction TEMP FIX:</b></font> <font color=\"#FFFFFF\">Successfully updated, press F9 twice to load the updated version</font>'
+    )
 end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -58,11 +42,11 @@ function VPrediction:__init()
 				_G.VPredictionMenu.Collision:addParam("CastPos", "Check collision at the cast pos", SCRIPT_PARAM_ONOFF, true)
 				_G.VPredictionMenu.Collision:addParam("PredictPos", "Check collision at the predicted pos", SCRIPT_PARAM_ONOFF, false)
 
-			if self.showdevmode then
+			
 			_G.VPredictionMenu:addSubMenu("Developers", "Developers")
 				_G.VPredictionMenu.Developers:addParam("Debug", "Enable debug", SCRIPT_PARAM_ONOFF, false)
 				_G.VPredictionMenu.Developers:addParam("SC", "Show collision", SCRIPT_PARAM_ONOFF, false)
-			end
+			
 			_G.VPredictionMenu:addParam("Version", "Version", SCRIPT_PARAM_INFO, tostring(self.version))
 	end
 
@@ -186,7 +170,9 @@ end
 function VPrediction:GetTime()
 	return os.clock()
 end
-
+function VPrediction:GetVersion()
+	return self.version
+end
 --[[Track when we lose or gain vision over an enemy]]
 function VPrediction:OnGainVision(unit)
 	if unit.type == myHero.type then
@@ -443,7 +429,7 @@ end
 
 --[[Calculate the hero position based on the last waypoints]]
 function VPrediction:CalculateTargetPosition(unit, delay, radius, speed, from, spelltype)
-	local Waypoints = {}
+	--[[local Waypoints = {}
 	local Position, CastPosition = Vector(unit), Vector(unit)
 	local t
 
@@ -497,9 +483,47 @@ function VPrediction:CalculateTargetPosition(unit, delay, radius, speed, from, s
 
 	if t and self:isSlowed(unit, 0, math.huge, from) and not self:isSlowed(unit, t, math.huge, from) and Position then
 		CastPosition = Position
+	end]]
+	if ValidTarget(unit) and unit.endPath or unit == myHero then  	----TEMP FIX
+		local pathPot = (unit.ms*((GetDistance(myHero.pos, unit.pos)/speed)+delay))
+		if unit.pathCount < 3 then
+			local v = Vector(unit) + (Vector(unit.endPath)-Vector(unit)):normalized()*(pathPot)
+			if GetDistance(unit, v) > GetDistance(unit, unit.endPath) then
+				return v, 0, v
+			elseif GetDistance(unit, v) > 1 then
+				if GetDistance(unit.endPath, unit) > GetDistance(unit, v) then
+					return v, 2, v
+				else
+					return v, 0, v
+				end
+			end
+			return Vector(unit), 2, Vector(unit)
+		else
+			for i = unit.pathIndex, unit.pathCount do
+				if unit:GetPath(i) and unit:GetPath(i-1) then
+					local pStart, pEnd = unit:GetPath(i-1), unit:GetPath(i) 
+					local iPathDist = GetDistance(pStart, pEnd) 
+					if unit:GetPath(unit.pathIndex  - 1) then
+						if pathPot > iPathDist then
+							pathPot = pathPot-iPathDist
+						elseif (pathPot + GetDistance(unit, unit:GetPath(unit.pathIndex  - 1))) > iPathDist then
+							pathPot = (pathPot + GetDistance(unit, unit:GetPath(unit.pathIndex  - 1))) - iPathDist
+						else 
+							if pathPot < iPathDist then
+								local v = Vector(pStart) + (Vector(pEnd)-Vector(pStart)):normalized()*(pathPot + GetDistance(unit, unit:GetPath(unit.pathIndex  - 1)))
+								return v, 2, v
+							else
+								return v, 0, v
+							end
+						end
+					end
+				end
+			end
+			pathPot = (unit.ms*((GetDistance(myHero.pos, unit.pos)/speed)+delay))
+			local v = Vector(unit) + (Vector(unit.endPath)-Vector(unit)):normalized()*(pathPot)
+			return v, 0, v
+		end
 	end
-
-	return Position, CastPosition
 end
 
 function VPrediction:MaxAngle(unit, currentwaypoint, from)
@@ -609,8 +633,7 @@ function VPrediction:GetBestCastPosition(unit, delay, radius, range, speed, from
 	local VisibleSince = self.TargetsVisible[unit.networkID] and self.TargetsVisible[unit.networkID] or self:GetTime()
 
 	if unit.type ~= myHero.type then
-		Position, CastPosition = self:CalculateTargetPosition(unit, delay, radius, speed, from, spelltype)
-		HitChance = 2
+		Position, HitChance, CastPosition = self:CalculateTargetPosition(unit, delay, radius, speed, from, spelltype)
 	else
 		if self.DontShoot[unit.networkID] and self.DontShoot[unit.networkID] > self:GetTime() then
 			Position, CastPosition = Vector(unit.x, unit.y, unit.z),  Vector(unit.x, unit.y, unit.z)
@@ -629,7 +652,7 @@ function VPrediction:GetBestCastPosition(unit, delay, radius, range, speed, from
 			Position, CastPosition = ImmobilePos, ImmobileCastPosition
 			HitChance = 4
 		elseif not self.DontUseWayPoints then
-			CastPosition, HitChance, Position = self:WayPointAnalysis(unit, delay, radius, range, speed, from, spelltype)
+			CastPosition, HitChance, Position = self:CalculateTargetPosition(unit, delay, radius, speed, from, spelltype)
 		end
 	end
 
@@ -673,6 +696,8 @@ function VPrediction:GetBestCastPosition(unit, delay, radius, range, speed, from
 			HitChance = -1
 		end
 	end
+	
+	
 	return CastPosition, HitChance, Position
 end
 
@@ -760,9 +785,9 @@ function VPrediction:CheckCol(unit, minion, Position, delay, radius, range, spee
 	end
 
 	local waypoints = self:GetCurrentWayPoints(minion)
-	local MPos, CastPosition = #waypoints == 1 and Vector(minion) or self:CalculateTargetPosition(minion, delay, radius, speed, from, "line")
+	local MPos, CastPosition = minion.pathCount == 1 and Vector(minion) or self:CalculateTargetPosition(minion, delay, radius, speed, from, "line")
 	if GetDistanceSqr(from, MPos) <= (range)^2 and GetDistanceSqr(from, minion) <= (range + 100)^2 then
-		local buffer = (#waypoints > 1) and _G.VPredictionMenu.Collision.Buffer or 8
+		local buffer = (minion.pathCount > 1) and _G.VPredictionMenu.Collision.Buffer or 8
 
 		if minion.type == myHero.type then
 			buffer = buffer + self:GetHitBox(minion)
@@ -774,7 +799,7 @@ function VPrediction:CheckCol(unit, minion, Position, delay, radius, range, spee
 			self:DLine(MPos, minion, Color)
 		end
 		
-		if #waypoints > 1 then
+		if minion.pathCount > 1 then
 			local proj1, pointLine, isOnSegment = VectorPointProjectionOnLineSegment(from, Position, Vector(MPos))
 			if isOnSegment and (GetDistanceSqr(MPos, proj1) <= (self:GetHitBox(minion) + radius + buffer) ^ 2) then
 				return true
@@ -1295,3 +1320,82 @@ function VPrediction:CalcDamageOfAttack(source, target, spell, additionalDamage)
 	return damageMultiplier * totalDamage
 end
 --}
+
+class "ScriptUpdate"
+function ScriptUpdate:__init(LocalVersion, VersionPath, ScriptPath, SavePath, NoNewVer, NewVer, UpdateDone)
+    self.NewVer = NewVer
+    self.NoNewVer = NoNewVer
+    self.UpdateDone = UpdateDone
+    self.LocalVersion = LocalVersion
+    self.VersionPath = VersionPath
+    self.ScriptPath = ScriptPath
+    self.SavePath = SavePath
+    self.LuaSocket = require("socket")
+
+    self.VersionSocket = self.LuaSocket.connect("cdn.rawgit.com", 80)
+    self.VersionSocket:send("GET "..self.VersionPath.."?rand="..math.random(99999999).." HTTP/1.0\r\nHost: cdn.rawgit.com\r\n\r\n")
+    self.VersionSocket:settimeout(0, 'b')
+    self.VersionSocket:settimeout(99999999, 't')
+    self.LastPrint = ""
+    self.File = ""
+    AddTickCallback(function() self:GetOnlineVersion() end)
+end
+
+function ScriptUpdate:GetOnlineVersion()
+    if self.VersionStatus == 'closed' then return end
+    self.VersionReceive, self.VersionStatus, self.Snipped = self.VersionSocket:receive(1024)
+
+    if self.VersionReceive then
+        if self.LastPrint ~= self.VersionReceive then
+            self.LastPrint = self.VersionReceive
+            self.File = self.File .. self.VersionReceive
+        end
+    end
+
+    if self.Snipped ~= "" and self.Snipped then
+        self.File = self.File .. self.Snipped
+    end
+    if self.VersionStatus == 'closed' then
+        local Find = string.find(self.File, 'X-Cache: HIT')
+        self.OnlineVersion = tonumber(string.sub(self.File, Find + 14))
+        if self.OnlineVersion > self.LocalVersion then
+            self.ScriptSocket = self.LuaSocket.connect("cdn.rawgit.com", 80)
+            self.ScriptSocket:send("GET "..self.ScriptPath.."?rand="..math.random(99999999).." HTTP/1.0\r\nHost: cdn.rawgit.com\r\n\r\n")
+            self.ScriptSocket:settimeout(0, 'b')
+            self.ScriptSocket:settimeout(99999999, 't')
+            self.LastPrint = ""
+            self.File = ""
+            if self.NewVer then print(self.NewVer) end
+            AddTickCallback(function() self:DownloadUpdate() end)
+        else
+            if self.NoNewVer then print(self.NoNewVer) end
+        end
+    end
+
+end
+
+function ScriptUpdate:DownloadUpdate()
+    if self.ScriptStatus == 'closed' then return end
+    self.ScriptReceive, self.ScriptStatus, self.Snipped = self.ScriptSocket:receive(1024)
+
+    if self.ScriptReceive then
+        if self.LastPrint ~= self.ScriptReceive then
+            self.LastPrint = self.ScriptReceive
+            self.File = self.File .. self.ScriptReceive
+        end
+    end
+
+    if self.Snipped ~= "" and self.Snipped then
+        self.File = self.File .. self.Snipped
+    end
+
+    if self.ScriptStatus == 'closed' then
+        local Find = string.find(self.File, 'X-Cache: HIT')
+        self.ScriptFile = string.sub(self.File, Find + 14)
+        local file = io.open(self.SavePath, "w+")
+        file:write(self.ScriptFile)
+        file:flush()
+        file:close()
+        if self.UpdateDone then print(self.UpdateDone) end
+    end
+end
