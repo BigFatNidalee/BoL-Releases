@@ -1,7 +1,7 @@
 if myHero.charName ~= "Leona" then return end
 
 local AUTOUPDATE = true
-local version = "0.01"
+local version = "0.02"
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/BigFatNidalee/BoL-Releases/master/Big Fat Leona.lua".."?rand="..math.random(1,10000)
 local UPDATE_FILE_PATH = SCRIPT_PATH.."Big Fat Leona.lua"
@@ -36,13 +36,15 @@ local autor = "Big Fat Corki"
 local scriptname = "Big Fat Private Series: Leona"
 
 function OnLoad()
-require "Prodiction"
+--require "Prodiction"
+require "VPrediction"
+VP = VPrediction()
 corki_harass_tables()
 			Menu = scriptConfig(scriptname, scriptname)
 			
-			Menu:addParam("EHit", "E Hitchance", SCRIPT_PARAM_SLICE, 2, 1, 3, 0)
-			Menu:addParam("RHit", "R Hitchance", SCRIPT_PARAM_SLICE, 2, 1, 3, 0)
-			Menu:addParam("Packets","Packets Cast", SCRIPT_PARAM_ONOFF, true)
+			Menu:addParam("EHit", "E Hitchance", SCRIPT_PARAM_SLICE, 2, 1, 2, 0)
+			Menu:addParam("RHit", "R Hitchance", SCRIPT_PARAM_SLICE, 2, 1, 2, 0)
+			Menu:addParam("Packets","Packets Cast", SCRIPT_PARAM_ONOFF, false)
 			Menu:addParam("blank1", "", SCRIPT_PARAM_INFO, "")
 			Menu:addParam("CastE","Cast E", SCRIPT_PARAM_ONKEYDOWN, false, 32)
 			Menu:addParam("CastR","Cast R", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("Y"))
@@ -114,7 +116,7 @@ function OnTick()
 
 end 
 
-
+--[[
 function CastR(unit)
 	local pos, info = Prodiction.GetCircularAOEPrediction(unit, RRange, RSpeed, RDelay, RWidth, myPlayer)	
 	
@@ -139,7 +141,34 @@ function CastE(unit)
 			end
 		end
 end 
+]]--
 
+
+function CastE(unit)
+	local pos, info = VP:GetLineCastPosition(unit, EDelay, EWidth, ERange, ESpeed, myHero, false)	
+
+	if pos and info >= Menu.EHit then								
+		if Menu.Packets then
+			Packet('S_CAST', {spellId = _E, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
+			else 
+			CastSpell(_E, pos.x, pos.z)
+			end										
+		end
+
+end 
+
+function CastR(unit)
+	local pos, info, targets = VP:GetCircularAOECastPosition(unit, Delay, RDelay, RRange, RSpeed, myHero, false)
+
+	if pos and info >= Menu.RHit and targets >= 3 then								
+		if Menu.Packets then
+			Packet('S_CAST', {spellId = _R, toX = pos.x, toY = pos.z, fromX = pos.x, fromY = pos.z}):send(true)
+			else 
+			CastSpell(_R, pos.x, pos.z)
+			end										
+		end
+
+end
 
 function corki_harass_tables()
 	whitelisted={}
