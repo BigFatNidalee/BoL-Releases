@@ -19,3 +19,5 @@
       some connection fixes with bol.b00st.eu
 0.7 -
       complete rewritten as standalone
+0.8 -
+      fixed spam if graves is dead
