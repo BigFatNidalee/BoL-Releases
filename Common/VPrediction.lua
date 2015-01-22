@@ -1,4 +1,4 @@
-local version = "2.71"
+local version = "2.85"
 local TESTVERSION = false
 local AUTO_UPDATE = true
 local UPDATE_HOST = "raw.github.com"
@@ -51,7 +51,7 @@ function VPrediction:__init()
 				_G.VPredictionMenu.Collision:addParam("Minions", "Normal minions", SCRIPT_PARAM_ONOFF, true)
 				_G.VPredictionMenu.Collision:addParam("Mobs", "Jungle minions", SCRIPT_PARAM_ONOFF, true)
 				_G.VPredictionMenu.Collision:addParam("Others", "Others", SCRIPT_PARAM_ONOFF, true)
-				_G.VPredictionMenu.Collision:addParam("CHealth", "Check if minions are about to die (BETA)", SCRIPT_PARAM_ONOFF, false)
+				_G.VPredictionMenu.Collision:addParam("CHealth", "Check if minions are about to die", SCRIPT_PARAM_ONOFF, true)
 				_G.VPredictionMenu.Collision:addParam("info", "-", SCRIPT_PARAM_INFO, "^ Can cause fps drops")
 
 				_G.VPredictionMenu.Collision:addParam("UnitPos", "Check collision at the unit pos", SCRIPT_PARAM_ONOFF, true)
@@ -83,10 +83,14 @@ function VPrediction:__init()
 	self.DontShootUntilNewWaypoints = {}
 
 	if VIP_USER then
-		WayPointManager.AddCallback(function(NetworkID) self:OnNewWayPoints(NetworkID) end)
-		AdvancedCallback:bind("OnGainVision", function(unit) self:OnGainVision(unit) end)
 		AdvancedCallback:bind("OnGainBuff", function(unit, buff) self:OnGainBuff(unit, buff) end)
-		AdvancedCallback:bind("OnDash", function(unit, dash) self:OnDash(unit, dash) end)
+		AddRecvPacketCallback(function(p) self:OnRecvPacket(p) end)
+	end
+--	AdvancedCallback:OnGainBuff(unit, activeBuffs[unit.networkID][slot])
+--	AddProcessSpellCallback(function(unit, startPos, endPos, isDash ,dashSpeed,dashGravity, dashDistance) self:OnNewPath(unit, startPos, endPos, isDash, dashSpeed, dashGravity, dashDistance) end)
+
+	if GetRegion() ~= "unk" then
+		AddNewPathCallback(function(unit, startPos, endPos, isDash ,dashSpeed,dashGravity, dashDistance) self:OnNewPath(unit, startPos, endPos, isDash, dashSpeed, dashGravity, dashDistance) end)
 	end
 	
 	AddProcessSpellCallback(function(unit, spell) self:OnProcessSpell(unit, spell) end)
@@ -189,41 +193,39 @@ end
 function VPrediction:GetVersion()
 	return self.version
 end
---[[Track when we lose or gain vision over an enemy]]
-function VPrediction:OnGainVision(unit)
-	if unit.type == myHero.type then
-		self.TargetsVisible[unit.networkID] = self:GetTime()
-	end
-end
 
 --[[Track when we lose or gain vision over an enemy]]
-function VPrediction:OnLoseVision(unit)
-	if unit.type == myHero.type then
-		self.TargetsVisible[unit.networkID] = math.huge
+function VPrediction:OnRecvPacket(p) --Credits to PewPewPew
+	if p.header == 0x8B then --losevision
+		p.pos=2
+		local o = objManager:GetObjectByNetworkId(p:DecodeF())
+		if o and o.type == myHero.type and o.team ~= myHero.team then
+			self.TargetsVisible[o.networkID] = math.huge
+		end	
+	end
+	if p.header == 0xBD then --gainvision
+		p.pos=2
+		local o = objManager:GetObjectByNetworkId(p:DecodeF())
+		if o and o.type == myHero.type and o.team ~= myHero.team then
+			self.TargetsVisible[o.networkID] = self:GetTime()
+		end
 	end
 end
-
 function VPrediction:OnGainBuff(unit, buff)
-	if unit.type == myHero.type and (buff.type == BUFF_STUN or buff.type == BUFF_ROOT or buff.type == BUFF_KNOCKUP or buff.type == BUFF_SUPPRESS) then
+	if unit.type == myHero.type and (buff.type == 5 or buff.type == 11 or buff.type == 29 or buff.type == 24) then
 		self.TargetsImmobile[unit.networkID] = self:GetTime() + buff.duration
-	elseif unit.type == myHero.type and (buff.type == BUFF_SLOW or buff.type == BUFF_CHARM or buff.type == BUFF_FEAR or buff.type == BUFF_TAUNT) then
+		--print("stunned")
+	elseif unit.type == myHero.type and (buff.type == 10 or buff.type == 22 or buff.type == 21 or buff.type == 8) then
 		self.TargetsSlowed[unit.networkID] = self:GetTime() + buff.duration
+		--print(unit.." slowed")
 	end
 
-	if unit.type == myHero.type and (buff.type == BUFF_KNOCKBACK) then
+	if unit.type == myHero.type and (buff.type == 30) then
 		self.DontShoot[unit.networkID] = self:GetTime() + 1
 	end
 end
 
-function VPrediction:OnDash(unit, dash)
-	if unit.type == myHero.type then
-		dash.endPos = dash.target and dash.target or dash.endPos
-		dash.startT = self:GetTime() - GetLatency()/2000
-		dash.endT = dash.startT + dash.duration
-		self.TargetsDashing[unit.networkID] = dash
-		self.DontShootUntilNewWaypoints[unit.networkID] = true
-	end
-end
+
 
 function VPrediction:OnProcessSpell(unit, spell)
 	if unit and unit.type == myHero.type then
@@ -258,14 +260,32 @@ function VPrediction:OnProcessSpell(unit, spell)
 	end
 end
 
-function VPrediction:OnNewWayPoints(NetworkID)
-	local object = objManager:GetObjectByNetworkId(NetworkID)
+function OnNewWP(unit)
+	if not lWP then
+		lWP = Vector(unit.endPath)
+		lastWP = os.clock()
+	end
+	if Vector(unit.endPath) ~= lWP then
+		lWP = Vector(unit.endPath)
+		lastWP = os.clock()
+	end
+	if lastWP < os.clock() - 1 then 
+		return false
+	else
+		return true
+	end
+end
+
+function VPrediction:OnNewPath(unit, startPos, endPos, isDash, dashSpeed ,dashGravity, dashDistance)
+	--[[OnNewWayPoint Alternative]]
+	local object = unit
+	local NetworkID = unit.networkID
 	if object and object.valid and object.networkID and object.type == myHero.type then
 		self.DontShootUntilNewWaypoints[NetworkID] = false
 		if self.TargetsWaypoints[NetworkID] == nil then
 			self.TargetsWaypoints[NetworkID] = {}
 		end
-		local WaypointsToAdd = WayPointManager:GetWayPoints(object)
+		local WaypointsToAdd = self:GetCurrentWayPoints(unit)
 		if WaypointsToAdd and #WaypointsToAdd >= 1 then
 			--[[Save only the last waypoint (where the player clicked)]]
 			table.insert(self.TargetsWaypoints[NetworkID], {unitpos = Vector(object) , waypoint = WaypointsToAdd[#WaypointsToAdd], time = self:GetTime(), n = #WaypointsToAdd})
@@ -274,7 +294,7 @@ function VPrediction:OnNewWayPoints(NetworkID)
 		local i = 1
 		while i <= #self.ActiveAttacks do
 			if (self.ActiveAttacks[i].Attacker and self.ActiveAttacks[i].Attacker.valid and self.ActiveAttacks[i].Attacker.networkID == NetworkID and (self.ActiveAttacks[i].starttime + self.ActiveAttacks[i].windUpTime - GetLatency()/2000) > self:GetTime()) then
-				local wpts = WayPointManager:GetWayPoints(object)
+				local wpts = self:GetWaypoints(unit.networkID)
 				if #wpts > 1 then
 					table.remove(self.ActiveAttacks, i)
 				else
@@ -285,7 +305,22 @@ function VPrediction:OnNewWayPoints(NetworkID)
 			end
 		end
 	end
+	--[[OnDash Alternative]]
+	if isDash then 
+		local dash = {}
+		if unit.type == myHero.type then
+			dash.startPos = startPos
+			dash.endPos = endPos
+			dash.speed = dashSpeed
+			dash.startT = self:GetTime() - GetLatency()/2000
+			local dis = GetDistance(startPos, endPos)
+			dash.endT = dash.startT + (dis/dashSpeed)
+			self.TargetsDashing[unit.networkID] = dash
+			self.DontShootUntilNewWaypoints[unit.networkID] = true
+		end
+	end
 end
+
 
 function VPrediction:IsImmobile(unit, delay, radius, speed, from, spelltype)
 	if self.TargetsImmobile[unit.networkID] then
@@ -402,42 +437,19 @@ end
 function VPrediction:GetCurrentWayPoints(object)
 	local result = {}
 
-	if not VIP_USER then
+
 		if object.hasMovePath then
-			table.insert(result, Vector(object.x, object.z))
+			table.insert(result, Vector(object))
 			for i = object.pathIndex, object.pathCount do
+				
 				path = object:GetPath(i)
-				table.insert(result, Vector(path.x, path.z))
+				table.insert(result, Vector(path))
 			end
 		else
-			table.insert(result, object and Vector(object.x, object.z) or Vector(object.x, object.z))
+			table.insert(result, Vector(object))
 		end
 		return result
-	else
-		local wayPoints, lineSegment, distanceSqr, fPoint = WayPointManager:GetRawWayPoints(object), 0, math.huge, nil
-		if not wayPoints and not object then
-			return { { x = object.x, y = object.z } }
-		elseif not wayPoints and object then
-			return { { x = object.x, y = object.z } }
-		end
-		for i = 1, #wayPoints - 1 do
-			local p1, tmp1, tmp2 = VectorPointProjectionOnLineSegment(wayPoints[i], wayPoints[i + 1], Vector(object))
-			local distanceSegmentSqr = GetDistanceSqr(p1, object)
-			if distanceSegmentSqr <= distanceSqr then
-				fPoint = p1
-				lineSegment = i
-				distanceSqr = distanceSegmentSqr
-			else
-				break --not necessary, but makes it faster
-			end
-		end
-		local result = { fPoint or { x = object.x, y = object.z } }
-		for i = lineSegment + 1, #wayPoints do
-			result[#result + 1] = wayPoints[i]
-		end
-		if #result == 2 and GetDistanceSqr(result[1], result[2]) < 400 then result[2] = nil end
-		return result
-	end
+	
 	
 end
 
@@ -445,27 +457,30 @@ end
 
 --[[Calculate the hero position based on the last waypoints]]
 function VPrediction:CalculateTargetPosition(unit, delay, radius, speed, from, spelltype)
-	
 	if ValidTarget(unit) and unit.endPath or unit == myHero then  	----TEMP FIX
-		if GetDistance(unit, unit.endPath) < 125 then
-			return Vector(unit.endPath), 2, Vector(unit.endPath)
-		end
-		local pathPot = (unit.ms*((GetDistance(myHero.pos, unit.pos)/speed)+delay))*.99
+		local pathPot = (unit.ms*((GetDistance(myHero.pos, unit.pos)/speed)+delay))
+		
 		if unit.pathCount < 3 then
+			
+
 			local v = Vector(unit) + (Vector(unit.endPath)-Vector(unit)):normalized()*(pathPot)
-			if GetDistance(unit, v) > GetDistance(unit, unit.endPath) then
-				return Vector(unit.endPath), 1, Vector(unit.endPath)
-			elseif GetDistance(unit, v) > 1 then
+
+			if GetDistance(unit, v) > 1 then
 				if GetDistance(unit.endPath, unit) > GetDistance(unit, v) then
-					return v, 2, v
+					return v,  v
 				else
-					return v, 1, v
+					if GetDistance(unit, unit.endPath) > (unit.boundingRadius/2 + radius/2) + 5 then
+						return Vector(unit.endPath),  Vector(unit.endPath)
+					else
+						return Vector(unit), Vector(unit)
+					end
 				end
+			else
+				return Vector(unit.endPath),  Vector(unit.endPath)
 			end
-			return Vector(unit.endPath), 1, Vector(unit.endPath)
 		else
-			pathPot = pathPot*.99
-			for i = unit.pathIndex, unit.pathCount do
+			pathPot = pathPot * .99
+			for i = unit.pathIndex, unit.pathCount do	
 				if unit:GetPath(i) and unit:GetPath(i-1) then
 					local pStart = i == unit.pathIndex and unit.pos or unit:GetPath(i-1)
 					local pEnd = unit:GetPath(i) 
@@ -473,27 +488,79 @@ function VPrediction:CalculateTargetPosition(unit, delay, radius, speed, from, s
 					if unit:GetPath(unit.pathIndex  - 1) then
 						if pathPot > iPathDist then
 							pathPot = pathPot-iPathDist
-						
 						else 
-							if pathPot < iPathDist then
-								local v = Vector(pStart) + (Vector(pEnd)-Vector(pStart)):normalized()*(pathPot)
-								return v, 2, v
-							else
-								return v, 1, v
-							end
+							local v = Vector(pStart) + (Vector(pEnd)-Vector(pStart)):normalized()*(pathPot)
+							return v,  v
 						end
 					end
 				end
 			end
-			
-			
-				return Vector(unit.endPath), 1, Vector(unit.endPath)
-			
-			
+			if GetDistance(unit, unit.endPath) > (unit.boundingRadius) then
+				return Vector(unit.endPath),  Vector(unit.endPath)
+			else
+				return Vector(unit), Vector(unit)
+			end
 		end
 	end
+	return Vector(unit), Vector(unit)
 end
+--[[function VPrediction:CalculateTargetPosition(unit, delay, radius, speed, from, spelltype)
+	local Waypoints = {}
+	local Position, CastPosition = Vector(unit), Vector(unit)
+	local t
 
+	Waypoints = self:GetCurrentWayPoints(unit)
+	local Waypointslength = self:GetWaypointsLength(Waypoints)
+	if #Waypoints == 1 then
+		Position, CastPosition = Vector(Waypoints[1]), Vector(Waypoints[1])
+		return Position, CastPosition
+	elseif (Waypointslength - delay * unit.ms + radius) >= 0 then
+		local tA = 0
+		Waypoints = self:CutWaypoints(Waypoints, delay * unit.ms - radius)
+
+		if speed ~= math.huge then
+			for i = 1, #Waypoints - 1 do
+				local A, B = Waypoints[i], Waypoints[i+1]
+				if i == #Waypoints - 1 then
+					B = Vector(B) + radius * Vector(B - A):normalized()
+				end
+				local t1, p1, t2, p2, D = VectorMovementCollision(A, B, unit.ms, Vector(from), speed)
+				local tB = tA + D / unit.ms
+				t1, t2 = (t1 and tA <= t1 and t1 <= (tB - tA)) and t1 or nil, (t2 and tA <= t2 and t2 <= (tB - tA)) and t2 or nil
+				t = t1 and t2 and math.min(t1, t2) or t1 or t2
+				if t then
+					CastPosition = t==Vector(p1) and t1 or Vector(p2)
+					break
+				end
+				tA = tB
+			end
+		else
+			t = 0
+			CastPosition = Vector(Waypoints[1])
+		end
+
+		if t then
+			if (self:GetWaypointsLength(Waypoints) - t * unit.ms - radius) >= 0 then
+				Waypoints = self:CutWaypoints(Waypoints, radius + t * unit.ms)
+				Position = Vector(Waypoints[1])
+			else
+				Position = CastPosition
+			end
+		elseif unit.type ~= myHero.type then
+			CastPosition = Vector(Waypoints[#Waypoints])
+			Position = CastPosition
+		end
+	elseif unit.type ~= myHero.type then
+		CastPosition = Vector(Waypoints[#Waypoints])
+		Position = CastPosition
+	end
+
+	if t and self:isSlowed(unit, 0, math.huge, from) and not self:isSlowed(unit, t, math.huge, from) and Position then
+		CastPosition = Position
+	end
+
+	return CastPosition, Position
+end]]
 function VPrediction:MaxAngle(unit, currentwaypoint, from)
 	local WPtable, n = self:GetWaypoints(unit.networkID, from)
 	local Max = 0
@@ -507,14 +574,14 @@ function VPrediction:MaxAngle(unit, currentwaypoint, from)
 	return Max
 end
 
-function VPrediction:WayPointAnalysis(unit, delay, radius, range, speed, from, spelltype)
+function VPrediction:WayPointAnalysis(unit, delay, radius, range, speed, from, spelltype, dmg)
 	local Position, CastPosition, HitChance
 	local SavedWayPoints = self.TargetsWaypoints[unit.networkID] and self.TargetsWaypoints[unit.networkID] or {}
 	local CurrentWayPoints = self:GetCurrentWayPoints(unit)
 	local VisibleSince = self.TargetsVisible[unit.networkID] and self.TargetsVisible[unit.networkID] or self:GetTime()
 	
 	HitChance = 1
-	Position, CastPosition = self:CalculateTargetPosition(unit, delay, radius, speed, from, spelltype)
+	Position, CastPosition = self:CalculateTargetPosition(unit, delay, radius, speed, from, spelltype, dmg)
 
 	if self:CountWaypoints(unit.networkID, self:GetTime() - 0.1) >= 1 or self:CountWaypoints(unit.networkID, self:GetTime() - 1) == 1 then
 		HitChance = 2
@@ -539,7 +606,7 @@ function VPrediction:WayPointAnalysis(unit, delay, radius, range, speed, from, s
 	if _G.VPredictionMenu.Mode == _FAST then
 		HitChance = 2
 	end
-	
+
 	if #CurrentWayPoints <= 1 and self:GetTime() - VisibleSince > 1 then
 		HitChance = 2
 	end
@@ -558,13 +625,13 @@ function VPrediction:WayPointAnalysis(unit, delay, radius, range, speed, from, s
 	
 	if not Position or not CastPosition then
 		HitChance = 0
-		CastPosition = Vector(CurrentWayPoints[#CurrentWayPoints].x, 0, CurrentWayPoints[#CurrentWayPoints].y)
+		CastPosition = Vector(unit)
 		Position = CastPosition
 	end
 
-	if GetDistance(myHero, unit) < 250 then
+	if GetDistance(myHero, unit) < 250 and unit ~= myHero then
 		HitChance = 2
-		Position, CastPosition = self:CalculateTargetPosition(unit, delay*0.5, radius, speed*2, from, spelltype)
+		Position, CastPosition = self:CalculateTargetPosition(unit, delay*0.5, radius, speed*2, from, spelltype,  dmg)
 		Position = CastPosition
 	end
 
@@ -574,13 +641,14 @@ function VPrediction:WayPointAnalysis(unit, delay, radius, range, speed, from, s
 
 	if self.DontShootUntilNewWaypoints[unit.networkID] then
 		HitChance = 0
-		CastPosition = Vector(unit.x, 0, unit.z)
+		CastPosition = Vector(unit)
 		Position = CastPosition
 	end
+
 	return CastPosition, HitChance, Position
 end
 
-function VPrediction:GetBestCastPosition(unit, delay, radius, range, speed, from, collision, spelltype, dmg) --Temp Fix
+function VPrediction:GetBestCastPosition(unit, delay, radius, range, speed, from, collision, spelltype, dmg)
 	assert(unit, "VPrediction: Target can't be nil")
 	
 	range = range and range - 15 or math.huge
@@ -600,10 +668,11 @@ function VPrediction:GetBestCastPosition(unit, delay, radius, range, speed, from
 	local VisibleSince = self.TargetsVisible[unit.networkID] and self.TargetsVisible[unit.networkID] or self:GetTime()
 
 	if unit.type ~= myHero.type then
-		Position, HitChance, CastPosition = self:CalculateTargetPosition(unit, delay, radius, speed, from, spelltype)
+		Position, CastPosition = self:CalculateTargetPosition(unit, delay, radius, speed, from, spelltype)
+		HitChance = 2
 	else
 		if self.DontShoot[unit.networkID] and self.DontShoot[unit.networkID] > self:GetTime() then
-			Position, CastPosition = Vector(unit.x, unit.y, unit.z),  Vector(unit.x, unit.y, unit.z)
+			Position, CastPosition = Vector(unit),  Vector(unit)
 			HitChance = 0
 		elseif TargetDashing then
 			if CanHitDashing then
@@ -618,14 +687,11 @@ function VPrediction:GetBestCastPosition(unit, delay, radius, range, speed, from
 		elseif TargetImmobile then
 			Position, CastPosition = ImmobilePos, ImmobileCastPosition
 			HitChance = 4
-		elseif GetDistance(myHero, unit) < 250 then
-			Position, HitChance, CastPosition = self:CalculateTargetPosition(unit, delay*0.5, radius, speed*2, from, spelltype)
-			HitChance = 2
 		elseif not self.DontUseWayPoints then
-			CastPosition, HitChance, Position = self:CalculateTargetPosition(unit, delay, radius, speed, from, spelltype)
+			CastPosition, HitChance, Position = self:WayPointAnalysis(unit, delay, radius, range, speed, from, spelltype)
 		end
 	end
-	
+
 	--[[Out of range]]
 	if IsFromMyHero then
 		if (spelltype == "line" and GetDistanceSqr(from, Position) >= range * range) then
@@ -649,13 +715,7 @@ function VPrediction:GetBestCastPosition(unit, delay, radius, range, speed, from
 	end
 
 	radius = radius - self:GetHitBox(unit) + 4
-	
-	if not Position or not CastPosition then
-		HitChance = 0
-		CastPosition = Vector(unit)
-		Position = CastPosition
-	end
-	
+
 	if collision and HitChance > 0 then
 		self.EnemyMinions.range = range + 500 * (delay + range/speed)
 		self.JungleMinions.range = self.EnemyMinions.range
@@ -673,7 +733,6 @@ function VPrediction:GetBestCastPosition(unit, delay, radius, range, speed, from
 			HitChance = -1
 		end
 	end
-
 	return CastPosition, HitChance, Position
 end
 
@@ -793,7 +852,7 @@ end
 function VPrediction:CheckMinionCollision(unit, Position, delay, radius, range, speed, from, draw, updatemanagers, dmg)
 	Position = Vector(Position)
 	from = from and Vector(from) or myHero
-	
+	--local draw = true
 	if updatemanagers then
 		self.EnemyMinions.range = range + 500 * (delay + range / speed)
 		self.JungleMinions.range = self.EnemyMinions.range
@@ -869,7 +928,7 @@ function VPrediction:CheckMinionCollision(unit, Position, delay, radius, range, 
 		end
 	end
 
-	return false
+	return result
 end
 
 function VPrediction:GetCircularCastPosition(unit, delay, radius, range, speed, from, collision)
@@ -1139,6 +1198,8 @@ end
 
 function VPrediction:OnTick()
 	--[[Delete the old saved Waypoints]]
+	--OnNewWP(myHero)
+
 	if self.lastick == nil or self:GetTime() - self.lastick > 0.2 then
 		self.lastick = self:GetTime()
 		for NID, TargetWaypoints in pairs(self.TargetsWaypoints) do
@@ -1166,12 +1227,19 @@ function VPrediction:OnTick()
 end
 
 --[[Drawing functions for debug: ]]
-function VPrediction:DrawSavedWaypoints(object, time)
-	local Waypoints = self:GetWaypoints(object.networkID, self:GetTime() - time)
-	for i, waypoint in ipairs(Waypoints) do
-		DrawCircle3D(waypoint.waypoint.x, myHero.y, waypoint.waypoint.y, 100, 2, ARGB(255, 255, 255, 255))
-		DrawText3D(tostring(i), waypoint.waypoint.x, myHero.y, waypoint.waypoint.y, 13, ARGB(255, 255, 255, 255), true)
-		DrawCircle3D(waypoint.unitpos.x, myHero.y, waypoint.unitpos.y, 100, 2, ARGB(255, 255, 0, 0))
+function VPrediction:DrawSavedWaypoints(object, time, color, drawPoints)
+	colour = color and color or ARGB(255, 0, 255, 0)
+	for i = object.pathIndex, object.pathCount do	
+		if object:GetPath(i) and object:GetPath(i-1) then
+			local pStart = i == object.pathIndex and object.pos or object:GetPath(i-1)
+			self:DLine(pStart, object:GetPath(i), colour)
+		end
+	end
+	if drawPoints then
+		local Waypoints = self:GetCurrentWayPoints(object)
+		for i, waypoint in ipairs(Waypoints) do
+			DrawCircle3D(waypoint.x, myHero.y, waypoint.z, 10, 2, ARGB(255, 0,0, 255), 200)
+		end
 	end
 end
 
@@ -1183,7 +1251,7 @@ function VPrediction:DrawHitBox(object)
 end
 
 function VPrediction:DLine(From, To, Color)
-	DrawLine3D(From.x, From.y, From.z, To.x, To.y, To.z, 1, Color)
+	DrawLine3D(From.x, From.y, From.z, To.x, To.y, To.z, 2, Color)
 end
 
 function VPrediction:OnDraw()
