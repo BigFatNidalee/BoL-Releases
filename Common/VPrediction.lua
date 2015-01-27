@@ -1,4 +1,4 @@
-local version = "2.85"
+local version = "2.861"
 local TESTVERSION = false
 local AUTO_UPDATE = true
 local UPDATE_HOST = "raw.github.com"
@@ -6,7 +6,7 @@ local UPDATE_PATH = "/Ralphlol/BoLGit/master/VPrediction.lua".."?rand="..math.ra
 local UPDATE_FILE_PATH = LIB_PATH.."vPrediction.lua"
 local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
 
-local function AutoupdaterMsg(msg) print("<font color=\"#6699ff\"><b>VPrediction TEMP FIX:</b></font> <font color=\"#FFFFFF\">"..msg..".</font>") end
+local function AutoupdaterMsg(msg) print("<font color=\"#6699ff\"><b>VPrediction FIXED:</b></font> <font color=\"#FFFFFF\">"..msg..".</font>") end
 if AUTO_UPDATE then
 	local ServerData = GetWebResult(UPDATE_HOST, "/Ralphlol/BoLGit/master/VPrediction.version")
 	if ServerData then
@@ -83,13 +83,12 @@ function VPrediction:__init()
 	self.DontShootUntilNewWaypoints = {}
 
 	if VIP_USER then
-		AdvancedCallback:bind("OnGainBuff", function(unit, buff) self:OnGainBuff(unit, buff) end)
+		--AdvancedCallback:bind("OnGainBuff", function(unit, buff) self:OnGainBuff(unit, buff) end)
 		AddRecvPacketCallback(function(p) self:OnRecvPacket(p) end)
 	end
---	AdvancedCallback:OnGainBuff(unit, activeBuffs[unit.networkID][slot])
---	AddProcessSpellCallback(function(unit, startPos, endPos, isDash ,dashSpeed,dashGravity, dashDistance) self:OnNewPath(unit, startPos, endPos, isDash, dashSpeed, dashGravity, dashDistance) end)
 
 	if GetRegion() ~= "unk" then
+		--AddApplyBuffCallback(function(source, unit, buff) self:ApplyBuff(source, unit, buff) end)
 		AddNewPathCallback(function(unit, startPos, endPos, isDash ,dashSpeed,dashGravity, dashDistance) self:OnNewPath(unit, startPos, endPos, isDash, dashSpeed, dashGravity, dashDistance) end)
 	end
 	
@@ -211,7 +210,8 @@ function VPrediction:OnRecvPacket(p) --Credits to PewPewPew
 		end
 	end
 end
-function VPrediction:OnGainBuff(unit, buff)
+--[[function VPrediction:ApplyBuff(source, unit, buff)
+	if not unit or not buff then return end
 	if unit.type == myHero.type and (buff.type == 5 or buff.type == 11 or buff.type == 29 or buff.type == 24) then
 		self.TargetsImmobile[unit.networkID] = self:GetTime() + buff.duration
 		--print("stunned")
@@ -223,7 +223,7 @@ function VPrediction:OnGainBuff(unit, buff)
 	if unit.type == myHero.type and (buff.type == 30) then
 		self.DontShoot[unit.networkID] = self:GetTime() + 1
 	end
-end
+end]]
 
 
 
@@ -815,7 +815,7 @@ function VPrediction:CheckCol(unit, minion, Position, delay, radius, range, spee
 		return false
 	end
 	--[[Check first if the minion is going to be dead when skillshots reaches his position]]
-	if minion.type ~= myHero.type and _G.VPredictionMenu.Collision.CHealth and self:GetPredictedHealth(minion,  delay  + GetDistance(from, minion) / speed - GetLatency()/1000) < (dmg and dmg or 0) then
+	if minion.type ~= myHero.type and self:GetPredictedHealth(minion,  delay  + GetDistance(from, minion) / speed - GetLatency()/1000) < (dmg and dmg or 0) then
 		return false
 	end
 
