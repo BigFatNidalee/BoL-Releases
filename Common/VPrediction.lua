@@ -1,4 +1,4 @@
-local version = "2.862"
+local version = "2.863"
 local TESTVERSION = false
 local AUTO_UPDATE = true
 local UPDATE_HOST = "raw.github.com"
@@ -469,12 +469,7 @@ function VPrediction:CalculateTargetPosition(unit, delay, radius, speed, from, s
 				if GetDistance(unit.endPath, unit) > GetDistance(unit, v) then
 					return v,  v
 				else
-					--if GetDistance(unit, unit.endPath) > (unit.boundingRadius/2 + radius/2) + 5 then
-					if GetDistance(unit, unit.endPath) > 65 then
-						return Vector(unit.endPath),  Vector(unit.endPath)
-					else
-						return Vector(unit), Vector(unit)
-					end
+					return Vector(unit.endPath),  Vector(unit.endPath)
 				end
 			else
 				return Vector(unit.endPath),  Vector(unit.endPath)
@@ -496,8 +491,7 @@ function VPrediction:CalculateTargetPosition(unit, delay, radius, speed, from, s
 					end
 				end
 			end
-		--	if GetDistance(unit, unit.endPath) > unit.boundingRadius then
-			if GetDistance(unit, unit.endPath) > 65 then
+			if GetDistance(unit, unit.endPath) > unit.boundingRadius then
 				return Vector(unit.endPath),  Vector(unit.endPath)
 			else
 				return Vector(unit), Vector(unit)
@@ -582,9 +576,14 @@ function VPrediction:WayPointAnalysis(unit, delay, radius, range, speed, from, s
 	local CurrentWayPoints = self:GetCurrentWayPoints(unit)
 	local VisibleSince = self.TargetsVisible[unit.networkID] and self.TargetsVisible[unit.networkID] or self:GetTime()
 	
-	HitChance = 1
+	if delay < 0.25 then
+		HitChance = 2
+	else
+		HitChance = 1
+	end
+	
 	Position, CastPosition = self:CalculateTargetPosition(unit, delay, radius, speed, from, spelltype, dmg)
-
+	
 	if self:CountWaypoints(unit.networkID, self:GetTime() - 0.1) >= 1 or self:CountWaypoints(unit.networkID, self:GetTime() - 1) == 1 then
 		HitChance = 2
 	end
