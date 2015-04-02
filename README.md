@@ -1,1 +1,1 @@
-[![solarized dualmode](https://github.com/altercation/solarized/raw/master/img/solarized-yinyang.png)](http://forum.botoflegends.com/topic/28814-freevip-big-fat-corki-bfvanga/)
+[![solarized dualmode](http://ups.bigfatcorki.de/400x/BigFatCorki.jpg)](http://forum.botoflegends.com/topic/28814-freevip-big-fat-corki-bfvanga/)
