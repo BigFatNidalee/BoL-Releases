@@ -1,2 +1,1 @@
-
-![alt tag](http://ups.bigfatcorki.de/400x/BigFatCorki.jpg)
+[![solarized dualmode](https://github.com/altercation/solarized/raw/master/img/solarized-yinyang.png)](#features)
