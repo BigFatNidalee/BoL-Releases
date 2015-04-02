@@ -1,2 +1,2 @@
 
-[(http://bigfatcorki.de/scripts/big-fat-janna/)](http://forum.botoflegends.com/topic/28814-freevip-big-fat-corki-bfvanga/)
+![alt tag](http://ups.bigfatcorki.de/400x/BigFatCorki.jpg)
