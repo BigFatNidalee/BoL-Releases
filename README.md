@@ -1,2 +1,6 @@
 [![solarized dualmode](http://ups.bigfatcorki.de/400x/BigFatJanna.jpg)](http://forum.botoflegends.com/topic/26471-script-free-big-fat-jannas-assistant-vpred-updated-3/)
 [![solarized dualmode](http://ups.bigfatcorki.de/400x/BigFatCorki.jpg)](http://forum.botoflegends.com/topic/28814-freevip-big-fat-corki-bfvanga/)
+[![solarized dualmode](http://ups.bigfatcorki.de/400x/BigFatGraves.jpg)](http://forum.botoflegends.com/topic/31046-script-free-big-fat-graves-vpred-atm/)
+[![solarized dualmode](http://ups.bigfatcorki.de/400x/BigFatJayce.jpg)](http://forum.botoflegends.com/topic/39391-script-free-big-fat-jayce-prodvpred/)
+[![solarized dualmode](http://ups.bigfatcorki.de/400x/BigFatEzreal.jpg)](http://forum.botoflegends.com/topic/39394-freevip-big-fat-ezreal-bfvanga/)
+[![solarized dualmode](http://ups.bigfatcorki.de/400x/BigFatSyndra.png)](http://forum.botoflegends.com/topic/55665-freevip-big-fat-syndra-bfvanga/)
