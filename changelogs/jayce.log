@@ -52,3 +52,9 @@ version 0.17:
 version 0.18: 
 	- added extra button for jungle escapes
 	- added extra mana slider for w in harass
+version 0.19: 
+	- removed crap so no libs are requered
+	- added big fat vanga prediction
+	- added map check for jungle escapes
+	- free users can now use this script too
+	
