@@ -45,8 +45,8 @@
 
 
 	 
-	version 20: 
-					- removed crap, added big fat vanga and sxorbwalk option also free users can be happy now cause jayce is now available for free users too ;)
+	version 0.20: 
+					- fixed error that i coulndt see before, yeah you can blame me
 					
 ]]--
 if myHero.charName ~= "Jayce" then return end
