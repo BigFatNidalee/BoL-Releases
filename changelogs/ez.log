@@ -2,24 +2,26 @@
 started log
 q and w impovements
 -0.06: 
-      - ult should be fixed
-      - removed skinhack
-      - added some new futures
-      - we combo fixed
+	- ult should be fixed
+	- removed skinhack
+	- added some new futures
+	- we combo fixed
 -0.07: 
-      - added check in harass for cause i forgott it
+	- added check in harass for cause i forgott it
 -0.08: 
-      - improved harass logic
+	- improved harass logic
 -0.09: 
-      - new code and logic
+	- new code and logic
 -0.12: 
-      - no is available for free users too
+	- no is available for free users too
 -0.13: 
-      - removed prodiction
-      - removed vprediction
-      - no libs requered
-      - added sxorbwalk loading option
-      - added Big Fat Vanga Prediction (alpha test)
+	- removed prodiction
+	- removed vprediction
+	- no libs requered
+	- added sxorbwalk loading option
+	- added Big Fat Vanga Prediction (alpha test)
 
 -0.17: 
-      - i cant remember what was changed before but now in this update was added harass toggle and fixed
+	- i cant remember what was changed before but now in this update was added harass toggle and fixed
+-0.18: 
+	- prediction, collision and orbwalk update!
