@@ -6,3 +6,5 @@
 [![Big Fat Ezreal](http://ups.bigfatcorki.de/400x/BigFatEzreal.jpg)](http://forum.botoflegends.com/topic/39394-freevip-big-fat-ezreal-bfvanga/)
 [![Big Fat Mark 4](http://ups.bigfatcorki.de/400x/BigFatM4.jpg)](http://forum.botoflegends.com/topic/35390-freevip-big-fat-hev-mark-iv-awareness/)
 [![Big Fat Syndra](http://ups.bigfatcorki.de/400x/BigFatSyndra.png)](http://forum.botoflegends.com/topic/55665-freevip-big-fat-syndra-bfvanga/)
+[![Big Fat Urfgod](http://ups.bigfatcorki.de/400x/BigFatUrfgod.jpg)](http://forum.botoflegends.com/topic/57651-freevip-big-fat-urfgod-bfvanga/)
+[![Big Fat Karthus](http://ups.bigfatcorki.de/400x/BigFatKarthus.jpg)](http://forum.botoflegends.com/topic/57668-freevip-big-fat-karthus-bfvanga/)
