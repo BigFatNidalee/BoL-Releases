@@ -60,3 +60,6 @@ version 0.19:
 
 version 0.20: 
 	- fixed error that i coulndt see before so yeah you can blame me
+
+version 0.21: 
+	- prediction, collision and orbwalk update!
