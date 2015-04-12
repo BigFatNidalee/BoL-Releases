@@ -42,7 +42,7 @@
 	K:::::::K    K:::::K a::::::::::aa:::ar:::::r                    tt:::::::::::tth:::::h     h:::::h  uu::::::::uu:::u s:::::::::::ss  
 	KKKKKKKKK    KKKKKKK  aaaaaaaaaa  aaaarrrrrrr                      ttttttttttt  hhhhhhh     hhhhhhh    uuuuuuuu  uuuu  sssssssssss                  
 	
-	version 0.4
+	version 0.5
 	
 --]]
 
