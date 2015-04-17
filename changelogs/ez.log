@@ -27,3 +27,9 @@ q and w impovements
 	- prediction, collision and orbwalk update!
 -0.19: 
 	- nil value fix
+-0.20: 
+	- improved q
+	- improved ks spells cast order
+	- added bigfatvanga 0.3
+	- some default settings changes
+	
