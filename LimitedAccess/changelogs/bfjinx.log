@@ -14,3 +14,8 @@
 	removed panic mode
 	added extra check for ult alive target before cast
 	changed default hitchance settings
+
+0.38:	orbwalks support update
+	ks improved
+	added force swap minigun option for combo
+	default settings changes
