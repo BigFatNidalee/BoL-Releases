@@ -8,3 +8,9 @@
 0.34:	small packets fix
 0.35:	baseult 5.8
 0.36:	improved ks ult logic
+0.37:	vanga update v1.00
+	auto w and e after dashes and zhonya, ga
+	auto w and e on cc
+	removed panic mode
+	added extra check for ult alive target before cast
+	changed default hitchance settings
