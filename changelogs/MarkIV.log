@@ -1,2 +1,3 @@
 3.11 - Pre 5.9 fixes. BaseUlt and FoW timers disabled ATM.
 3.12 - Updated to 5.9 version. BaseUlt and FoW tracker enabled. Also added function to disable SummonerSpells announcement in VoiceSettings.
+3.13 - Added support for 5.8 vesrion.
