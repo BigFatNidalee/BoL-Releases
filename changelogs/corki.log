@@ -97,3 +97,7 @@
 	prediction, collision and orbwalk update
 0.47 - 
 	nil value fix
+0.48 - 
+	vanga update to 1.0
+	check also custom settings
+	now automaticly turns off whitelist if no adc in enemy team
