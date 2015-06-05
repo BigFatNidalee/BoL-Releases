@@ -28,3 +28,5 @@
 0.44 	BaseUlt support for 5.8/5.9 added + Fixed Dashes crash cuz isWall Bug.
 0.45-48:
 	code improvement + dashes are back 
+0.49:
+	added option to turn off force to load big fat walk
